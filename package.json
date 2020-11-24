@@ -1,0 +1,28 @@
+{
+  "name": "Gamers-aLike",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MBPJason/Gamers-aLike.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MBPJason/Gamers-aLike/issues"
+  },
+  "homepage": "https://github.com/MBPJason/Gamers-aLike#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "if-env": "^1.0.4",
+    "mongoose": "^5.10.15",
+    "path": "^0.12.7"
+  }
+}
