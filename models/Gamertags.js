@@ -14,7 +14,7 @@ const GamertagsSchema = new Schema({
     type: String,
     trim: true,
   },
-  PSN_ID: {
+  PlayStationID: {
     type: String,
     trim: true,
   },

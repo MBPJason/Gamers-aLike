@@ -14,6 +14,7 @@ const DiscordSchema = new Schema({
     type: String,
     trim: true,
   },
+  IsOnPublic: false
 });
 
 const Discord = mongoose.model("Discord", DiscordSchema);

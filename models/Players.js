@@ -8,26 +8,20 @@ const PlayersSchema = new Schema({
   },
   QuickPlay: [
     {
-      playerID: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
   ],
   PlayersMet: [
     {
-      playerID: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
   ],
   Ignore: [
     {
-      playerID: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
   ],
 });

@@ -7,18 +7,27 @@ const PORT = process.env.PORT || 3001;
 
 const app = express();
 
+// TODO: Make sure that proxy is set on client's package.json to the port
+
+// Express Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(express.static("client/build"));
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/my-mern", {
+// Routes
+app.use(require("./controllers/AuthController.js"));
+
+
+// Mongoose Middleware
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/gamers-alike", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
   useFindAndModify: false,
 });
 
+// Mongoose/MongoDB Connection
 const connection = mongoose.connection;
 
 connection.on("connected", () => {
@@ -29,14 +38,16 @@ connection.on("error", (err) => {
   console.log("Mongoose connection error: ", err);
 });
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "./client/build/index.html"));
-});
-
+// Test Route to see if server is being seen
 app.get("/api/config", (req, res) => {
   res.json({
     success: true,
   });
+});
+
+// Build path for domain launch
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
 app.listen(PORT, () => {

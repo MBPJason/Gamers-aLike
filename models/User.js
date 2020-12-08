@@ -11,6 +11,8 @@ const UserSchema = new Schema({
     type: String,
     trim: true,
     required: true,
+    minLength: 4,
+    maxLength: 26,
   },
   password: {
     type: String,
@@ -27,6 +29,24 @@ const UserSchema = new Schema({
       trim: true,
     },
   ],
+  Ratings: {
+    type: Schema.Types.ObjectId,
+    ref: "Ratings",
+    required: true
+  },
+  GamerTags: {
+    type: Schema.Types.ObjectId,
+    ref: "Gamertags",
+  },
+  DiscordInfo: {
+    type: Schema.Types.ObjectId,
+    ref: "Discord",
+  },
+  PlayersInfo: {
+    type: Schema.Types.ObjectId,
+    ref: "Players",
+  }
+
 });
 
 const User = mongoose.model("User", UserSchema);

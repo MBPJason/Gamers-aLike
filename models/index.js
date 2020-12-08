@@ -5,5 +5,6 @@ module.exports = {
     Gamertags: require("./Gamertags"),
     Ratings: require("./Ratings"),
     Players: require("./Players"),
-    Discord: require("./Discord")
+    Discord: require("./Discord"),
+    Session: require("./Session"),
 }
