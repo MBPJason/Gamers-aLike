@@ -9,7 +9,7 @@ const RatingsSchema = new Schema({
   RatingsScore: {
     type: Number,
     required: true,
-    min: 10
+    min: 1
   },
   ratings: [
     {

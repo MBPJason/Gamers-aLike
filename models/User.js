@@ -32,7 +32,6 @@ const UserSchema = new Schema({
   Ratings: {
     type: Schema.Types.ObjectId,
     ref: "Ratings",
-    required: true
   },
   GamerTags: {
     type: Schema.Types.ObjectId,
