@@ -1,0 +1,41 @@
+{
+  "name": "Gamers-aLike",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "proxy": "http://localhost:3001",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
+    "start:prod": "node server.js",
+    "start:dev": "concurrently \"nodemon --ignore 'client/*'\" \"npm run client\"",
+    "client": "cd client && npm run start",
+    "install": "cd client && npm install",
+    "build": "cd client && npm run build",
+    "heroku-postbuild": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MBPJason/Gamers-aLike.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MBPJason/Gamers-aLike/issues"
+  },
+  "homepage": "https://github.com/MBPJason/Gamers-aLike#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-promise-router": "^4.0.1",
+    "if-env": "^1.0.4",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.10.15",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "concurrently": "^5.3.0"
+  }
+}
