@@ -1,11 +1,17 @@
+// THIS IS FOR LOGIN AND SIGN UP ONLY
+
+// Dependencies
 const express = require("express");
 const router = require("express-promise-router")();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+// Schema Models
 const db = require("../models");
 
-// TODO: Sign Up Route (POST Route)
+// --------------------------
+//  SIGN UP (Create Route)
+// --------------------------
 
 router.post("/api/signup", async (req, res) => {
   console.log("Signup is being called");
@@ -20,9 +26,15 @@ router.post("/api/signup", async (req, res) => {
     XboxID,
   } = req.body;
 
+  // Check if all required parameters (email, password, username) to make a user is present
   if (!email.trim() || !password.trim() || !username.trim()) {
-    res.status(400);
+    console.log("Couldn't make account");
+    res.status(400).json({
+      error: true,
+      message: "Missing one or more of the parameters to make an account",
+    });
   } else {
+    // Main build process for making an account
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -82,14 +94,15 @@ router.post("/api/signup", async (req, res) => {
 
       const token = jwt.sign(
         {
-          _id: user._id,
+          id: user._id,
           username: user.username,
           Ratings: user.Ratings,
           PlayersInfo: user.PlayersInfo,
           DiscordInfo: user.DiscordInfo,
-          GamerTags: user.GamerTags
+          GamerTags: user.GamerTags,
         },
-        process.env.SECRET
+        process.env.SECRET,
+        { expiresIn: "1h" }
       );
       res.json({
         error: false,
@@ -107,5 +120,68 @@ router.post("/api/signup", async (req, res) => {
     }
   }
 });
+
+// --------------------------
+//  LOGIN
+// --------------------------
+
+router.get("/api/login", async (req, res) => {
+  console.log("Login is being called");
+  // Grab requested login data
+  const { email, password } = req.body;
+
+  const user = await db.User.findOne({ email: email });
+
+  const matchedUser = await bcrypt.compare(password, user.password);
+
+  // Conditional Switch for matching user
+  if (matchedUser) {
+    // Try/Catch block for potential server side errors
+    try {
+      // If user provided info matches with a user in the database, a login token is provided
+      const token = jwt.sign(
+        {
+          email: user.email,
+          name: user.username,
+        },
+        process.env.SECRET,
+        { expiresIn: "1d" }
+      );
+      console.log("Successful Login");
+      res.json({
+        error: false,
+        data: token,
+        message: "Successfully logged in",
+      });
+    } catch (error) {
+      // Catch error on server end part
+      res.status(500).json({
+        error: true,
+        data: error,
+        message: "Something went wrong",
+      });
+      console.log(error);
+    }
+  } else {
+    // If user provided info doesn't match with a user in the database, send back error message
+    console.log("Couldn't log in");
+    res.status(401).json({
+      error: true,
+      message: "Incorrect username and/or password",
+    });
+  }
+});
+
+// --------------------------
+//  UPDATE
+// --------------------------
+
+router.post("/api/update/email", async (req, res) => {});
+
+router.post("/api/update/password", async (req, res) => {});
+
+router.post("/api/update/GamerTags", async (req, res) => {});
+
+router.post("/api/update/Discord", async (req, res) => {});
 
 module.exports = router;
