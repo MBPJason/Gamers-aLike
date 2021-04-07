@@ -33,6 +33,9 @@
     "if-env": "^1.0.4",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.3",
+    "passport-local": "^1.0.0",
+    "passport-oauth2": "^1.5.0",
+    "passport-steam": "^1.0.15",
     "path": "^0.12.7",
     "tough-cookie": "^4.0.0"
   },
