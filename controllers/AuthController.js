@@ -140,68 +140,16 @@ router.post("/signup", async (req, res) => {
 
 // TODO: Tie the login into a socket.io presence
 
-router.get("/login", async (req, res) => {
-  console.log("Login is being called");
-  passport.authenticate("local", { failureRedirect: "/login" }),
-    function (req, res) {
-      res.json({
-        error: false,
-        message: "Successfully logged in",
-      });
-
-      // Grab requested login data from request
-      // const { email, password } = req.body;
-
-      // // Checking for empty parameters
-      // if (!email.trim() || !password.trim()) {
-      //   console.log("Missing parameters");
-      //   res.status(400).json({
-      //     error: true,
-      //     message: "Missing one or more of the parameters to login",
-      //   });
-      // } else {
-      //   // Finding user via email provided
-      //   const user = await db.User.findOne({ email: email });
-      //   // Checking email against stored hashed password
-      //   const matchedUser = await bcrypt.compare(password, user.password);
-
-      //   // Conditional Switch for matching user
-      //   if (matchedUser) {
-      //     // Try/Catch block for potential server side errors
-      //     try {
-      //       // If user provided info matches with a user in the database, a login token is provided
-      //       const token = jwt.sign(
-      //         {
-      //           email: user.email,
-      //           name: user.username,
-      //         },
-      //         accessTokenSecret,
-      //         { expiresIn: "1d" }
-      //       );
-      //       console.log("Successful Login");
-      //       res.json({
-      //         error: false,
-      //         data: token,
-      //         message: "Successfully logged in",
-      //       });
-      //     } catch (error) {
-      //       // Catch error on server end part
-      //       res.status(500).json({
-      //         error: true,
-      //         data: error,
-      //         message: "Something went wrong",
-      //       });
-      //       console.log(error);
-      //     }
-      //   } else {
-      //     // If user provided info doesn't match with a user in the database, send back error message
-      //     console.log("Couldn't log in");
-      //     res.status(401).json({
-      //       error: true,
-      //       message: "Incorrect username and/or password",
-      //     });
-      //   }
-    };
+router.post('/login', function(req, res, next) {
+  passport.authenticate('local', function(err, user, info) {
+    console.log(info);
+    if (err) { return next(err); }
+    if (!user) { return res.json({message: "Couldn't find user"}); }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return res.json({message: "Welcome " + user.username});
+    });
+  })(req, res, next);
 });
 
 // Exporting functions for express use on server.js

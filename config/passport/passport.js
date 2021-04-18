@@ -19,20 +19,26 @@ passport.deserializeUser((id, done) => {
 
 // Local Strategy
 passport.use(
-  new LocalStrategy(function (email, password, done) {
-    db.User.findOne({ email: email }, function (err, user) {
-      if (err) {
-        return done(err);
-      }
-      if (!user) {
-        return done(null, false);
-      }
-      if (!bcrypt.compare(password, user.password)) {
-        return done(null, false);
-      }
-      return done(null, user);
-    });
-  })
+  new LocalStrategy(
+    { usernameField: "email", passwordField: "password" },
+    function (email, password, done) {
+      console.log(email);
+      console.log(password);
+      db.User.findOne({ email: email }, function (err, user) {
+        if (err) {
+          return done(err);
+        }
+        if (!user) {
+          console.log(email);
+          return done(null, false);
+        }
+        if (!bcrypt.compare(password, user.password)) {
+          return done(null, false);
+        }
+        return done(null, user);
+      });
+    }
+  )
 );
 
 // // OAuth2.0 Strategy

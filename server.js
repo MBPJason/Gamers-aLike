@@ -16,8 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("client/build"));
 
-// Routes
-app.use(require("./controllers/AuthController.js"));
+
 
 // Express Session
 app.use(
@@ -60,6 +59,9 @@ app.get("/api/config", (req, res) => {
     success: true,
   });
 });
+
+// Routes
+app.use(require("./controllers/AuthController.js"));
 
 // Build path for domain launch
 app.get("*", (req, res) => {
