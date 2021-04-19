@@ -140,16 +140,31 @@ router.post("/signup", async (req, res) => {
 
 // TODO: Tie the login into a socket.io presence
 
-router.post('/login', function(req, res, next) {
-  passport.authenticate('local', function(err, user, info) {
-    console.log(info);
-    if (err) { return next(err); }
-    if (!user) { return res.json({message: "Couldn't find user"}); }
-    req.logIn(user, function(err) {
-      if (err) { return next(err); }
-      return res.json({message: "Welcome " + user.username});
+router.post("/login", function (req, res, next) {
+  passport.authenticate("local", function (err, user, info) {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.json({ message: "Couldn't find user" });
+    }
+    req.logIn(user, function (err) {
+      if (err) {
+        return next(err);
+      }
+      return res.json({ message: "Welcome " + user.username });
     });
   })(req, res, next);
+});
+
+
+// --------------------------
+//  LOGOUT
+// --------------------------
+
+router.get("/logout", function (req, res) {
+  req.logout();
+  res.redirect("/api/config");
 });
 
 // Exporting functions for express use on server.js
