@@ -2,7 +2,9 @@
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 const LocalStrategy = require("passport-local").Strategy;
-const OAuth2Strategy = require("passport-oauth2").Strategy;
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const FacebookStrategy = require("passport-facebook").Strategy;
+const TwitterStrategy = require("passport-oauth2").Strategy;
 const SteamStrategy = require("passport-steam").Strategy;
 const db = require("../../models");
 
@@ -39,8 +41,37 @@ passport.use(
   )
 );
 
-// // OAuth2.0 Strategy
-// passport.use(new OAuth2Strategy({
+
+// // Google Strategy
+// passport.use(new GoogleStrategy({
+//   clientID: GOOGLE_CLIENT_ID,
+//   clientSecret: GOOGLE_CLIENT_SECRET,
+//   callbackURL: "http://www.example.com/auth/google/callback"
+// },
+// function(accessToken, refreshToken, profile, cb) {
+//   User.findOrCreate({ googleId: profile.id }, function (err, user) {
+//     return cb(err, user);
+//   });
+// }
+// ));
+
+
+// // Facebook Strategy
+// passport.use(new FacebookStrategy({
+//   clientID: FACEBOOK_APP_ID,
+//   clientSecret: FACEBOOK_APP_SECRET,
+//   callbackURL: "http://localhost:3000/auth/facebook/callback"
+// },
+// function(accessToken, refreshToken, profile, cb) {
+//   User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+//     return cb(err, user);
+//   });
+// }
+// ));
+
+
+// // Twitter Strategy
+// passport.use(new TwitterStrategy({
 //     authorizationURL: 'https://www.example.com/oauth2/authorize',
 //     tokenURL: 'https://www.example.com/oauth2/token',
 //     clientID: EXAMPLE_CLIENT_ID,
