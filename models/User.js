@@ -6,7 +6,7 @@ const UserSchema = new Schema({
     type: String,
     trim: true,
     required: true,
-    emailAuthenticated: false
+    emailAuthenticated: false,
   },
   username: {
     type: String,
@@ -18,18 +18,15 @@ const UserSchema = new Schema({
   password: {
     type: String,
     trim: true,
-    required: true,
   },
   DateCreated: { type: Date, default: Date.now },
-  NonLocalLogin: {
-    LocalLogin: true,
-    Method: {
-      Google: false,
-      Facebook: false,
-      Twitter: false,
-      Steam: false,
-    },
-    profileID: String
+  profileID: {
+    type: String,
+    trim: true,
+  },
+  accessToken: {
+    type: String,
+    trim: true,
   },
   CurrentLFG: {
     type: String,
@@ -56,8 +53,7 @@ const UserSchema = new Schema({
   PlayersInfo: {
     type: Schema.Types.ObjectId,
     ref: "Players",
-  }
-
+  },
 });
 
 const User = mongoose.model("User", UserSchema);
