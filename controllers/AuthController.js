@@ -1,10 +1,11 @@
-// THIS IS FOR LOGIN AND SIGN UP ONLY
+// THIS IS FOR LOGIN, LOGOUT AND SIGN UP ONLY
 
 // Dependencies
 const express = require("express");
 const router = require("express-promise-router")();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const passport = require("passport");
 const accessTokenSecret = process.env.SECRET;
 // Schema Models
 const db = require("../models");
@@ -12,8 +13,6 @@ const db = require("../models");
 // --------------------------
 //  SIGN UP (Create Route)
 // --------------------------
-
-// TODO: Tie the login into a socket.io presence 
 
 router.post("/api/signup", async (req, res) => {
   console.log("Signup is being called");
@@ -101,26 +100,26 @@ router.post("/api/signup", async (req, res) => {
         await db.Gamertags.findByIdAndUpdate(GamerTags._id, { XboxID: XboxID });
       }
 
-      // Created JWT token; Only an hour use.
-      const token = jwt.sign(
-        {
-          id: user._id,
-          username: user.username,
-          Ratings: user.Ratings,
-          PlayersInfo: user.PlayersInfo,
-          DiscordInfo: user.DiscordInfo,
-          GamerTags: user.GamerTags,
-        },
-        accessTokenSecret,
-        { expiresIn: "1h" }
-      );
-      // If everything is done correctly this is the response back
-      res.json({
-        error: false,
-        data: token,
-        message: "Successfully signed up.",
-      });
-      console.log("Everything went right");
+      // // Created JWT token; Only an hour use.
+      // const token = jwt.sign(
+      //   {
+      //     id: user._id,
+      //     username: user.username,
+      //     Ratings: user.Ratings,
+      //     PlayersInfo: user.PlayersInfo,
+      //     DiscordInfo: user.DiscordInfo,
+      //     GamerTags: user.GamerTags,
+      //   },
+      //   accessTokenSecret,
+      //   { expiresIn: "1h" }
+      // );
+      // // If everything is done correctly this is the response back
+      // res.json({
+      //   error: false,
+      //   data: token,
+      //   message: "Successfully signed up.",
+      // });
+      // console.log("Everything went right");
     } catch (error) {
       // If server side error this is the error response
       res.status(500).json({
@@ -137,63 +136,85 @@ router.post("/api/signup", async (req, res) => {
 //  LOGIN
 // --------------------------
 
-// TODO: Tie the login into a socket.io presence 
-
-router.get("/api/login", async (req, res) => {
-  console.log("Login is being called");
-  // Grab requested login data from request
-  const { email, password } = req.body;
-
-  // Checking for empty parameters
-  if (!email.trim() || !password.trim()) {
-    console.log("Missing parameters");
-    res.status(400).json({
-      error: true,
-      message: "Missing one or more of the parameters to login",
-    });
-  } else {
-    // Finding user via email provided
-    const user = await db.User.findOne({ email: email });
-    // Checking email against stored hashed password
-    const matchedUser = await bcrypt.compare(password, user.password);
-
-    // Conditional Switch for matching user
-    if (matchedUser) {
-      // Try/Catch block for potential server side errors
-      try {
-        // If user provided info matches with a user in the database, a login token is provided
-        const token = jwt.sign(
-          {
-            email: user.email,
-            name: user.username,
-          },
-          accessTokenSecret,
-          { expiresIn: "1d" }
-        );
-        console.log("Successful Login");
-        res.json({
-          error: false,
-          data: token,
-          message: "Successfully logged in",
-        });
-      } catch (error) {
-        // Catch error on server end part
-        res.status(500).json({
-          error: true,
-          data: error,
-          message: "Something went wrong",
-        });
-        console.log(error);
-      }
-    } else {
-      // If user provided info doesn't match with a user in the database, send back error message
-      console.log("Couldn't log in");
-      res.status(401).json({
-        error: true,
-        message: "Incorrect username and/or password",
-      });
+// Local Login Method
+router.post("/api/login", function (req, res, next) {
+  passport.authenticate("local", function (err, user, info) {
+    if (err) {
+      return next(err);
     }
-  }
+    if (!user) {
+      return res.json({ message: "Couldn't find user" });
+    }
+    req.logIn(user, function (err) {
+      if (err) {
+        return next(err);
+      }
+      return res.json({ message: "Welcome " + user.username });
+    });
+  })(req, res, next);
+});
+
+// // Facebook Login Method
+// router.get("/auth/facebook", passport.authenticate("facebook"));
+
+// router.get(
+//   "/auth/facebook/callback",
+//   passport.authenticate("facebook", { failureRedirect: "/login" }),
+//   function (req, res) {
+//     // Successful authentication, redirect home.
+//     res.redirect("/");
+//   }
+// );
+
+// // Google Login Method
+// router.get(
+//   "/auth/google",
+//   passport.authenticate("google", { scope: ["profile"] })
+// );
+
+// router.get(
+//   "/auth/google/callback",
+//   passport.authenticate("google", { failureRedirect: "/login" }),
+//   function (req, res) {
+//     // Successful authentication, redirect home.
+//     res.redirect("/");
+//   }
+// );
+
+// // Twitter Login Method
+// router.get("/auth/twitter", passport.authenticate("oauth2"));
+
+// router.get(
+//   "/auth/twitter/callback",
+//   passport.authenticate("oauth2", { failureRedirect: "/login" }),
+//   function (req, res) {
+//     // Successful authentication, redirect home.
+//     res.redirect("/");
+//   }
+// );
+
+// // Steam Login Method
+// router.get("/auth/steam", passport.authenticate("steam"), function (req, res) {
+//   // The request will be redirected to Steam for authentication, so
+//   // this function will not be called.
+// });
+
+// router.get(
+//   "/auth/steam/return",
+//   passport.authenticate("steam", { failureRedirect: "/login" }),
+//   function (req, res) {
+//     // Successful authentication, redirect home.
+//     res.redirect("/");
+//   }
+// );
+
+// --------------------------
+//  LOGOUT
+// --------------------------
+
+router.get("/logout", function (req, res) {
+  req.logout();
+  res.redirect("/api/config");
 });
 
 // Exporting functions for express use on server.js

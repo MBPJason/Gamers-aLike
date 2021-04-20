@@ -6,18 +6,30 @@ const UserSchema = new Schema({
     type: String,
     trim: true,
     required: true,
+    emailAuthenticated: false
   },
   username: {
     type: String,
     trim: true,
     required: true,
-    minLength: 4,
+    minLength: 6,
     maxLength: 26,
   },
   password: {
     type: String,
     trim: true,
     required: true,
+  },
+  DateCreated: { type: Date, default: Date.now },
+  NonLocalLogin: {
+    LocalLogin: true,
+    Method: {
+      Google: false,
+      Facebook: false,
+      Twitter: false,
+      Steam: false,
+    },
+    profileID: String
   },
   CurrentLFG: {
     type: String,

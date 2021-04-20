@@ -1,4 +1,4 @@
-const Gamertags = require("./Gamertags");
+
 
 module.exports = {
     User: require("./User"),
