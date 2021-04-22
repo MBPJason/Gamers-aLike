@@ -149,6 +149,7 @@ router.post("/api/login", function (req, res, next) {
       if (err) {
         return next(err);
       }
+      console.log(res);
       return res.json({ message: "Welcome " + user.username });
     });
   })(req, res, next);
