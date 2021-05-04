@@ -1,7 +1,6 @@
 // import logo from './logo.svg';
 import './App.css';
-import SignIn from './pages/singlepage/SignIn.jsx';
-import Landing from './pages/singlepage/Landing.jsx'
+import Landing from './pages/LandingPage/Landing.jsx'
 // import NavBar from './components/NavBar';
 
 
