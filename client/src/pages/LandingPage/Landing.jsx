@@ -19,6 +19,7 @@ import styles from "../../assets/jss/material-kit-react/views/landingPage.js";
 
 // Sections for this page
 import Summary from "./Sections/SummarySection";
+import VideoScroll from "../../MyComponets/VideoScroll/VideoScroll";
 
 const dashboardRoutes = [];
 
@@ -52,7 +53,8 @@ export default function LandingPage(props) {
                 Tired of jumping from squad to squad with no really to call a
                 gaming homie? Tired of playing with weird and off randoms that
                 have you guessing if they had been dropped on their head at
-                birth or try hards that know a WAY too colorful version of the dictionary?
+                birth or try hards that know a WAY too colorful version of the
+                dictionary?
               </h4>
               <h3>Then let's find some gamers like you.</h3>
               <br />
@@ -62,19 +64,13 @@ export default function LandingPage(props) {
           </GridContainer>
           <GridContainer justify='center'>
             <GridItem xs={5}>
-              <Button
-              color="info"
-              size="lg"
-              fullWidth>
-              Learn More
+              <Button color='info' size='lg' fullWidth>
+                Learn More
               </Button>
             </GridItem>
             <GridItem xs={5}>
-              <Button
-              color="primary"
-              size="lg"
-              fullWidth>
-              Sign Up
+              <Button color='primary' size='lg' fullWidth>
+                Sign Up
               </Button>
             </GridItem>
           </GridContainer>
@@ -83,6 +79,7 @@ export default function LandingPage(props) {
       <div className={classNames(classes.main, classes.mainRaised)}>
         <div className={classes.container}>
           <Summary />
+          <VideoScroll />
         </div>
       </div>
       <Footer />
