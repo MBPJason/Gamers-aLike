@@ -1,10 +1,15 @@
-import { container, title } from "../../material-kit-react";
+import { container, containerFluid, title } from "../../material-kit-react";
 
 const landingPageStyle = {
   container: {
     zIndex: "12",
     color: "#FFFFFF",
     ...container
+  },
+  containerFluid: {
+    zIndex: "12",
+    color: "#FFFFFF",
+    ...containerFluid
   },
   title: {
     ...title,

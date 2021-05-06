@@ -19,7 +19,8 @@ import styles from "../../assets/jss/material-kit-react/views/landingPage.js";
 
 // Sections for this page
 import Summary from "./Sections/SummarySection";
-import VideoScroll from "../../MyComponets/VideoScroll/VideoScroll";
+import Montage from "./Sections/MontageSection";
+import Closing from "./Sections/ClosingSection";
 
 const dashboardRoutes = [];
 
@@ -79,7 +80,12 @@ export default function LandingPage(props) {
       <div className={classNames(classes.main, classes.mainRaised)}>
         <div className={classes.container}>
           <Summary />
-          <VideoScroll />
+        </div>
+        <div className={classes.containerFluid}>
+          <Montage /> {/* Just a test component, it needs to be fleshed out */}
+        </div>
+        <div className={classes.container}>
+          <Closing />
         </div>
       </div>
       <Footer />
