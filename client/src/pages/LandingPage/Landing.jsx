@@ -18,7 +18,10 @@ import Parallax from "../../components/Parallax/Parallax.js";
 import styles from "../../assets/jss/material-kit-react/views/landingPage.js";
 
 // Sections for this page
-
+import Summary from "./Sections/SummarySection";
+import Montage from "./Sections/MontageSection";
+import Closing from "./Sections/ClosingSection";
+import { Link } from "react-router-dom";
 
 const dashboardRoutes = [];
 
@@ -30,38 +33,52 @@ export default function LandingPage(props) {
   return (
     <div>
       <Header
-        color="transparent"
+        color='transparent'
         routes={dashboardRoutes}
-        brand="Material Kit React"
+        brand='Gamers-aLike'
         rightLinks={<HeaderLinks />}
         fixed
         changeColorOnScroll={{
           height: 400,
-          color: "white"
+          color: "white",
         }}
         {...rest}
       />
-      <Parallax filter image={require("../../assets/img/landing-bg.jpg")}>
+      <Parallax filter image={"https://source.unsplash.com/random"}>
         <div className={classes.container}>
-          <GridContainer>
+          <GridContainer justify='center'>
             <GridItem xs={12} sm={12} md={6}>
-              <h1 className={classes.title}>Your Story Starts With Us.</h1>
+              <h1 className={classes.title}>
+                There are none like you, but let's find some that are close.
+              </h1>
               <h4>
-                Every landing page needs a small description after the big bold
-                title, that{"'"}s why we added this text here. Add here all the
-                information that can make you or your product create the first
-                impression.
+                Tired of jumping from squad to squad with no really to call a
+                gaming homie? Tired of playing with weird and off randoms that
+                have you guessing if they had been dropped on their head at
+                birth or try hards that know a WAY too colorful version of the
+                dictionary?
               </h4>
+              <h3>Then let's find some gamers like you.</h3>
               <br />
+              <br />
+              <br />
+            </GridItem>
+          </GridContainer>
+          <GridContainer justify='center'>
+            <GridItem xs={5}>
+              <Button color='info' size='lg' fullWidth>
+                Learn More
+              </Button>
+            </GridItem>
+            <GridItem xs={5}>
               <Button
-                color="danger"
-                size="lg"
-                href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&ref=creativetim"
-                target="_blank"
-                rel="noopener noreferrer"
+                component={Link}
+                to={{ pathname: "/Signup", form: "SignUp" }}
+                color='primary'
+                size='lg'
+                fullWidth
               >
-                <i className="fas fa-play" />
-                Watch video
+                Sign Up
               </Button>
             </GridItem>
           </GridContainer>
@@ -69,6 +86,13 @@ export default function LandingPage(props) {
       </Parallax>
       <div className={classNames(classes.main, classes.mainRaised)}>
         <div className={classes.container}>
+          <Summary />
+        </div>
+        <div className={classes.containerFluid}>
+          <Montage /> {/* Just a test component, it needs to be fleshed out */}
+        </div>
+        <div className={classes.container}>
+          <Closing />
         </div>
       </div>
       <Footer />

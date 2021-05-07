@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
@@ -13,6 +13,9 @@ import Grid from "@material-ui/core/Grid";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
+import { Link as Li } from "react-router-dom";
+
+import Social from "../SocialLinks";
 
 function Copyright() {
   return (
@@ -60,11 +63,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignInSide() {
+export default function AccessPage() {
   const classes = useStyles();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
 
   const handleEmail = (e) => {
     const { value } = e.target;
@@ -76,12 +80,25 @@ export default function SignInSide() {
     setPassword(value);
   };
 
-  const handleSignIn = (e, email, password) => {
-    e.preventDefault();
-    axios.post("/api/login", { email, password }).then((response) => {
-      console.log(response);
-    });
+  const handleUsername = (e) => {
+    const { value } = e.target;
+    setUsername(value);
   };
+
+  const handleSignUp = (e, username, email, password) => {
+    e.preventDefault();
+    axios
+      .post("/api/signup", { username, email, password })
+      .then((response) => {
+        console.log(response);
+      });
+  };
+
+  useEffect(() => {
+    setEmail("");
+    setPassword("");
+    setUsername("");
+  }, []);
 
   return (
     <Grid container component='main' className={classes.root}>
@@ -93,15 +110,28 @@ export default function SignInSide() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component='h1' variant='h5'>
-            Sign in
+            Sign Up
           </Typography>
           <form
             className={classes.form}
             onSubmit={(e) => {
-              handleSignIn(e, email, password);
+              handleSignUp(e, username, email, password);
             }}
             noValidate
           >
+            <Social />
+            <TextField
+              variant='outlined'
+              margin='normal'
+              required
+              fullWidth
+              id='username'
+              label='Username'
+              name='username'
+              value={username}
+              onChange={handleUsername}
+              autoFocus
+            />
             <TextField
               variant='outlined'
               margin='normal'
@@ -112,8 +142,6 @@ export default function SignInSide() {
               name='email'
               value={email}
               onChange={handleEmail}
-              autoComplete='email'
-              autoFocus
             />
             <TextField
               variant='outlined'
@@ -126,7 +154,6 @@ export default function SignInSide() {
               type='password'
               value={password}
               onChange={handlePassword}
-              autoComplete='current-password'
             />
             <FormControlLabel
               control={<Checkbox value='remember' color='primary' />}
@@ -139,17 +166,12 @@ export default function SignInSide() {
               color='primary'
               className={classes.submit}
             >
-              Sign In
+              Sign Up
             </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href='#' variant='body2'>
-                  Forgot password?
-                </Link>
-              </Grid>
+            <Grid container justify='center'>
               <Grid item>
-                <Link href='#' variant='body2'>
-                  {"Don't have an account? Sign Up"}
+                <Link component={Li} to={"/Login"} variant='body2'>
+                  {"Already have an account?"}
                 </Link>
               </Grid>
             </Grid>
