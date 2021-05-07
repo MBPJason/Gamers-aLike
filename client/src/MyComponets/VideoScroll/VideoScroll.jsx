@@ -16,7 +16,12 @@ export default function VideoScroll() {
         if (entry.isIntersecting) {
           videoRef.current.play();
         } else {
-          videoRef.current.pause();
+          // A checkout for when a link to a another page is clicked so the site doesn't crash
+          if (videoRef.current === null) {
+            return;
+          } else {
+            videoRef.current.pause();
+          }
         }
       });
     };

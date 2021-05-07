@@ -8,6 +8,8 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 // Pages
 import Landing from "./pages/LandingPage/Landing.jsx";
+import Login from "./pages/AuthPages/LoginPage/LoginPage";
+import SignUp from "./pages/AuthPages/SignUpPage/SignUpPage";
 
 function App() {
   return (
@@ -15,8 +17,8 @@ function App() {
       <Router>
         <Switch>
           <Route exact path='/' component={Landing} />
-          <Route exact path='/Signup' component={Landing} />
-          <Route exact path='/Login' component={Landing} />
+          <Route exact path='/Signup' component={SignUp} />
+          <Route exact path='/Login' component={Login} />
           <Route exact path='/Home' component={Landing} />
           <Route path='/Profile' component={Landing} />
           <Route path='/Lobbies' component={Landing} />

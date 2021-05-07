@@ -21,6 +21,7 @@ import styles from "../../assets/jss/material-kit-react/views/landingPage.js";
 import Summary from "./Sections/SummarySection";
 import Montage from "./Sections/MontageSection";
 import Closing from "./Sections/ClosingSection";
+import { Link } from "react-router-dom";
 
 const dashboardRoutes = [];
 
@@ -70,7 +71,13 @@ export default function LandingPage(props) {
               </Button>
             </GridItem>
             <GridItem xs={5}>
-              <Button color='primary' size='lg' fullWidth>
+              <Button
+                component={Link}
+                to={{ pathname: "/Signup", form: "SignUp" }}
+                color='primary'
+                size='lg'
+                fullWidth
+              >
                 Sign Up
               </Button>
             </GridItem>

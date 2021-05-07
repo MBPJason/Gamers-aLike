@@ -33,11 +33,16 @@ export default function ClosingSection() {
           {/* Ending Closing Remark */}
           <GridItem xs={12} sm={12} md={11}>
             <h2> So what are you waiting for?</h2>
-            <Link to='/Signup'>
-              <Button color='danger' size='lg' round fullWidth>
-                Sign Up Today
+              <Button
+                component={Link}
+                to={{pathname: "/Signup", form:"SignUp"}}
+                color='danger'
+                size='lg'
+                round
+                fullWidth
+              >
+                Join Up Today
               </Button>
-            </Link>
           </GridItem>
         </GridContainer>
       </div>
