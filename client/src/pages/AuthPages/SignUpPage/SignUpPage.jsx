@@ -15,6 +15,8 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link as Li } from "react-router-dom";
 
+import Social from "../SocialLinks";
+
 function Copyright() {
   return (
     <Typography variant='body2' color='textSecondary' align='center'>
@@ -117,6 +119,7 @@ export default function AccessPage() {
             }}
             noValidate
           >
+            <Social />
             <TextField
               variant='outlined'
               margin='normal'
@@ -127,7 +130,6 @@ export default function AccessPage() {
               name='username'
               value={username}
               onChange={handleUsername}
-              autoComplete='email'
               autoFocus
             />
             <TextField
@@ -140,8 +142,6 @@ export default function AccessPage() {
               name='email'
               value={email}
               onChange={handleEmail}
-              autoComplete='email'
-              autoFocus
             />
             <TextField
               variant='outlined'
@@ -154,7 +154,6 @@ export default function AccessPage() {
               type='password'
               value={password}
               onChange={handlePassword}
-              autoComplete='current-password'
             />
             <FormControlLabel
               control={<Checkbox value='remember' color='primary' />}

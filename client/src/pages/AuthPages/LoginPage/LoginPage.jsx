@@ -13,9 +13,9 @@ import Grid from "@material-ui/core/Grid";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
-import {Link as Li} from "react-router-dom";
+import { Link as Li } from "react-router-dom";
 
-
+import Social from "../SocialLinks";
 
 function Copyright() {
   return (
@@ -110,6 +110,7 @@ export default function AccessPage() {
             }}
             noValidate
           >
+            <Social />
             <TextField
               variant='outlined'
               margin='normal'
@@ -150,16 +151,16 @@ export default function AccessPage() {
               Login
             </Button>
             <Grid container>
-                <Grid item xs>
-                    <Link href="#" variant="body2">
-                        {"Forgot Password?"}
-                    </Link>
-                </Grid>
-                <Grid item>
-                    <Link component={Li} to={"/Signup"} variant="body2">
-                        {"Don't have an account? Sign Up"}
-                    </Link>
-                </Grid>
+              <Grid item xs>
+                <Link href='#' variant='body2'>
+                  {"Forgot Password?"}
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link component={Li} to={"/Signup"} variant='body2'>
+                  {"Don't have an account? Sign Up"}
+                </Link>
+              </Grid>
             </Grid>
             <Box mt={5}>
               <Copyright />
