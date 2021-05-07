@@ -2,8 +2,12 @@ import React from "react";
 import GridContainer from "../../components/Grid/GridContainer";
 import GridItem from "../../components/Grid/GridItem";
 
+// Stylesheet
 import { makeStyles } from "@material-ui/core/styles";
 import styles from "../../assets/jss/material-kit-react/views/homePage.js";
+
+// Core Components and Sections
+import Header from "../../MyComponets/Header/Header";
 
 const useStyles = makeStyles(styles);
 
@@ -13,6 +17,7 @@ export default function HomePage() {
   return (
     <>
       {/* Header component goes here */}
+      <Header />
       <div className={classes.containerFluid}>
         {/* See if games are listed via api as competitive, friendly, party, MMO/Raids */}
         {/* If so the here will go a carousel to quick select generes like competitive -> Fighting games --> Skullgirls*/}
