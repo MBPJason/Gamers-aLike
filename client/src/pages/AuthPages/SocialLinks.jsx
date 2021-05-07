@@ -1,6 +1,8 @@
 import React from "react";
 import Button from "../../components/CustomButtons/Button.js";
 
+// Need to bring in styling and Icons
+
 export default function SocialLinks() {
   return (
     <>
@@ -12,7 +14,7 @@ export default function SocialLinks() {
         rel='noopener noreferrer'
         fullWidth
       >
-        <i className={"fab fa-twitter"} /> Connect with Twitter
+        <i className={"fab fa-twitter"} /> Connect with Twitter  
       </Button>
       <br />
       <Button
