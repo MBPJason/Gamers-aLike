@@ -21,7 +21,7 @@ export default function HomePage() {
       <div className={classes.containerFluid}>
         {/* See if games are listed via api as competitive, friendly, party, MMO/Raids */}
         {/* If so the here will go a carousel to quick select generes like competitive -> Fighting games --> Skullgirls*/}
-        <GridContainer justify='end'>
+        <GridContainer justify='flex-end'>
           <GridItem xs={5} sm={5} md={2}>
             {/* Avatar goes here */}
           </GridItem>
