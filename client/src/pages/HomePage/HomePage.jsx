@@ -7,7 +7,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import styles from "../../assets/jss/material-kit-react/views/homePage.js";
 
 // Core Components and Sections
-import Header from "../../MyComponets/Header/Header";
+import Header from "../../MyComponents/Header/Header";
 
 const useStyles = makeStyles(styles);
 
