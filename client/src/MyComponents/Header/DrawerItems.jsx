@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 // Dependencies/Components
 import {
@@ -33,10 +33,10 @@ const drawerItems = [
   },
 ];
 
-export default function DrawerItems() {
+export default function DrawerItems({ desktop }) {
   const classes = useStyles();
   return (
-    <div className={classes.drawerContainer}>
+    <div className={desktop ? classes.drawerContainer : classes.drawer}>
       <Divider />
       {/* List #1 */}
       <List>

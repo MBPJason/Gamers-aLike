@@ -48,13 +48,13 @@ export default function ResponsiveDrawer(props) {
     const setResponsiveness = () => {
       return window.innerWidth < 900
         ? setState({
-          desktopView: false,
-          tabletView: true,
-        })
+            desktopView: false,
+            tabletView: true,
+          })
         : setState({
-          desktopView: true,
-          tabletView: false,
-        });
+            desktopView: true,
+            tabletView: false,
+          });
     };
 
     setResponsiveness();
@@ -76,62 +76,63 @@ export default function ResponsiveDrawer(props) {
 
   // Desktop Drawer
   const desktopDrawer = (
-      <Drawer
-        className={classes.drawerDesktop}
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-        variant='persistent'
-        open={desktopOpen}
-      >
-        <Toolbar />
+    <Drawer
+      className={classes.drawerDesktop}
+      classes={{
+        paper: classes.drawerPaper,
+      }}
+      variant='persistent'
+      open={desktopOpen}
+    >
+      <Toolbar />
 
-        <DrawerItems />
-      </Drawer>
-    );
+      <DrawerItems desktop={desktopView} />
+    </Drawer>
+  );
 
-  const container = props.window !== undefined ? () => props.window().document.body : undefined;
+  const container =
+    props.window !== undefined ? () => props.window().document.body : undefined;
 
   // Tablet Drawer
   const tabletDrawer = (
-      <nav className={classes.drawer} aria-label='mailbox folders'>
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-        <Hidden smUp implementation='css'>
-          <Drawer
-            container={container}
-            variant='temporary'
-            anchor={theme.direction === "rtl" ? "right" : "left"}
-            open={tabletOpen}
-            onClose={handleTabletDrawer}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            <DrawerItems />
-          </Drawer>
-        </Hidden>
-        <Hidden xsDown implementation='css'>
-          <Drawer
-            container={container}
-            variant='temporary'
-            anchor={theme.direction === "rtl" ? "right" : "left"}
-            open={tabletOpen}
-            onClose={handleTabletDrawer}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            <DrawerItems />
-          </Drawer>
-        </Hidden>
-      </nav>
-    );
+    <nav className={classes.drawer} aria-label='mailbox folders'>
+      {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+      <Hidden mdUp implementation='js'>
+        <Drawer
+          container={container}
+          variant='temporary'
+          anchor={theme.direction === "rtl" ? "right" : "left"}
+          open={tabletOpen}
+          onClose={handleTabletDrawer}
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+        >
+          <DrawerItems desktop={desktopView} />
+        </Drawer>
+      </Hidden>
+      <Hidden mdDown implementation='js'>
+        <Drawer
+          container={container}
+          variant='temporary'
+          anchor={theme.direction === "rtl" ? "right" : "left"}
+          open={tabletOpen}
+          onClose={handleTabletDrawer}
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+        >
+          <DrawerItems desktop={desktopView} />
+        </Drawer>
+      </Hidden>
+    </nav>
+  );
 
   return (
     <div className={classes.root}>
@@ -170,9 +171,9 @@ export default function ResponsiveDrawer(props) {
       </AppBar>
       {tabletView ? tabletDrawer : desktopDrawer}
       <main
-        className={classNames(classes.contentDesktop, {
+        className={desktopView ? classNames(classes.contentDesktop, {
           [classes.contentShiftDesktop]: desktopOpen,
-        })}
+        }) : classes.contentTablet}
       >
         <Toolbar />
         {/* Main Content goes here */}

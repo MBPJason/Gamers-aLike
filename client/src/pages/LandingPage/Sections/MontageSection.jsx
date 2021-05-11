@@ -7,7 +7,7 @@ import styles from "../../../assets/jss/material-kit-react/views/landingPageSect
 // Core Logic and Components
 import GridContainer from "../../../components/Grid/GridContainer";
 import GridItem from "../../../components/Grid/GridItem";
-import VideoScroll from "../../../MyComponets/VideoScroll/VideoScroll";
+import VideoScroll from "../../../MyComponents/VideoScroll/VideoScroll";
 
 const useStyles = makeStyles(styles);
 
