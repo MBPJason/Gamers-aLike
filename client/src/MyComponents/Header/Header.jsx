@@ -46,7 +46,7 @@ export default function ResponsiveDrawer(props) {
   // Function called when Component Mounted
   useEffect(() => {
     const setResponsiveness = () => {
-      return window.innerWidth < 900
+      return window.innerWidth < 960
         ? setState({
             desktopView: false,
             tabletView: true,
@@ -90,6 +90,7 @@ export default function ResponsiveDrawer(props) {
     </Drawer>
   );
 
+  // Container needed so the hidden drawer to display properly
   const container =
     props.window !== undefined ? () => props.window().document.body : undefined;
 
@@ -137,6 +138,7 @@ export default function ResponsiveDrawer(props) {
   return (
     <div className={classes.root}>
       <CssBaseline />
+      {/* App bar above the drawer and container */}
       <AppBar
         position='fixed'
         className={
@@ -169,6 +171,7 @@ export default function ResponsiveDrawer(props) {
           </Typography>
         </Toolbar>
       </AppBar>
+      {/* Check for which drawer should be called */}
       {tabletView ? tabletDrawer : desktopDrawer}
       <main
         className={desktopView ? classNames(classes.contentDesktop, {
