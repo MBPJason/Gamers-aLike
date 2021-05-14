@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
+
+import { useCoverCardMediaStyles } from "@mui-treasury/styles/cardMedia/cover";
 
 import {
   Card,
@@ -15,18 +17,17 @@ import {
 import PeopleCardFooter from "@mui-treasury/components/cardFooter/people";
 
 export default function GameCard(props) {
-  const { slug, image, name, faces, width, root } = props;
+  const { slug, image, name, faces, width, root, title } = props;
+  const mediaStyles = useCoverCardMediaStyles();
+
   return (
     <>
       <Card id={slug} className={root}>
         <CardActionArea>
-          <CardMedia component='img' alt='Game 1' height='auto' image={image}>
-            <Grid container justify='center'>
-              <Grid item>
-                <Typography variant='h2'>{name}</Typography>
-              </Grid>
-            </Grid>
-          </CardMedia>
+          <CardMedia component='img' className={mediaStyles} image={image} />
+          <Typography component='h5' variant='h5' className={title}>
+            {name}
+          </Typography>
         </CardActionArea>
         <CardActions>
           <ButtonGroup>

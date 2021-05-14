@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import classNames from "classnames";
 import { Link as RouterLink } from "react-router-dom";
 import DrawerItems from "./DrawerItems";
+import ContentDisplay from "../HomeCardDisplay/HomeCardDisplay";
 
 // Stylesheet
 import { useTheme } from "@material-ui/core/styles";
@@ -174,13 +175,19 @@ export default function ResponsiveDrawer(props) {
       {/* Check for which drawer should be called */}
       {tabletView ? tabletDrawer : desktopDrawer}
       <main
-        className={desktopView ? classNames(classes.contentDesktop, {
-          [classes.contentShiftDesktop]: desktopOpen,
-        }) : classes.contentTablet}
+        className={
+          desktopView
+            ? classNames(classes.contentDesktop, {
+                [classes.contentShiftDesktop]: desktopOpen,
+              })
+            : classes.contentTablet
+        }
       >
         <Toolbar />
         {/* Main Content goes here */}
-        <Typography paragraph>
+
+        <ContentDisplay desktop={desktopView} />
+        {/* <Typography paragraph>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua. Rhoncus
           dolor purus non enim praesent elementum facilisis leo vel. Risus at
@@ -208,7 +215,7 @@ export default function ResponsiveDrawer(props) {
           sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
           eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
           posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
+        </Typography> */}
       </main>
     </div>
   );
