@@ -2,7 +2,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1,
+    display: "flex",
     padding: theme.spacing(2),
   },
   cardSize: {
@@ -26,9 +26,22 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "none",
     fontSize: "12",
   },
-  carousel: {
-    height: "600px",
-    width: "auto",
+  gridCarousel: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  carouselImg: {
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  },
+  carouselPaper: {
+    margin: theme.spacing(8, 4),
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    position: "absolute",
   },
 }));
 

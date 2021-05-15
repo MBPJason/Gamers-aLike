@@ -3,20 +3,23 @@ import classNames from "classnames";
 
 // Stylesheet
 import useStyles from "../../assets/jss/myStyles/homeContainerStyles";
-import "swiper/swiper.min.css";
-import "swiper/components/effect-fade/effect-fade.min.css";
-import "swiper/components/effect-coverflow/effect-coverflow.min.css";
+import "swiper/swiper-bundle.css";
+// import "swiper/components/effect-fade/effect-fade.min.css";
+// import "swiper/components/effect-coverflow/effect-coverflow.min.css";
 import "swiper/components/navigation/navigation.min.css";
 import "swiper/components/pagination/pagination.min.css";
 import { useLightTopShadowStyles } from "@mui-treasury/styles/shadow/lightTop";
 
 // Core Components
-import { Grid } from "@material-ui/core";
+import { Grid, Paper, Typography } from "@material-ui/core";
 import { Swiper, SwiperSlide } from "swiper/react";
 import GameCard from "../GameCard/GameCard";
-import SwiperCore, { EffectCoverflow, EffectFade, Navigation, Pagination } from "swiper/core";
+import SwiperCore, {
+  Navigation,
+  Pagination,
+} from "swiper/core";
 
-SwiperCore.use([EffectCoverflow, EffectFade, Navigation, Pagination]);
+SwiperCore.use([ Navigation, Pagination]);
 
 // Test data. Will grab it from another method
 // Faces don't need to be mapped over just set them in an array and send as prop
@@ -76,23 +79,23 @@ const categories = [
   },
   {
     id: "shootingGames",
-    genre: "Fighting Games",
+    genre: "Shooting Games",
     summary:
-      "1 v 1 sounds fun? Showing off that new combo you have been labing out or looking for a test partner or a couple then then try you hand over here.",
+      "1 v 1 sounds fun? Showing off that new combo you have been labbing out or looking for a test partner or a couple then then try you hand over here.",
     img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
   },
   {
     id: "fightingGames",
     genre: "Fighting Games",
     summary:
-      "1 v 1 sounds fun? Showing off that new combo you have been labing out or looking for a test partner or a couple then then try you hand over here.",
+      "1 v 1 sounds fun? Showing off that new combo you have been labbing out or looking for a test partner or a couple then then try you hand over here.",
     img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
   },
   {
     id: "fightingGames",
     genre: "Fighting Games",
     summary:
-      "1 v 1 sounds fun? Showing off that new combo you have been labing out or looking for a test partner or a couple then then try you hand over here.",
+      "1 v 1 sounds fun? Showing off that new combo you have been labbing out or looking for a test partner or a couple then then try you hand over here.",
     img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
   },
   {
@@ -156,20 +159,50 @@ export default function HomeCardDisplay(props) {
         spacing={1}
         className={classes.root}
       >
-          {lastPlayedGames.map(({ slug, name, image }) => (
-            <Grid item xs={12} lg={2}>
-              <GameCard
-                key={slug}
-                slug={slug}
-                name={name}
-                image={image}
-                faces={faces}
-                width={150}
-                root={classNames(classes.cardSize, shadowStyles)}
-                title={classes.font}
-              />
-            </Grid>
-          ))}
+        <Grid container component='main'>
+          <Swiper
+            tag='section'
+            wrapperTag='ul'
+            id='genres'
+            spaceBetween={20}
+            pagination
+            navigation
+          >
+            {categories.map(({ id, genre, summary, img }) => (
+              <SwiperSlide tag='li' key={id} id={id}>
+                <Grid item sm={8} md={7} className={classes.carouselImg} component="img" src={img} alt={genre} />
+                <Grid item sm={4} md={5} component={Paper} elevation={6} square>
+                  <div className={classes.carouselPaper}>
+                    <Typography component='h2' variant="h4">
+                      {genre}
+                    </Typography>
+                    <br/>
+                    <Typography variant="subtitle1">
+                      {summary}
+                    </Typography>
+                  </div>
+                </Grid>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </Grid>
+        <Typography variant="h3">
+          Jump Back Into
+        </Typography>
+        {lastPlayedGames.map(({ slug, name, image }) => (
+          <Grid item xs={12} md={4} lg={2}>
+            <GameCard
+              key={slug}
+              slug={slug}
+              name={name}
+              image={image}
+              faces={faces}
+              width={150}
+              root={classNames(classes.cardSize, shadowStyles)}
+              title={classes.font}
+            />
+          </Grid>
+        ))}
       </Grid>
     </>
   );
