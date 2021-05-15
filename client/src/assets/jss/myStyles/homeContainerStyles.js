@@ -2,14 +2,20 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
+    flexGrow: 1,
+    padding: theme.spacing(2),
   },
   cardSize: {
-    maxHeight: 400,
-    maxWidth: 304,
-    margin: theme.spacing(3, 2),
+    maxWidth: 200,
+    margin: theme.spacing(1),
+    padding: theme.spacing(1),
     borderRadius: 0,
-    position: 'relative',
+    position: "relative",
+    transition: "0.2s",
+
+    "&:hover": {
+      transform: "scale(1.1)",
+    },
   },
   font: {
     position: "absolute",
@@ -18,8 +24,12 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     color: "white",
     backgroundColor: "none",
-    
-  }
+    fontSize: "12",
+  },
+  carousel: {
+    height: "600px",
+    width: "auto",
+  },
 }));
 
 export default useStyles;

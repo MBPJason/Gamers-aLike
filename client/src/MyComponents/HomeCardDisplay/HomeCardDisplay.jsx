@@ -4,16 +4,19 @@ import classNames from "classnames";
 // Stylesheet
 import useStyles from "../../assets/jss/myStyles/homeContainerStyles";
 import "swiper/swiper.min.css";
+import "swiper/components/effect-fade/effect-fade.min.css";
 import "swiper/components/effect-coverflow/effect-coverflow.min.css";
-import { useLightTopShadowStyles } from '@mui-treasury/styles/shadow/lightTop';
+import "swiper/components/navigation/navigation.min.css";
+import "swiper/components/pagination/pagination.min.css";
+import { useLightTopShadowStyles } from "@mui-treasury/styles/shadow/lightTop";
 
 // Core Components
 import { Grid } from "@material-ui/core";
 import { Swiper, SwiperSlide } from "swiper/react";
 import GameCard from "../GameCard/GameCard";
-import SwiperCore, { EffectCoverflow, Pagination } from "swiper/core";
+import SwiperCore, { EffectCoverflow, EffectFade, Navigation, Pagination } from "swiper/core";
 
-SwiperCore.use([EffectCoverflow, Pagination]);
+SwiperCore.use([EffectCoverflow, EffectFade, Navigation, Pagination]);
 
 // Test data. Will grab it from another method
 // Faces don't need to be mapped over just set them in an array and send as prop
@@ -41,25 +44,63 @@ const lastPlayedGames = [
     slug: "789",
     name: "Dragon Ball FighterZ",
     image:
-      "https://en.wikipedia.org/wiki/Dragon_Ball_FighterZ#/media/File:DBFZ_cover_art.jpg",
+      "https://images.unsplash.com/photo-1519810755548-39cd217da494?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=934&q=80",
   },
   {
     slug: "1001",
     name: "Battlefield V",
     image:
-      "https://en.wikipedia.org/wiki/Battlefield_V#/media/File:Battlefield_V_standard_edition_box_art.jpg",
+      "https://images.unsplash.com/photo-1519810755548-39cd217da494?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=934&q=80",
   },
   {
     slug: "2020",
     name: "Super Smash Bros. Ultimate",
     image:
-      "https://en.wikipedia.org/wiki/Super_Smash_Bros._Ultimate#/media/File:Super_Smash_Bros._Ultimate.jpg",
+      "https://images.unsplash.com/photo-1519810755548-39cd217da494?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=934&q=80",
   },
   {
     slug: "300482",
     name: "StarCraft II: Legacy of the Void",
     image:
-      "https://en.wikipedia.org/wiki/StarCraft_II:_Legacy_of_the_Void#/media/File:StarCraft_II_-_Legacy_of_the_Void_cover.jpg",
+      "https://images.unsplash.com/photo-1519810755548-39cd217da494?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=934&q=80",
+  },
+];
+
+const categories = [
+  {
+    id: "fightingGames",
+    genre: "Fighting Games",
+    summary:
+      "1 v 1 sounds fun? See how well you control nuech or grabble to your opponent is one with the ground. Showing off that new combo you have been labbing out or looking for a test partner or a couple then then try you hand over here.",
+    img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
+  },
+  {
+    id: "shootingGames",
+    genre: "Fighting Games",
+    summary:
+      "1 v 1 sounds fun? Showing off that new combo you have been labing out or looking for a test partner or a couple then then try you hand over here.",
+    img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
+  },
+  {
+    id: "fightingGames",
+    genre: "Fighting Games",
+    summary:
+      "1 v 1 sounds fun? Showing off that new combo you have been labing out or looking for a test partner or a couple then then try you hand over here.",
+    img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
+  },
+  {
+    id: "fightingGames",
+    genre: "Fighting Games",
+    summary:
+      "1 v 1 sounds fun? Showing off that new combo you have been labing out or looking for a test partner or a couple then then try you hand over here.",
+    img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
+  },
+  {
+    id: "fightingGames",
+    genre: "Fighting Games",
+    summary:
+      "1 v 1 sounds fun? Showing off that new combo you have been labing out or looking for a test partner or a couple then then try you hand over here.",
+    img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
   },
 ];
 
@@ -110,22 +151,25 @@ export default function HomeCardDisplay(props) {
     <>
       <Grid
         container
+        justify='center'
+        alignItems='center'
+        spacing={1}
         className={classes.root}
       >
-        {lastPlayedGames.map(({ slug, name, image }) => (
-          <Grid item xs={11} sm={11} md={6} lg={4}>
-            <GameCard
-              key={slug}
-              slug={slug}
-              name={name}
-              image={image}
-              faces={faces}
-              width={265}
-              root={classNames(classes.cardSize, shadowStyles)}
-              title={classes.font}
-            />
-          </Grid>
-        ))}
+          {lastPlayedGames.map(({ slug, name, image }) => (
+            <Grid item xs={12} lg={2}>
+              <GameCard
+                key={slug}
+                slug={slug}
+                name={name}
+                image={image}
+                faces={faces}
+                width={150}
+                root={classNames(classes.cardSize, shadowStyles)}
+                title={classes.font}
+              />
+            </Grid>
+          ))}
       </Grid>
     </>
   );
