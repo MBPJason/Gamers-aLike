@@ -7,8 +7,8 @@ import {
   CardActionArea,
   CardActions,
   CardContent,
+  Paper,
   CardMedia,
-  Grid,
   Button,
   ButtonGroup,
   Box,
@@ -22,19 +22,17 @@ export default function GameCard(props) {
 
   return (
     <>
-      <Card id={slug} className={root}>
+      <Card component={Paper} elevation={4} id={slug} className={root}>
         <CardActionArea>
           <CardMedia component='img' className={mediaStyles} image={image} />
           <Typography component='h5' variant='h5' className={title}>
             {name}
           </Typography>
-        </CardActionArea>
-        <CardActions>
-          <ButtonGroup>
+          <ButtonGroup variant="text">
             <Button size='small'>Quick Join Lobby</Button>
             <Button>Create a Lobby</Button>
           </ButtonGroup>
-        </CardActions>
+        </CardActionArea>
         <Box minWidth={width}>
           <PeopleCardFooter faces={faces} />
         </Box>

@@ -3,13 +3,19 @@ import { makeStyles } from "@material-ui/core/styles";
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
+    padding: theme.spacing(2),
   },
   cardSize: {
-    maxHeight: 400,
-    maxWidth: 304,
-    margin: theme.spacing(3, 2),
+    maxWidth: 200,
+    margin: theme.spacing(1),
+    padding: theme.spacing(1),
     borderRadius: 0,
-    position: 'relative',
+    position: "relative",
+    transition: "0.2s",
+
+    "&:hover": {
+      transform: "scale(1.1)",
+    },
   },
   font: {
     position: "absolute",
@@ -18,8 +24,25 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     color: "white",
     backgroundColor: "none",
-    
-  }
+    fontSize: "12",
+  },
+  gridCarousel: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  carouselImg: {
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  },
+  carouselPaper: {
+    margin: theme.spacing(8, 4),
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    position: "absolute",
+  },
 }));
 
 export default useStyles;
