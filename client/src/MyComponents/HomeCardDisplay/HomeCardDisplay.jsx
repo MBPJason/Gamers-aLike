@@ -11,15 +11,12 @@ import "swiper/components/pagination/pagination.min.css";
 import { useLightTopShadowStyles } from "@mui-treasury/styles/shadow/lightTop";
 
 // Core Components
-import { Grid, Paper, Typography } from "@material-ui/core";
+import { Grid, Paper, Typography, TableCell } from "@material-ui/core";
 import { Swiper, SwiperSlide } from "swiper/react";
 import GameCard from "../GameCard/GameCard";
-import SwiperCore, {
-  Navigation,
-  Pagination,
-} from "swiper/core";
+import SwiperCore, { Navigation, Pagination } from "swiper/core";
 
-SwiperCore.use([ Navigation, Pagination]);
+SwiperCore.use([Navigation, Pagination]);
 
 // Test data. Will grab it from another method
 // Faces don't need to be mapped over just set them in an array and send as prop
@@ -107,6 +104,49 @@ const categories = [
   },
 ];
 
+const rows = [
+  {
+    Restriced: true,
+    Requests: "Looking for 5 to start up a game",
+    Players: "3/5", // TODO: Needs to be dynamically updated
+    Creator: "MasterChief",
+    Language: "English",
+    lobbyID: "OH1H348HWN9U",
+  },
+  {
+    Restriced: true,
+    Requests: "Looking for 6 to start up a game",
+    Players: "2/7", // TODO: Needs to be dynamically updated
+    Creator: "CmdrShepard",
+    Language: "English",
+    lobbyID: "OH1H348HWN9U",
+  },
+  {
+    Restriced: false,
+    Requests: "Looking for 4 to start up a game",
+    Players: "3/5", // TODO: Needs to be dynamically updated
+    Creator: "MasterChief",
+    Language: "English",
+    lobbyID: "OH1H348HWN9U",
+  },
+  {
+    Restriced: true,
+    Requests: "Looking for 3 to start up a game",
+    Players: "1/4", // TODO: Needs to be dynamically updated
+    Creator: "DeezNuts",
+    Language: "English",
+    lobbyID: "OH1H348HWN9U",
+  },
+  {
+    Restriced: false,
+    Requests: "Looking for 9 to start up a game",
+    Players: "3/10", // TODO: Needs to be dynamically updated
+    Creator: "NoobSlayer",
+    Language: "English",
+    lobbyID: "OH1H348HWN9U",
+  },
+];
+
 // Display should be like a carousel/tab from phone
 // Able to switch between multiplayer genre carousel
 // To Recommended Game List carousel
@@ -120,33 +160,7 @@ export default function HomeCardDisplay(props) {
 
   const mobileView = (
     <>
-      <Swiper
-        className='mySwiper swiper-container-h'
-        spaceBetween={50}
-        pagination={{
-          clickable: true,
-        }}
-      >
-        <SwiperSlide>Horizontal Slide 1</SwiperSlide>
-        <SwiperSlide>
-          <Swiper
-            className='mySwiper2 swiper-container-v'
-            direction={"vertical"}
-            spaceBetween={50}
-            pagination={{
-              clickable: true,
-            }}
-          >
-            <SwiperSlide>Vertical Slide 1</SwiperSlide>
-            <SwiperSlide>Vertical Slide 2</SwiperSlide>
-            <SwiperSlide>Vertical Slide 3</SwiperSlide>
-            <SwiperSlide>Vertical Slide 4</SwiperSlide>
-            <SwiperSlide>Vertical Slide 5</SwiperSlide>
-          </Swiper>
-        </SwiperSlide>
-        <SwiperSlide>Horizontal Slide 3</SwiperSlide>
-        <SwiperSlide>Horizontal Slide 4</SwiperSlide>
-      </Swiper>
+      <div></div>
     </>
   );
 
@@ -170,27 +184,33 @@ export default function HomeCardDisplay(props) {
           >
             {categories.map(({ id, genre, summary, img }) => (
               <SwiperSlide tag='li' key={id} id={id}>
-                <Grid item sm={8} md={7} className={classes.carouselImg} component="img" src={img} alt={genre} />
+                <Grid
+                  item
+                  sm={8}
+                  md={7}
+                  className={classes.carouselImg}
+                  component='img'
+                  src={img}
+                  alt={genre}
+                />
                 <Grid item sm={4} md={5} component={Paper} elevation={6} square>
                   <div className={classes.carouselPaper}>
-                    <Typography component='h2' variant="h4">
+                    <Typography component='h2' variant='h4'>
                       {genre}
                     </Typography>
-                    <br/>
-                    <Typography variant="subtitle1">
-                      {summary}
-                    </Typography>
+                    <br />
+                    <Typography variant='subtitle1'>{summary}</Typography>
                   </div>
                 </Grid>
               </SwiperSlide>
             ))}
           </Swiper>
         </Grid>
-        <Typography variant="h3">
-          Jump Back Into
-        </Typography>
+        <Grid item xs={12}>
+          <Typography variant='h5'>Jump Back into</Typography>
+        </Grid>
         {lastPlayedGames.map(({ slug, name, image }) => (
-          <Grid item xs={12} md={4} lg={2}>
+          <Grid item xs={12} lg={2}>
             <GameCard
               key={slug}
               slug={slug}
@@ -203,6 +223,11 @@ export default function HomeCardDisplay(props) {
             />
           </Grid>
         ))}
+        <br />
+        <br />
+        <Grid item xs={12}>
+          <Typography variant='h5'>Check out these lobbies</Typography>
+        </Grid>
       </Grid>
     </>
   );
