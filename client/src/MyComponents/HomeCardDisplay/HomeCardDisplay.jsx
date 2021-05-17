@@ -11,9 +11,10 @@ import "swiper/components/pagination/pagination.min.css";
 import { useLightTopShadowStyles } from "@mui-treasury/styles/shadow/lightTop";
 
 // Core Components
-import { Grid, Paper, Typography, TableCell } from "@material-ui/core";
+import { Grid, Paper, Typography } from "@material-ui/core";
 import { Swiper, SwiperSlide } from "swiper/react";
 import GameCard from "../GameCard/GameCard";
+import LobbyTable from "../LobbyTable/LobbyTable";
 import SwiperCore, { Navigation, Pagination } from "swiper/core";
 
 SwiperCore.use([Navigation, Pagination]);
@@ -106,7 +107,7 @@ const categories = [
 
 const rows = [
   {
-    Restriced: true,
+    Restricted: true,
     Requests: "Looking for 5 to start up a game",
     Players: "3/5", // TODO: Needs to be dynamically updated
     Creator: "MasterChief",
@@ -114,7 +115,7 @@ const rows = [
     lobbyID: "OH1H348HWN9U",
   },
   {
-    Restriced: true,
+    Restricted: true,
     Requests: "Looking for 6 to start up a game",
     Players: "2/7", // TODO: Needs to be dynamically updated
     Creator: "CmdrShepard",
@@ -122,7 +123,7 @@ const rows = [
     lobbyID: "OH1H348HWN9U",
   },
   {
-    Restriced: false,
+    Restricted: false,
     Requests: "Looking for 4 to start up a game",
     Players: "3/5", // TODO: Needs to be dynamically updated
     Creator: "MasterChief",
@@ -130,7 +131,7 @@ const rows = [
     lobbyID: "OH1H348HWN9U",
   },
   {
-    Restriced: true,
+    Restricted: true,
     Requests: "Looking for 3 to start up a game",
     Players: "1/4", // TODO: Needs to be dynamically updated
     Creator: "DeezNuts",
@@ -138,12 +139,38 @@ const rows = [
     lobbyID: "OH1H348HWN9U",
   },
   {
-    Restriced: false,
+    Restricted: false,
     Requests: "Looking for 9 to start up a game",
     Players: "3/10", // TODO: Needs to be dynamically updated
     Creator: "NoobSlayer",
     Language: "English",
     lobbyID: "OH1H348HWN9U",
+  },
+];
+
+// TODO: HAVE IMAGES FOR DIFFERENT SCREEN SIZES
+// screen size <= md ~720px images
+// screen size <= lg 1080px images
+// screen size = xl 2Kpx images
+
+// THIS IS JUST TEST DATA
+const tableGames = [
+  {
+    gameName: "Among Us",
+    gameSlug: "123",
+    gameBackground:
+      "https://images.wallpapersden.com/image/download/among-us_bGhpaW2UmZqaraWkpJRnZWltrWdlaW0.jpg",
+  },
+  {
+    gameName: "Starcraft 2",
+    gameSlug: "300482",
+    gameBackground:
+      "https://images.blz-contentstack.com/v3/assets/blt2ef8b4fee426fd3e/bltf647443249f7b7e0/5f468c730cfe4555ebb3a6df/Wallpaper-5-1920.jpg",
+  },
+  {
+    gameName: "Halo Infinite",
+    gameSlug: "182764",
+    gameBackground: "https://wallpaperaccess.com/full/910169.jpg",
   },
 ];
 
@@ -178,8 +205,12 @@ export default function HomeCardDisplay(props) {
             tag='section'
             wrapperTag='ul'
             id='genres'
+            slidesPerView={"auto"}
+            centeredSlides={true}
             spaceBetween={20}
-            pagination
+            pagination={{
+              clickable: true,
+            }}
             navigation
           >
             {categories.map(({ id, genre, summary, img }) => (
@@ -207,7 +238,28 @@ export default function HomeCardDisplay(props) {
           </Swiper>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant='h5'>Jump Back into</Typography>
+          <Typography variant='h5'>Check out these lobbies</Typography>
+        </Grid>
+        {tableGames.map(({ gameName, gameSlug, gameBackground }) => (
+          <Grid item lg={4}>
+            <LobbyTable
+              key={gameName}
+              gameName={gameName}
+              slug={gameSlug}
+              gameBackground={gameBackground}
+              lobbies={rows}
+              imgStyle={classes.carouselImg}
+              root={classes.tableDesktop}
+              size={"small"}
+              main={false}
+            />
+          </Grid>
+        ))}
+        <br />
+        <br />
+        {/* Test Placements for game cards */}
+        <Grid item xs={12}>
+          <Typography variant='h5'>Recommended Games</Typography>
         </Grid>
         {lastPlayedGames.map(({ slug, name, image }) => (
           <Grid item xs={12} lg={2}>
@@ -226,8 +278,22 @@ export default function HomeCardDisplay(props) {
         <br />
         <br />
         <Grid item xs={12}>
-          <Typography variant='h5'>Check out these lobbies</Typography>
+          <Typography variant='h5'>Jump Back into</Typography>
         </Grid>
+        {lastPlayedGames.map(({ slug, name, image }) => (
+          <Grid item xs={12} lg={2}>
+            <GameCard
+              key={slug}
+              slug={slug}
+              name={name}
+              image={image}
+              faces={faces}
+              width={150}
+              root={classNames(classes.cardSize, shadowStyles)}
+              title={classes.font}
+            />
+          </Grid>
+        ))}
       </Grid>
     </>
   );

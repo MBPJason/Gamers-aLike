@@ -28,7 +28,7 @@ export default function GameCard(props) {
           <Typography component='h5' variant='h5' className={title}>
             {name}
           </Typography>
-          <ButtonGroup variant="text">
+          <ButtonGroup variant='text'>
             <Button size='small'>Quick Join Lobby</Button>
             <Button>Create a Lobby</Button>
           </ButtonGroup>
