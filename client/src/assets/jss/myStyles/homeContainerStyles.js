@@ -43,6 +43,10 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     position: "absolute",
   },
+
+  tableDesktop: {
+    minWidth: "10vw",
+  },
 }));
 
 export default useStyles;
