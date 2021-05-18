@@ -46,6 +46,15 @@ const useStyles = makeStyles((theme) => ({
 
   tableDesktop: {
     minWidth: "10vw",
+    backgroundColor: "gray",
+    color: "antiquewhite",
+  },
+  tableBackground: {
+    zIndex: "1",
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backdropFilter: "blur(20px)",
   },
 }));
 

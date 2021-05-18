@@ -26,8 +26,12 @@ const StyledTableCell = withStyles((theme) => ({
   },
   body: {
     fontSize: 14,
+    color: "antiquewhite",
   },
 }))(TableCell);
+const StyledTableBody = withStyles((theme) => ({
+  backdropFilter: "blur(10px) opacity(0.9)"
+}))(TableBody);
 
 export default function LobbyTable(props) {
   const {
@@ -54,17 +58,17 @@ export default function LobbyTable(props) {
             role='checkbox'
             tabIndex={-1}
           >
-            <TableCell align='left'>
+            <StyledTableCell align='left'>
               {Restricted ? <LockIcon /> : <LockOpenIcon />}
-            </TableCell>
-            <TableCell component='th' scope='row'>
+            </StyledTableCell>
+            <StyledTableCell component='th' scope='row'>
               {Requests}
-            </TableCell>
-            <TableCell align='right'>{Players}</TableCell>
+            </StyledTableCell>
+            <StyledTableCell align='right'>{Players}</StyledTableCell>
             {main && (
               <>
-                <TableCell align='right'>{Creator}</TableCell>
-                <TableCell align='right'>{Language}</TableCell>
+                <StyledTableCell align='right'>{Creator}</StyledTableCell>
+                <StyledTableCell align='right'>{Language}</StyledTableCell>
               </>
             )}
           </TableRow>
@@ -75,26 +79,29 @@ export default function LobbyTable(props) {
 
   return (
     <>
-      <Paper style={{ backgroundImage: gameBackground }} className={imgStyle}>
-        <TableContainer component={Paper} id={slug}>
-          <Table className={root} size={size}>
-            <TableHead>
-              <TableRow>
-                <StyledTableCell align='left'>Restricted</StyledTableCell>
-                <StyledTableCell>Requests</StyledTableCell>
-                <StyledTableCell align='right'># of People</StyledTableCell>
-                {main && (
-                  <>
-                    <StyledTableCell align='right'>Creator</StyledTableCell>
-                    <StyledTableCell align='right'>Language</StyledTableCell>
-                  </>
-                )}
-              </TableRow>
-            </TableHead>
-            <TableBody>{dataRows}</TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+      <TableContainer component={Paper} id={slug}>
+        <Table className={root} size={size}>
+          <TableHead>
+            <TableRow>
+              <StyledTableCell align='left'>Restricted</StyledTableCell>
+              <StyledTableCell>Requests</StyledTableCell>
+              <StyledTableCell align='right'># of People</StyledTableCell>
+              {main && (
+                <>
+                  <StyledTableCell align='right'>Creator</StyledTableCell>
+                  <StyledTableCell align='right'>Language</StyledTableCell>
+                </>
+              )}
+            </TableRow>
+          </TableHead>
+          <StyledTableBody
+            style={{ backgroundImage: "url(" + gameBackground + ")" }}
+            className={imgStyle}
+          >
+            {dataRows}
+          </StyledTableBody>
+        </Table>
+      </TableContainer>
     </>
   );
 }

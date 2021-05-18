@@ -248,7 +248,7 @@ export default function HomeCardDisplay(props) {
               slug={gameSlug}
               gameBackground={gameBackground}
               lobbies={rows}
-              imgStyle={classes.carouselImg}
+              imgStyle={classes.tableBackground}
               root={classes.tableDesktop}
               size={"small"}
               main={false}
