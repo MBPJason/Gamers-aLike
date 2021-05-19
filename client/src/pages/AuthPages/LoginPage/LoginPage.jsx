@@ -82,6 +82,8 @@ export default function AccessPage() {
   const handleLogin = (e, email, password) => {
     e.preventDefault();
     axios.post("/auth/login", { email, password }).then((response) => {
+      // Deal with the response and set up Auth Context and/or Headers
+
       console.log(response);
     });
   };

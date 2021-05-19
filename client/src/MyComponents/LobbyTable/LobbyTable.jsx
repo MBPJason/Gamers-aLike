@@ -12,6 +12,7 @@ import {
   TableCell,
   TableBody,
   Paper,
+  Typography,
 } from "@material-ui/core";
 
 // Icons
@@ -27,11 +28,9 @@ const StyledTableCell = withStyles((theme) => ({
   body: {
     fontSize: 14,
     color: "antiquewhite",
+    backdropFilter: "blur(1px) opacity(0.9)",
   },
 }))(TableCell);
-const StyledTableBody = withStyles((theme) => ({
-  backdropFilter: "blur(10px) opacity(0.9)"
-}))(TableBody);
 
 export default function LobbyTable(props) {
   const {
@@ -43,6 +42,7 @@ export default function LobbyTable(props) {
     lobbies,
     size,
     main,
+    tableRowHover,
   } = props;
 
   // TODO: NEED AN ONCLICK FUNCTION TO DIRECT PEOPLE TO LOBBIES
@@ -55,7 +55,7 @@ export default function LobbyTable(props) {
             key={lobbyID}
             id={lobbyID}
             hover
-            role='checkbox'
+            className={tableRowHover}
             tabIndex={-1}
           >
             <StyledTableCell align='left'>
@@ -79,6 +79,11 @@ export default function LobbyTable(props) {
 
   return (
     <>
+      {main && (
+        <>
+          <Typography variant='h2'>{gameName} Lobbies</Typography>
+        </>
+      )}
       <TableContainer component={Paper} id={slug}>
         <Table className={root} size={size}>
           <TableHead>
@@ -94,14 +99,19 @@ export default function LobbyTable(props) {
               )}
             </TableRow>
           </TableHead>
-          <StyledTableBody
+          <TableBody
             style={{ backgroundImage: "url(" + gameBackground + ")" }}
             className={imgStyle}
           >
             {dataRows}
-          </StyledTableBody>
+          </TableBody>
         </Table>
       </TableContainer>
+      {!main && (
+        <>
+          <Typography variant='h5'>{gameName} Lobbies</Typography>
+        </>
+      )}
     </>
   );
 }
