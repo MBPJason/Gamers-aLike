@@ -5,10 +5,17 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     padding: theme.spacing(2),
   },
+  sectionTitle: {
+    margin: theme.spacing(2, 0, 1, 0),
+    textAlign: "left",
+  },
+
+  // ======================
+  // Card Classes
+  // ======================
   cardSize: {
     maxWidth: 200,
     margin: theme.spacing(1),
-    padding: theme.spacing(1),
     borderRadius: 0,
     position: "relative",
     transition: "0.2s",
@@ -17,15 +24,15 @@ const useStyles = makeStyles((theme) => ({
       transform: "scale(1.1)",
     },
   },
-  font: {
-    position: "absolute",
-    top: "20%",
-    width: "100%",
-    textAlign: "center",
-    color: "white",
-    backgroundColor: "none",
+  cardTitle: {
+    margin: theme.spacing(1, 0),
+    textAlign: "left",
     fontSize: "12",
   },
+
+  // =======================
+  // Carousel Classes
+  // =======================
   gridCarousel: {
     display: "flex",
     flexDirection: "row",
@@ -44,8 +51,25 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
   },
 
+  // ==================
+  // Table Classes
+  // ==================
   tableDesktop: {
     minWidth: "10vw",
+    backgroundColor: "gray",
+    color: "antiquewhite",
+  },
+  tableBackground: {
+    zIndex: "1",
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backdropFilter: "blur(20px)",
+  },
+  tableRow: {
+    "&:hover": {
+      opacity: "1",
+    },
   },
 }));
 

@@ -10,33 +10,38 @@ import {
   Paper,
   CardMedia,
   Button,
-  ButtonGroup,
   Box,
+  Avatar,
   Typography,
 } from "@material-ui/core";
+import AvatarGroup from "@material-ui/lab/AvatarGroup";
 import PeopleCardFooter from "@mui-treasury/components/cardFooter/people";
 
 export default function GameCard(props) {
   const { slug, image, name, faces, width, root, title } = props;
   const mediaStyles = useCoverCardMediaStyles();
 
-  return (
+  const Avatars = (
     <>
-      <Card component={Paper} elevation={4} id={slug} className={root}>
-        <CardActionArea>
-          <CardMedia component='img' className={mediaStyles} image={image} />
-          <Typography component='h5' variant='h5' className={title}>
-            {name}
-          </Typography>
-          <ButtonGroup variant='text'>
-            <Button size='small'>Quick Join Lobby</Button>
-            <Button>Create a Lobby</Button>
-          </ButtonGroup>
-        </CardActionArea>
-        <Box minWidth={width}>
-          <PeopleCardFooter faces={faces} />
-        </Box>
-      </Card>
+      {faces.map((face) => (
+        <Avatar alt='face' src={face} />
+      ))}
     </>
+  );
+
+  return (
+    <div className={root}>
+      <Card component={Paper} elevation={4} id={slug}>
+        <CardActionArea>
+          <CardMedia component='img' image={image} />
+        </CardActionArea>
+        <CardActionArea>
+          <AvatarGroup max={4} spacing='small'>{Avatars}</AvatarGroup>
+        </CardActionArea>
+      </Card>
+      <Typography variant='h6' className={title}>
+        {name}
+      </Typography>
+    </div>
   );
 }

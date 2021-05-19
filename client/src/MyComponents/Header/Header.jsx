@@ -31,7 +31,12 @@ import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import MoreIcon from "@material-ui/icons/MoreVert";
 
+
+// ======================
+// React component
+// ======================
 export default function ResponsiveDrawer(props) {
+  // Styles
   const classes = useStyles();
   const theme = useTheme();
 
@@ -62,7 +67,7 @@ export default function ResponsiveDrawer(props) {
 
     window.addEventListener("resize", () => setResponsiveness());
   }, []);
-
+  
   const handleTabletDrawer = () => {
     setTabletOpen(!tabletOpen);
   };
@@ -170,6 +175,19 @@ export default function ResponsiveDrawer(props) {
           >
             Gamers-aLike
           </Typography>
+          <div className={classes.search}>
+            <div className={classes.searchIcon}>
+              <SearchIcon />
+            </div>
+            <InputBase
+              placeholder="Search…"
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ 'aria-label': 'search' }}
+            />
+          </div>
         </Toolbar>
       </AppBar>
       {/* Check for which drawer should be called */}

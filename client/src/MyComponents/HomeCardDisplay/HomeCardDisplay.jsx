@@ -26,6 +26,10 @@ const faces = [
   "https://i.pravatar.cc/300?img=2",
   "https://i.pravatar.cc/300?img=3",
   "https://i.pravatar.cc/300?img=4",
+  "https://i.pravatar.cc/300?img=5",
+  "https://i.pravatar.cc/300?img=6",
+  "https://i.pravatar.cc/300?img=7",
+  "https://i.pravatar.cc/300?img=8",
 ];
 
 const lastPlayedGames = [
@@ -83,22 +87,22 @@ const categories = [
     img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
   },
   {
-    id: "fightingGames",
-    genre: "Fighting Games",
+    id: "strategyGames",
+    genre: "Strategy Games",
+    summary:
+      "Test your intellect and strategic prowess against many other players. Set up lobbies for you vs your friend or King of the Hill type lobbies.",
+    img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
+  },
+  {
+    id: "mmoGames",
+    genre: "MMO Games",
     summary:
       "1 v 1 sounds fun? Showing off that new combo you have been labbing out or looking for a test partner or a couple then then try you hand over here.",
     img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
   },
   {
-    id: "fightingGames",
-    genre: "Fighting Games",
-    summary:
-      "1 v 1 sounds fun? Showing off that new combo you have been labbing out or looking for a test partner or a couple then then try you hand over here.",
-    img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
-  },
-  {
-    id: "fightingGames",
-    genre: "Fighting Games",
+    id: "partyGames",
+    genre: "Party Games",
     summary:
       "1 v 1 sounds fun? Showing off that new combo you have been labing out or looking for a test partner or a couple then then try you hand over here.",
     img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
@@ -112,7 +116,7 @@ const rows = [
     Players: "3/5", // TODO: Needs to be dynamically updated
     Creator: "MasterChief",
     Language: "English",
-    lobbyID: "OH1H348HWN9U",
+    lobbyID: "OH1H3HA8AN9U",
   },
   {
     Restricted: true,
@@ -120,7 +124,7 @@ const rows = [
     Players: "2/7", // TODO: Needs to be dynamically updated
     Creator: "CmdrShepard",
     Language: "English",
-    lobbyID: "OH1H348HWN9U",
+    lobbyID: "OH19KMD3WN9U",
   },
   {
     Restricted: false,
@@ -128,7 +132,7 @@ const rows = [
     Players: "3/5", // TODO: Needs to be dynamically updated
     Creator: "MasterChief",
     Language: "English",
-    lobbyID: "OH1H348HWN9U",
+    lobbyID: "OH1H73P2WN9U",
   },
   {
     Restricted: true,
@@ -136,7 +140,7 @@ const rows = [
     Players: "1/4", // TODO: Needs to be dynamically updated
     Creator: "DeezNuts",
     Language: "English",
-    lobbyID: "OH1H348HWN9U",
+    lobbyID: "OHPS6N48HWN9U",
   },
   {
     Restricted: false,
@@ -144,7 +148,7 @@ const rows = [
     Players: "3/10", // TODO: Needs to be dynamically updated
     Creator: "NoobSlayer",
     Language: "English",
-    lobbyID: "OH1H348HWN9U",
+    lobbyID: "OH1H3492KL9U",
   },
 ];
 
@@ -185,7 +189,7 @@ export default function HomeCardDisplay(props) {
   const classes = useStyles();
   const shadowStyles = useLightTopShadowStyles();
 
-  const mobileView = (
+  const tabletView = (
     <>
       <div></div>
     </>
@@ -229,7 +233,6 @@ export default function HomeCardDisplay(props) {
                     <Typography component='h2' variant='h4'>
                       {genre}
                     </Typography>
-                    <br />
                     <Typography variant='subtitle1'>{summary}</Typography>
                   </div>
                 </Grid>
@@ -237,7 +240,7 @@ export default function HomeCardDisplay(props) {
             ))}
           </Swiper>
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} className={classes.sectionTitle}>
           <Typography variant='h5'>Check out these lobbies</Typography>
         </Grid>
         {tableGames.map(({ gameName, gameSlug, gameBackground }) => (
@@ -248,8 +251,9 @@ export default function HomeCardDisplay(props) {
               slug={gameSlug}
               gameBackground={gameBackground}
               lobbies={rows}
-              imgStyle={classes.carouselImg}
+              imgStyle={classes.tableBackground}
               root={classes.tableDesktop}
+              tableRowHover={classes.tableRow}
               size={"small"}
               main={false}
             />
@@ -258,7 +262,7 @@ export default function HomeCardDisplay(props) {
         <br />
         <br />
         {/* Test Placements for game cards */}
-        <Grid item xs={12}>
+        <Grid item xs={12} className={classes.sectionTitle}>
           <Typography variant='h5'>Recommended Games</Typography>
         </Grid>
         {lastPlayedGames.map(({ slug, name, image }) => (
@@ -271,14 +275,16 @@ export default function HomeCardDisplay(props) {
               faces={faces}
               width={150}
               root={classNames(classes.cardSize, shadowStyles)}
-              title={classes.font}
+              title={classes.cardTitle}
             />
           </Grid>
         ))}
         <br />
         <br />
         <Grid item xs={12}>
-          <Typography variant='h5'>Jump Back into</Typography>
+          <Typography variant='h5' className={classes.sectionTitle}>
+            Jump Back into
+          </Typography>
         </Grid>
         {lastPlayedGames.map(({ slug, name, image }) => (
           <Grid item xs={12} lg={2}>
@@ -290,12 +296,12 @@ export default function HomeCardDisplay(props) {
               faces={faces}
               width={150}
               root={classNames(classes.cardSize, shadowStyles)}
-              title={classes.font}
+              title={classes.cardTitle}
             />
           </Grid>
         ))}
       </Grid>
     </>
   );
-  return <>{desktopView}</>;
+  return <>{desktop ? desktopView : tabletView}</>;
 }

@@ -12,6 +12,7 @@ import {
   TableCell,
   TableBody,
   Paper,
+  Typography,
 } from "@material-ui/core";
 
 // Icons
@@ -26,6 +27,8 @@ const StyledTableCell = withStyles((theme) => ({
   },
   body: {
     fontSize: 14,
+    color: "antiquewhite",
+    backdropFilter: "blur(1px) opacity(0.9)",
   },
 }))(TableCell);
 
@@ -39,6 +42,7 @@ export default function LobbyTable(props) {
     lobbies,
     size,
     main,
+    tableRowHover,
   } = props;
 
   // TODO: NEED AN ONCLICK FUNCTION TO DIRECT PEOPLE TO LOBBIES
@@ -51,20 +55,20 @@ export default function LobbyTable(props) {
             key={lobbyID}
             id={lobbyID}
             hover
-            role='checkbox'
+            className={tableRowHover}
             tabIndex={-1}
           >
-            <TableCell align='left'>
+            <StyledTableCell align='left'>
               {Restricted ? <LockIcon /> : <LockOpenIcon />}
-            </TableCell>
-            <TableCell component='th' scope='row'>
+            </StyledTableCell>
+            <StyledTableCell component='th' scope='row'>
               {Requests}
-            </TableCell>
-            <TableCell align='right'>{Players}</TableCell>
+            </StyledTableCell>
+            <StyledTableCell align='right'>{Players}</StyledTableCell>
             {main && (
               <>
-                <TableCell align='right'>{Creator}</TableCell>
-                <TableCell align='right'>{Language}</TableCell>
+                <StyledTableCell align='right'>{Creator}</StyledTableCell>
+                <StyledTableCell align='right'>{Language}</StyledTableCell>
               </>
             )}
           </TableRow>
@@ -75,26 +79,39 @@ export default function LobbyTable(props) {
 
   return (
     <>
-      <Paper style={{ backgroundImage: gameBackground }} className={imgStyle}>
-        <TableContainer component={Paper} id={slug}>
-          <Table className={root} size={size}>
-            <TableHead>
-              <TableRow>
-                <StyledTableCell align='left'>Restricted</StyledTableCell>
-                <StyledTableCell>Requests</StyledTableCell>
-                <StyledTableCell align='right'># of People</StyledTableCell>
-                {main && (
-                  <>
-                    <StyledTableCell align='right'>Creator</StyledTableCell>
-                    <StyledTableCell align='right'>Language</StyledTableCell>
-                  </>
-                )}
-              </TableRow>
-            </TableHead>
-            <TableBody>{dataRows}</TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+      {main && (
+        <>
+          <Typography variant='h2'>{gameName} Lobbies</Typography>
+        </>
+      )}
+      <TableContainer component={Paper} id={slug}>
+        <Table className={root} size={size}>
+          <TableHead>
+            <TableRow>
+              <StyledTableCell align='left'>Restricted</StyledTableCell>
+              <StyledTableCell>Requests</StyledTableCell>
+              <StyledTableCell align='right'># of People</StyledTableCell>
+              {main && (
+                <>
+                  <StyledTableCell align='right'>Creator</StyledTableCell>
+                  <StyledTableCell align='right'>Language</StyledTableCell>
+                </>
+              )}
+            </TableRow>
+          </TableHead>
+          <TableBody
+            style={{ backgroundImage: "url(" + gameBackground + ")" }}
+            className={imgStyle}
+          >
+            {dataRows}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      {!main && (
+        <>
+          <Typography variant='h5'>{gameName} Lobbies</Typography>
+        </>
+      )}
     </>
   );
 }
