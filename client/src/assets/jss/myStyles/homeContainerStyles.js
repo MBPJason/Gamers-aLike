@@ -17,15 +17,15 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 200,
     margin: theme.spacing(1),
     borderRadius: 0,
-    position: "relative",
     transition: "0.2s",
 
     "&:hover": {
-      transform: "scale(1.1)",
+      transform: "scale(1.05)",
     },
   },
   cardTitle: {
-    margin: theme.spacing(1, 0),
+    maxWidth: 200,
+    margin: theme.spacing(2, 1),
     textAlign: "left",
     fontSize: "12",
   },
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    position: "absolute",
+    position: "relative",
   },
 
   // ==================

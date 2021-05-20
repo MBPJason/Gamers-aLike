@@ -1,7 +1,5 @@
 import React from "react";
 
-import { useCoverCardMediaStyles } from "@mui-treasury/styles/cardMedia/cover";
-
 import {
   Card,
   CardActionArea,
@@ -14,34 +12,34 @@ import {
   Avatar,
   Typography,
 } from "@material-ui/core";
-import AvatarGroup from "@material-ui/lab/AvatarGroup";
-import PeopleCardFooter from "@mui-treasury/components/cardFooter/people";
+import { AvatarGroup } from "@material-ui/lab";
+
 
 export default function GameCard(props) {
   const { slug, image, name, faces, width, root, title } = props;
-  const mediaStyles = useCoverCardMediaStyles();
 
-  const Avatars = (
-    <>
-      {faces.map((face) => (
-        <Avatar alt='face' src={face} />
-      ))}
-    </>
-  );
+  // TODO: Include onClick functions for AvatarGroup, CardImage, CardTitle and GameGenres
+
 
   return (
-    <div className={root}>
-      <Card component={Paper} elevation={4} id={slug}>
+    <>
+      <Card component={Paper} elevation={4} id={slug} className={root}>
         <CardActionArea>
           <CardMedia component='img' image={image} />
         </CardActionArea>
         <CardActionArea>
-          <AvatarGroup max={4} spacing='small'>{Avatars}</AvatarGroup>
+          <AvatarGroup max={4}>
+          {/* TODO: Include key prop */}
+            {faces.map((face) => (
+              <Avatar alt='face' src={face} />
+            ))}
+          </AvatarGroup>
         </CardActionArea>
       </Card>
       <Typography variant='h6' className={title}>
         {name}
       </Typography>
-    </div>
+      {/* TODO: Display clickable genres to start a search with  */}
+    </>
   );
 }

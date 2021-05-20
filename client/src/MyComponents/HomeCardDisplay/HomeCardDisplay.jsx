@@ -200,11 +200,11 @@ export default function HomeCardDisplay(props) {
       <Grid
         container
         justify='center'
-        alignItems='center'
+        alignItems='stretch'
         spacing={1}
         className={classes.root}
       >
-        <Grid container component='main'>
+        <Grid item xs={12} component='main'>
           <Swiper
             tag='section'
             wrapperTag='ul'
