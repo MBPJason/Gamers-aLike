@@ -21,7 +21,6 @@ import {
   Toolbar,
   Hidden,
   InputBase,
-  Button,
   Link,
 } from "@material-ui/core";
 
@@ -29,8 +28,7 @@ import {
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
-import MoreIcon from "@material-ui/icons/MoreVert";
-
+import NotificationsIcon from "@material-ui/icons/Notifications";
 
 // ======================
 // React component
@@ -67,7 +65,7 @@ export default function ResponsiveDrawer(props) {
 
     window.addEventListener("resize", () => setResponsiveness());
   }, []);
-  
+
   const handleTabletDrawer = () => {
     setTabletOpen(!tabletOpen);
   };
@@ -141,6 +139,9 @@ export default function ResponsiveDrawer(props) {
     </nav>
   );
 
+  // ===========================
+  // Component Build
+  // ===========================
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -151,43 +152,55 @@ export default function ResponsiveDrawer(props) {
           desktopView === true ? classes.appBarDesktop : classes.appBarTablet
         }
       >
-        <Toolbar>
-          <IconButton
-            color='inherit'
-            aria-label='open drawer'
-            edge='start'
-            onClick={
-              desktopView === true ? handleDesktopDrawer : handleTabletDrawer
-            }
-            className={
-              desktopView === true
-                ? classes.menuButtonDesktop
-                : classes.menuButtonTablet
-            }
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography
-            component={RouterLink}
-            to={{ pathname: "/home" }}
-            variant='h6'
-            noWrap
-          >
-            Gamers-aLike
-          </Typography>
+      {/* App bar content */}
+        <Toolbar className={classes.toolbar}>
+          <div>
+            <IconButton
+              color='inherit'
+              aria-label='open drawer'
+              edge='start'
+              onClick={
+                desktopView === true ? handleDesktopDrawer : handleTabletDrawer
+              }
+              className={
+                desktopView === true
+                  ? classes.menuButtonDesktop
+                  : classes.menuButtonTablet
+              }
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              component={RouterLink}
+              to={{ pathname: "/home" }}
+              variant='h6'
+              noWrap
+            >
+              Gamers-aLike
+            </Typography>
+          </div>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />
             </div>
+            {/* TODO: onChange Function needed */}
             <InputBase
-              placeholder="Search…"
+              placeholder='Search…'
               classes={{
                 root: classes.inputRoot,
                 input: classes.inputInput,
               }}
-              inputProps={{ 'aria-label': 'search' }}
+              inputProps={{ "aria-label": "search" }}
             />
           </div>
+          <span>
+            <IconButton>
+              <NotificationsIcon />
+            </IconButton>
+            <IconButton>
+              <AccountCircle />
+            </IconButton>
+          </span>
         </Toolbar>
       </AppBar>
       {/* Check for which drawer should be called */}
