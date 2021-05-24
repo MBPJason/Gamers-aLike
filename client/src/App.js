@@ -88,8 +88,8 @@ function App() {
 
   return (
     <>
-      <Router>
-        <ScreenSizeContext.Provider value={{ bigScreens, desktop }}>
+      <ScreenSizeContext.Provider value={{ bigScreens, desktop }}>
+        <Router>
           <Switch>
             <Route exact path='/' component={Landing} />
             <Route exact path='/signup' component={SignUp} />
@@ -98,8 +98,8 @@ function App() {
             <Route path='/Profile' component={Landing} />
             <Route path='/Lobbies' component={Landing} />
           </Switch>
-        </ScreenSizeContext.Provider>
-      </Router>
+        </Router>
+      </ScreenSizeContext.Provider>
     </>
   );
 }

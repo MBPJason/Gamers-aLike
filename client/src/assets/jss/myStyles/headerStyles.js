@@ -6,10 +6,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
   },
-
-  // ===================
-  // Drawer Classes
-  // ===================
   drawer: {
     [theme.breakpoints.up("md")]: {
       width: drawerWidth,
@@ -23,16 +19,8 @@ const useStyles = makeStyles((theme) => ({
   drawerContainer: {
     overflow: "auto",
   },
-  drawerPaper: {
-    width: drawerWidth,
-  },
-
-  // ===================
-  // AppBar Classes
-  // ===================
   appBarDesktop: {
     zIndex: theme.zIndex.drawer + 1,
-    flexGrow: 1,
   },
   appBarTablet: {
     [theme.breakpoints.up("md")]: {
@@ -40,10 +28,6 @@ const useStyles = makeStyles((theme) => ({
       marginLeft: drawerWidth,
     },
   },
-
-  // =======================
-  // Menu Button Classes
-  // =======================
   menuButtonDesktop: {
     marginRight: theme.spacing(2),
   },
@@ -53,25 +37,10 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   // necessary for content to be below app bar
-  toolbar: {
-    justifyContent: "space-between",
-    "& IconButton": {
-      justifyContent: "flex-start",
-    },
-    "& Typography": {
-      justifyContent: "flex-start",
-    },
-    "& div": {
-      justifyContent: "center",
-    },
-    "& span": {
-      justifyContent: "flex-end",
-    },
+  toolbar: theme.mixins.toolbar,
+  drawerPaper: {
+    width: drawerWidth,
   },
-
-  // ==========================
-  // Content Sizing Classes
-  // ==========================
   contentTablet: {
     flexGrow: 1,
     padding: theme.spacing(3),
@@ -92,10 +61,6 @@ const useStyles = makeStyles((theme) => ({
     }),
     marginLeft: 0,
   },
-
-  // =======================
-  // Search Bar Classes
-  // =======================
   search: {
     position: "relative",
     borderRadius: theme.shape.borderRadius,
@@ -106,8 +71,9 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
     marginLeft: 0,
     width: "100%",
-    [theme.breakpoints.up("lg")]: {
-      width: "70ch",
+    [theme.breakpoints.up("sm")]: {
+      marginLeft: theme.spacing(3),
+      width: "auto",
     },
   },
   searchIcon: {
