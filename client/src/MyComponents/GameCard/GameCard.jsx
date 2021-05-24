@@ -19,7 +19,6 @@ export default function GameCard(props) {
   const { slug, image, name, faces, width, root, title } = props;
 
   // TODO: Include onClick functions for AvatarGroup, CardImage, CardTitle and GameGenres
-  // TODO: Clean up styling for 4K monitors, there is too much space in between cards
 
 
   return (
