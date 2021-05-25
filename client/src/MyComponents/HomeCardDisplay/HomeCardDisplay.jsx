@@ -1,10 +1,11 @@
-import React, { useContext } from "react";
+import React from "react";
 import classNames from "classnames";
-import ScreenSizeContext from "../../context/ScreenSizeContext";
 
 // Stylesheet
 import useStyles from "../../assets/jss/myStyles/homeContainerStyles";
 import "swiper/swiper-bundle.css";
+// import "swiper/components/effect-fade/effect-fade.min.css";
+// import "swiper/components/effect-coverflow/effect-coverflow.min.css";
 import "swiper/components/navigation/navigation.min.css";
 import "swiper/components/pagination/pagination.min.css";
 import { useLightTopShadowStyles } from "@mui-treasury/styles/shadow/lightTop";
@@ -177,16 +178,12 @@ const tableGames = [
   },
 ];
 
-// TODO: Display should be like a carousel/tab from phone
-// TODO: Able to switch between multiplayer genre carousel
-// TODO: To Recommended Game List carousel
-// TODO: To Games Last Played carousel
-
-// ==========================
-// React Component
-// ==========================
-export default function HomeCardDisplay() {
-  const { desktop } = useContext(ScreenSizeContext);
+// Display should be like a carousel/tab from phone
+// Able to switch between multiplayer genre carousel
+// To Recommended Game List carousel
+// To Games Last Played carousel
+export default function HomeCardDisplay(props) {
+  const { desktop } = props;
 
   // Styles
   const classes = useStyles();

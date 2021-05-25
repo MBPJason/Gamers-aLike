@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import classNames from "classnames";
 import { Link as RouterLink } from "react-router-dom";
 import DrawerItems from "./DrawerItems";
-import ScreenSizeContext from "../../context/ScreenSizeContext";
+import ContentDisplay from "../HomeCardDisplay/HomeCardDisplay";
 
 // Stylesheet
 import { useTheme } from "@material-ui/core/styles";
@@ -36,11 +36,6 @@ import NotificationsIcon from "@material-ui/icons/Notifications";
 // React component
 // ======================
 export default function ResponsiveDrawer(props) {
-  // ScreenSize
-  const { desktop } = useContext(ScreenSizeContext);
-  // Props
-  const ContentDisplay = props.content;
-
   // Styles
   const classes = useStyles();
   const theme = useTheme();
@@ -48,12 +43,12 @@ export default function ResponsiveDrawer(props) {
   // States
   const [desktopOpen, setDesktopOpen] = useState(true);
   const [tabletOpen, setTabletOpen] = useState(false);
-  const [state, setState] =useState({
-    desktopView: false,
-    tabletView: true,
-  }) 
+  const [state, setState] = useState({
+    desktopView: true,
+    tabletView: false,
+  });
+  const { tabletView, desktopView } = state;
 
-  const {desktopView, tabletView} =
   // Function called when Component Mounted
   useEffect(() => {
     const setResponsiveness = () => {
@@ -85,9 +80,7 @@ export default function ResponsiveDrawer(props) {
     }
   };
 
-  // ===================
   // Desktop Drawer
-  // ===================
   const desktopDrawer = (
     <Drawer
       className={classes.drawerDesktop}
@@ -99,7 +92,7 @@ export default function ResponsiveDrawer(props) {
     >
       <Toolbar />
 
-      <DrawerItems desktop={desktop} />
+      <DrawerItems desktop={desktopView} />
     </Drawer>
   );
 
@@ -107,9 +100,7 @@ export default function ResponsiveDrawer(props) {
   const container =
     props.window !== undefined ? () => props.window().document.body : undefined;
 
-  // ==================
   // Tablet Drawer
-  // ==================
   const tabletDrawer = (
     <nav className={classes.drawer} aria-label='mailbox folders'>
       {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
@@ -127,7 +118,7 @@ export default function ResponsiveDrawer(props) {
             keepMounted: true, // Better open performance on mobile.
           }}
         >
-          <DrawerItems desktop={desktop} />
+          <DrawerItems desktop={desktopView} />
         </Drawer>
       </Hidden>
       <Hidden mdDown implementation='js'>
@@ -144,7 +135,7 @@ export default function ResponsiveDrawer(props) {
             keepMounted: true, // Better open performance on mobile.
           }}
         >
-          <DrawerItems desktop={desktop} />
+          <DrawerItems desktop={desktopView} />
         </Drawer>
       </Hidden>
     </nav>
@@ -156,32 +147,37 @@ export default function ResponsiveDrawer(props) {
       {/* App bar above the drawer and container */}
       <AppBar
         position='fixed'
-        className={desktop ? classes.appBarDesktop : classes.appBarTablet}
+        className={
+          desktopView === true ? classes.appBarDesktop : classes.appBarTablet
+        }
       >
-        <Toolbar>
-          <IconButton
-            color='inherit'
-            aria-label='open drawer'
-            edge='start'
-            onClick={
-              desktopView === true ? handleDesktopDrawer : handleTabletDrawer
-            }
-            className={
-              desktopView === true
-                ? classes.menuButtonDesktop
-                : classes.menuButtonTablet
-            }
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography
-            component={RouterLink}
-            to={{ pathname: "/home" }}
-            variant='h6'
-            noWrap
-          >
-            Gamers-aLike
-          </Typography>
+      {/* App bar content */}
+        <Toolbar className={classes.toolbar}>
+          <div>
+            <IconButton
+              color='inherit'
+              aria-label='open drawer'
+              edge='start'
+              onClick={
+                desktopView === true ? handleDesktopDrawer : handleTabletDrawer
+              }
+              className={
+                desktopView === true
+                  ? classes.menuButtonDesktop
+                  : classes.menuButtonTablet
+              }
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              component={RouterLink}
+              to={{ pathname: "/home" }}
+              variant='h6'
+              noWrap
+            >
+              Gamers-aLike
+            </Typography>
+          </div>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />
@@ -195,21 +191,21 @@ export default function ResponsiveDrawer(props) {
               inputProps={{ 'aria-label': 'search' }}
             />
           </div>
-          <div id='profileNotifications'>
+          <span>
             <IconButton>
               <NotificationsIcon />
             </IconButton>
             <IconButton>
               <AccountCircle />
             </IconButton>
-          </div>
+          </span>
         </Toolbar>
       </AppBar>
       {/* Check for which drawer should be called */}
-      {desktop ? desktopDrawer : tabletDrawer}
+      {tabletView ? tabletDrawer : desktopDrawer}
       <main
         className={
-          desktop
+          desktopView
             ? classNames(classes.contentDesktop, {
                 [classes.contentShiftDesktop]: desktopOpen,
               })
@@ -219,7 +215,7 @@ export default function ResponsiveDrawer(props) {
         <Toolbar />
         {/* Main Content goes here */}
 
-        {ContentDisplay}
+        <ContentDisplay desktop={desktopView} />
       </main>
     </div>
   );
