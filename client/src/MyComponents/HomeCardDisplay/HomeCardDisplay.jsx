@@ -4,8 +4,6 @@ import classNames from "classnames";
 // Stylesheet
 import useStyles from "../../assets/jss/myStyles/homeContainerStyles";
 import "swiper/swiper-bundle.css";
-// import "swiper/components/effect-fade/effect-fade.min.css";
-// import "swiper/components/effect-coverflow/effect-coverflow.min.css";
 import "swiper/components/navigation/navigation.min.css";
 import "swiper/components/pagination/pagination.min.css";
 import { useLightTopShadowStyles } from "@mui-treasury/styles/shadow/lightTop";
@@ -19,7 +17,10 @@ import SwiperCore, { Navigation, Pagination } from "swiper/core";
 
 SwiperCore.use([Navigation, Pagination]);
 
+// ======================================================
 // Test data. Will grab it from another method
+// ======================================================
+
 // Faces don't need to be mapped over just set them in an array and send as prop
 const faces = [
   "https://i.pravatar.cc/300?img=1",
@@ -104,7 +105,7 @@ const categories = [
     id: "partyGames",
     genre: "Party Games",
     summary:
-      "1 v 1 sounds fun? Showing off that new combo you have been labing out or looking for a test partner or a couple then then try you hand over here.",
+      "1 v 1 sounds fun? Showing off that new combo you have been labbing out or looking for a test partner or a couple then then try you hand over here.",
     img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
   },
 ];
@@ -182,6 +183,11 @@ const tableGames = [
 // Able to switch between multiplayer genre carousel
 // To Recommended Game List carousel
 // To Games Last Played carousel
+
+
+// =========================
+// React Component
+// =========================
 export default function HomeCardDisplay(props) {
   const { desktop } = props;
 
@@ -189,12 +195,18 @@ export default function HomeCardDisplay(props) {
   const classes = useStyles();
   const shadowStyles = useLightTopShadowStyles();
 
+  // ======================
+  // Tablet View
+  // ======================
   const tabletView = (
     <>
       <div></div>
     </>
   );
 
+  // ======================
+  // Desktop View
+  // ======================
   const desktopView = (
     <>
       <Grid
@@ -251,9 +263,6 @@ export default function HomeCardDisplay(props) {
               slug={gameSlug}
               gameBackground={gameBackground}
               lobbies={rows}
-              imgStyle={classes.tableBackground}
-              root={classes.tableDesktop}
-              tableRowHover={classes.tableRow}
               size={"small"}
               main={false}
             />

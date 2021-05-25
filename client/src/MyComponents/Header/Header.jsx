@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import classNames from "classnames";
 import { Link as RouterLink } from "react-router-dom";
 import DrawerItems from "./DrawerItems";
-import ContentDisplay from "../HomeCardDisplay/HomeCardDisplay";
 
 // Stylesheet
 import { useTheme } from "@material-ui/core/styles";
@@ -31,11 +30,12 @@ import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 
-
 // ======================
 // React component
 // ======================
 export default function ResponsiveDrawer(props) {
+  // Content
+  const { content } = props;
   // Styles
   const classes = useStyles();
   const theme = useTheme();
@@ -67,7 +67,7 @@ export default function ResponsiveDrawer(props) {
 
     window.addEventListener("resize", () => setResponsiveness());
   }, []);
-  
+
   const handleTabletDrawer = () => {
     setTabletOpen(!tabletOpen);
   };
@@ -151,7 +151,7 @@ export default function ResponsiveDrawer(props) {
           desktopView === true ? classes.appBarDesktop : classes.appBarTablet
         }
       >
-      {/* App bar content */}
+        {/* App bar content */}
         <Toolbar className={classes.toolbar}>
           <div>
             <IconButton
@@ -183,12 +183,12 @@ export default function ResponsiveDrawer(props) {
               <SearchIcon />
             </div>
             <InputBase
-              placeholder="Search…"
+              placeholder='Search…'
               classes={{
                 root: classes.inputRoot,
                 input: classes.inputInput,
               }}
-              inputProps={{ 'aria-label': 'search' }}
+              inputProps={{ "aria-label": "search" }}
             />
           </div>
           <span>
@@ -215,7 +215,7 @@ export default function ResponsiveDrawer(props) {
         <Toolbar />
         {/* Main Content goes here */}
 
-        <ContentDisplay desktop={desktopView} />
+        {content}
       </main>
     </div>
   );
