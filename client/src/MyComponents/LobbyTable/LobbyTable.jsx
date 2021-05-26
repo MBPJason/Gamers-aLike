@@ -2,6 +2,7 @@ import React from "react";
 
 // Stylesheets
 import { withStyles } from "@material-ui/core/styles";
+import useStyles from "../../assets/jss/myStyles/LobbyStyles";
 
 // Core Components
 import {
@@ -28,22 +29,13 @@ const StyledTableCell = withStyles((theme) => ({
   body: {
     fontSize: 14,
     color: "antiquewhite",
-    backdropFilter: "blur(1px) opacity(0.9)",
+    backdropFilter: "blur(2px) opacity(0.9)",
   },
 }))(TableCell);
 
 export default function LobbyTable(props) {
-  const {
-    slug,
-    gameName,
-    gameBackground,
-    imgStyle,
-    root,
-    lobbies,
-    size,
-    main,
-    tableRowHover,
-  } = props;
+  const classes = useStyles();
+  const { slug, gameName, gameBackground, lobbies, size, main } = props;
 
   // TODO: NEED AN ONCLICK FUNCTION TO DIRECT PEOPLE TO LOBBIES
 
@@ -55,7 +47,7 @@ export default function LobbyTable(props) {
             key={lobbyID}
             id={lobbyID}
             hover
-            className={tableRowHover}
+            className={classes.tableRow}
             tabIndex={-1}
           >
             <StyledTableCell align='left'>
@@ -85,7 +77,7 @@ export default function LobbyTable(props) {
         </>
       )}
       <TableContainer component={Paper} id={slug}>
-        <Table className={root} size={size}>
+        <Table className={classes.tableDesktop} size={size}>
           <TableHead>
             <TableRow>
               <StyledTableCell align='left'>Restricted</StyledTableCell>
@@ -100,8 +92,10 @@ export default function LobbyTable(props) {
             </TableRow>
           </TableHead>
           <TableBody
-            style={{ backgroundImage: "url(" + gameBackground + ")" }}
-            className={imgStyle}
+            style={{
+              backgroundImage: "url(" + gameBackground + ")",
+            }}
+            className={classes.tableBackground}
           >
             {dataRows}
           </TableBody>

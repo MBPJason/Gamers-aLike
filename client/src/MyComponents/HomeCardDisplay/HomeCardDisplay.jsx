@@ -1,6 +1,5 @@
-import React, { useContext } from "react";
+import React from "react";
 import classNames from "classnames";
-import ScreenSizeContext from "../../context/ScreenSizeContext";
 
 // Stylesheet
 import useStyles from "../../assets/jss/myStyles/homeContainerStyles";
@@ -18,7 +17,10 @@ import SwiperCore, { Navigation, Pagination } from "swiper/core";
 
 SwiperCore.use([Navigation, Pagination]);
 
+// ======================================================
 // Test data. Will grab it from another method
+// ======================================================
+
 // Faces don't need to be mapped over just set them in an array and send as prop
 const faces = [
   "https://i.pravatar.cc/300?img=1",
@@ -103,7 +105,7 @@ const categories = [
     id: "partyGames",
     genre: "Party Games",
     summary:
-      "1 v 1 sounds fun? Showing off that new combo you have been labing out or looking for a test partner or a couple then then try you hand over here.",
+      "1 v 1 sounds fun? Showing off that new combo you have been labbing out or looking for a test partner or a couple then then try you hand over here.",
     img: "https://cdn.wallpapersafari.com/17/42/yIYjul.jpg",
   },
 ];
@@ -177,27 +179,34 @@ const tableGames = [
   },
 ];
 
-// TODO: Display should be like a carousel/tab from phone
-// TODO: Able to switch between multiplayer genre carousel
-// TODO: To Recommended Game List carousel
-// TODO: To Games Last Played carousel
+// Display should be like a carousel/tab from phone
+// Able to switch between multiplayer genre carousel
+// To Recommended Game List carousel
+// To Games Last Played carousel
 
-// ==========================
+
+// =========================
 // React Component
-// ==========================
-export default function HomeCardDisplay() {
-  const { desktop } = useContext(ScreenSizeContext);
+// =========================
+export default function HomeCardDisplay(props) {
+  const { desktop } = props;
 
   // Styles
   const classes = useStyles();
   const shadowStyles = useLightTopShadowStyles();
 
+  // ======================
+  // Tablet View
+  // ======================
   const tabletView = (
     <>
       <div></div>
     </>
   );
 
+  // ======================
+  // Desktop View
+  // ======================
   const desktopView = (
     <>
       <Grid
@@ -254,9 +263,6 @@ export default function HomeCardDisplay() {
               slug={gameSlug}
               gameBackground={gameBackground}
               lobbies={rows}
-              imgStyle={classes.tableBackground}
-              root={classes.tableDesktop}
-              tableRowHover={classes.tableRow}
               size={"small"}
               main={false}
             />
