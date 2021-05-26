@@ -29,7 +29,7 @@ const StyledTableCell = withStyles((theme) => ({
   body: {
     fontSize: 14,
     color: "antiquewhite",
-    backdropFilter: "blur(1px) opacity(0.9)",
+    backdropFilter: "blur(2px) opacity(0.9)",
   },
 }))(TableCell);
 
@@ -92,7 +92,9 @@ export default function LobbyTable(props) {
             </TableRow>
           </TableHead>
           <TableBody
-            style={{ backgroundImage: "url(" + gameBackground + ")" }}
+            style={{
+              backgroundImage: "url(" + gameBackground + ")",
+            }}
             className={classes.tableBackground}
           >
             {dataRows}

@@ -142,7 +142,7 @@ export default function LobbyPage() {
 
   const Lobby = (
     <>
-      <Grid container justify='center' alignItems='stretch' spacing={1}>
+      <Grid container justify='center' alignItems='stretch' spacing={1} style={{height: '100vh'}}>
         {data.map(({ gameName, gameSlug, gameBackground }) => (
           <Grid item xs={12}>
             <LobbyTable
@@ -151,7 +151,7 @@ export default function LobbyPage() {
               slug={gameSlug}
               gameBackground={gameBackground}
               lobbies={Lobbies}
-              size={"small"}
+              size={"medium"}
               main={true}
             />
           </Grid>

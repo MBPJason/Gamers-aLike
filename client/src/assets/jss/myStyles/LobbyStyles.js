@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
     backgroundPosition: "center",
-    backdropFilter: "blur(20px)",
+    backdropFilter: "blur(20px) !important",
   },
   tableRow: {
     "&:hover": {
