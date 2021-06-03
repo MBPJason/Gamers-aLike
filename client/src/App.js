@@ -11,7 +11,8 @@ import Landing from "./pages/LandingPage/Landing.jsx";
 import Login from "./pages/AuthPages/LoginPage/LoginPage";
 import SignUp from "./pages/AuthPages/SignUpPage/SignUpPage";
 import Home from "./pages/HomePage/HomePage";
-import Lobby from "./pages/LobbyPage/LobbyPage"
+import Lobby from "./pages/LobbyPage/LobbyPage";
+import Session from "./pages/SessionPage/SessionPage";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route exact path='/home' component={Home} />
           <Route path='/Profile' component={Landing} />
           <Route path='/lobby' component={Lobby} />
+          <Route path='/session' component={Session} />
         </Switch>
       </Router>
     </>

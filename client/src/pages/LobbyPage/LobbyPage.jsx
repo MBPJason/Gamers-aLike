@@ -7,6 +7,9 @@ import LobbyTable from "../../MyComponents/LobbyTable/LobbyTable";
 
 export default function LobbyPage() {
 
+    // ===================
+    // Test Data
+    // ===================
     // All this data in the arrays will be pulled in through context
   const data = [
     {
