@@ -106,7 +106,7 @@ export default function Session() {
     setTyping(true);
     setTimeout(() => {
       setTyping(false);
-    }, 3000);
+    }, 5000);
   };
 
   const handleSendMessage = (e) => {
