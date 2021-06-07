@@ -1,4 +1,4 @@
-import React, {useState, useContext} from "react";
+import React, { useState, useContext } from "react";
 
 // Stylesheets
 import useStyles from "../../assets/jss/myStyles/sessionStyles.js";
@@ -81,11 +81,50 @@ const discord = [
 export default function Session() {
   const classes = useStyles();
 
-  const [typing, setTyping] = useState("");
+  //   States to grab users info for correct display
   const [chatUsers, setChatUsers] = useState([]);
-  const [messages, setMessages] = useState([]);
+  const [lobbyOwner, setLobbyOwner] = useState({});
+  const [currrentUser, setCurrentUser] = useState({});
+
+  //   States to handle Chatroom messages
+  const [timelineMessages, setTimelineMessages] = useState([]);
+  const [messageInput, setMessageInput] = useState("");
+  const [typing, setTyping] = useState(false);
+
+  //   States to handle Sessions parameters
   const [limit, setLimit] = useState(number);
-  const [owner, setOwner] = useState({});
+  const [discordLink, setDiscordLink] = useState({
+    usePublic: true,
+    public: "",
+    private: lobbyOwner.discordLink,
+  });
+
+  const handleTyping = (e) => {
+    //   Grabbing value and setting it in the state
+    let { value } = e.target;
+    setMessageInput(value);
+    setTyping(true);
+    setTimeout(() => {
+      setTyping(false);
+    }, 3000);
+  };
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+
+    if (messageInput.trim() > 0) {
+      //   utils.message.send(currentUser, messageInput);
+
+      //   Reset input
+      setMessageInput("");
+    }
+  };
+
+  const typingIndicator = (
+    //   Set up a check with socket.io to look into "typing" state for other users
+    // Let it serve it up too username and add to the counter
+    <div></div>
+  );
 
   // TODO: Make onClick functions for each of the Linked usernames
   const displayChat = discord.map(({ username, userID, message }) => (
@@ -106,8 +145,6 @@ export default function Session() {
       </Link>
     </li>
   ));
-
-
 
   return (
     <>
