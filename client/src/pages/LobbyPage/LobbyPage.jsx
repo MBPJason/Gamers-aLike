@@ -6,11 +6,10 @@ import Header from "../../MyComponents/Header/Header";
 import LobbyTable from "../../MyComponents/LobbyTable/LobbyTable";
 
 export default function LobbyPage() {
-
-    // ===================
-    // Test Data
-    // ===================
-    // All this data in the arrays will be pulled in through context
+  // ===================
+  // Test Data
+  // ===================
+  // All this data in the arrays will be pulled in through context
   const data = [
     {
       gameName: "Starcraft 2",
@@ -145,7 +144,13 @@ export default function LobbyPage() {
 
   const Lobby = (
     <>
-      <Grid container justify='center' alignItems='stretch' spacing={1} style={{height: '100vh'}}>
+      <Grid
+        container
+        justify='center'
+        alignItems='stretch'
+        spacing={1}
+        style={{ height: "100vh" }}
+      >
         {data.map(({ gameName, gameSlug, gameBackground }) => (
           <Grid item xs={12}>
             <LobbyTable
@@ -164,7 +169,7 @@ export default function LobbyPage() {
   );
   return (
     <>
-      <Header content={Lobby}/>
+      <Header content={Lobby} />
     </>
   );
 }

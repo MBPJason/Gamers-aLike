@@ -1,6 +1,9 @@
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
+  // ============================
+  // Session Container
+  // ============================
   root: {
     display: "flex",
     height: "100vh",
@@ -44,6 +47,181 @@ const useStyles = makeStyles((theme) => ({
   },
   chatBubble: {
     margin: "10px",
+  },
+
+  // ===========================
+  // Chat Room Styling
+  // ===========================
+  clearfix: {
+    content: "",
+    display: "block",
+    clear: "both",
+  },
+
+  chatRoom: {
+    padding: "5rem 20rem",
+    animation: "$fadeChatApp 0.6s ease-in-out",
+    animationFillMode: "forwards",
+  },
+
+  messagesTimeline: {
+    display: "flex",
+    height: "80vh",
+    padding: "1rem",
+    borderTopLeftRadius: "8px",
+    borderTopRightRadius: "8px",
+    backgroundColor: "#fff",
+    flexDirection: "column",
+    overflowY: "auto",
+  },
+
+  messageBubble: {
+    padding: "1rem 0 0 0",
+    opacity: "0",
+    transition: "all 0.15s ease-in-out",
+    animation: "$fadeNewMessage 0.5s",
+    animationFillMode: "forwards",
+  },
+
+  messageText: {
+    position: "relative",
+    maxWidth: "50%",
+    minHeight: "40px",
+    padding: "0.75rem",
+    borderRadius: "4px",
+    fontSize: "14px",
+    lineHeight: "18px",
+    fontWeight: "bold",
+    boxShadow: "0px 10px 10px -8px rgba(0,0,0,0.08)",
+    boxSizing: "border-box",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+
+  messageRight: {
+    "& Avatar": {
+      float: "right",
+    },
+    "& $messageText": {
+      float: "right",
+      textAlign: "right",
+      margin: "0 1rem 0 0",
+      backgroundColor: "#fafafa",
+      "&:after": {
+        content: "",
+        position: "absolute",
+        top: "14px",
+        right: "-8px",
+        width: "0",
+        height: "0",
+        borderStyle: "solid",
+        borderWidth: "6px 0 6px 10px",
+        borderColor: "transparent transparent transparent #fafafa",
+      },
+    },
+  },
+
+  messageLeft: {
+    "& Avatar": {
+      float: "left",
+    },
+    "& $messageText": {
+      float: "left",
+      textAlign: "left",
+      margin: "0 0 0 1rem",
+      color: "#fff",
+      backgroundColor: "#4870df",
+      "&:before": {
+        content: "",
+        position: "absolute",
+        top: "14px",
+        left: "-8px",
+        width: "0",
+        height: "0",
+        borderStyle: "solid",
+        borderWidth: "6px 10px 6px 0",
+        borderColor: "transparent #4870df transparent transparent",
+      },
+    },
+  },
+
+  isTyping: {
+    position: "absolute",
+    top: "0",
+    fontSize: "10px",
+    fontWeight: "bold",
+  },
+
+  isTypingDot: {
+    position: "relative",
+    left: "4px",
+    display: "inline-block",
+    width: "2px",
+    height: "2px",
+    backgroundColor: "#606060",
+    animation: "$typingMessage 1.5s",
+    animationFillMode: "forwards",
+    animationIterationCount: "infinite",
+    animationTimingFunction: "ease-in-out",
+
+    "&:before, &:after": {
+      content: "",
+      position: "absolute",
+      display: "inline-block",
+      width: "2px",
+      height: "2px",
+      backgroundColor: "#606060",
+      animation: "$typingMessage 1.5s",
+      animationFillMode: "forwards",
+      animationIterationCount: "infinite",
+      animationTimingFunction: "ease-in-out",
+    },
+
+    "&:before": {
+      left: "4px",
+      animationDelay: "0.5s",
+    },
+    "&:after": {
+      left: "8px",
+      animationDelay: "1s",
+    },
+  },
+
+  // ===========================
+  // Keyframes for Animation
+  // ===========================
+  "@keyframes fadeChatApp": {
+    "0%": {
+      opacity: "0",
+      transform: "translateY(1rem)",
+    },
+    "100%": {
+      opacity: "1",
+      transform: "translateY(0px)",
+    },
+  },
+
+  "@keyframes fadeNewMessage": {
+    "0%": {
+      opacity: "0",
+      transform: "translateY(1rem)",
+    },
+    "100%": {
+      opacity: "1",
+      transform: "translateY(0px)",
+    },
+
+    "@keyframes typingMessage": {
+      "0%": {
+        backgroundColor: "#606060",
+      },
+      "50%": {
+        backgroundColor: "#fff",
+      },
+      "100%": {
+        backgroundColor: "#606060",
+      },
+    },
   },
 }));
 
