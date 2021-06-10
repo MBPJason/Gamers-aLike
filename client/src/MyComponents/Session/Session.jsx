@@ -1,4 +1,7 @@
 import React, { useState, useContext } from "react";
+import MessageTimeline from "./Chat/MessageTimeline";
+import TypingIndicator from "./Chat/TypingIndicator";
+import ChatUsers from "./Chat/ChatUsers";
 
 // Stylesheets
 import useStyles from "../../assets/jss/myStyles/sessionStyles.js";
@@ -82,12 +85,12 @@ export default function Session() {
   const classes = useStyles();
 
   //   States to grab users info for correct display
-  const [chatUsers, setChatUsers] = useState([]);
-  const [lobbyOwner, setLobbyOwner] = useState({});
-  const [currrentUser, setCurrentUser] = useState({});
+  const [chatUsers, setChatUsers] = useState(users);
+  const [lobbyOwner, setLobbyOwner] = useState(users[0]);
+  const [currentUser, setCurrentUser] = useState(users[1]);
 
   //   States to handle Chatroom messages
-  const [timelineMessages, setTimelineMessages] = useState([]);
+  const [timelineMessages, setTimelineMessages] = useState(discord);
   const [messageInput, setMessageInput] = useState("");
   const [typing, setTyping] = useState(false);
 
@@ -106,7 +109,7 @@ export default function Session() {
     setTyping(true);
     setTimeout(() => {
       setTyping(false);
-    }, 5000);
+    }, 3000);
   };
 
   const handleSendMessage = (e) => {
@@ -120,31 +123,25 @@ export default function Session() {
     }
   };
 
-  const typingIndicator = (
-    //   Set up a check with socket.io to look into "typing" state for other users
-    // Let it serve it up too username and add to the counter
-    <div></div>
-  );
-
   // TODO: Make onClick functions for each of the Linked usernames
-  const displayChat = discord.map(({ username, userID, message }) => (
-    <li key={userID}>
-      <div>
-        <Link id={userID}>{username}</Link>
-        <Typography variant={"subtitle1"}> {message}</Typography>
-      </div>
-    </li>
-  ));
+  //   const displayChat = discord.map(({ username, userID, message }) => (
+  //     <li key={userID}>
+  //       <div>
+  //         <Link id={userID}>{username}</Link>
+  //         <Typography variant={"subtitle1"}> {message}</Typography>
+  //       </div>
+  //     </li>
+  //   ));
 
   // TODO: Make a user block that slides other users down and displays a mini user card block of info
-  const displayUsers = users.map(({ username, userID, userAvatar }) => (
-    <li key={userID}>
-      <Avatar alt={username} src={userAvatar} />{" "}
-      <Link id={userID} color='inherit'>
-        {username}
-      </Link>
-    </li>
-  ));
+  //   const displayUsers = users.map(({ username, userID, userAvatar }) => (
+  //     <li key={userID}>
+  //       <Avatar alt={username} src={userAvatar} />{" "}
+  //       <Link id={userID} color='inherit'>
+  //         {username}
+  //       </Link>
+  //     </li>
+  //   ));
 
   return (
     <>
@@ -158,7 +155,10 @@ export default function Session() {
           xs={9}
         >
           <Container className={classes.chatContainer}>
-            <ul>{displayChat}</ul>
+            <MessageTimeline
+              messages={timelineMessages}
+              currentUser={currentUser}
+            />
           </Container>
           <Grid item>
             <form>
@@ -175,7 +175,7 @@ export default function Session() {
           xs={3}
         >
           <Container className={classes.chatContainer}>
-            <ul>{displayUsers}</ul>
+            <ChatUsers />
           </Container>
         </Grid>
       </Grid>
