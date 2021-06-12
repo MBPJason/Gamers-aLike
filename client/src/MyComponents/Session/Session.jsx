@@ -6,17 +6,7 @@ import ChatUsers from "./Chat/ChatUsers";
 // Stylesheets
 import useStyles from "../../assets/jss/myStyles/sessionStyles.js";
 
-import {
-  Grid,
-  Button,
-  Typography,
-  Avatar,
-  Link,
-  Paper,
-  Container,
-  TextField,
-} from "@material-ui/core";
-import { number } from "prop-types";
+import { Grid, Paper, Container, TextField } from "@material-ui/core";
 
 // Not dry, just test run. Will grab user data off JWT context. Just a template right now
 const users = [
@@ -41,6 +31,8 @@ const users = [
     userAvatar: "https://i.pravatar.cc/300?img=4",
   },
 ];
+
+const currentTyping = ["OwnTime", "NoobSlayer", "JohnnyQuest", "MasterChief", "ThisGuy5000"];
 
 const discord = [
   {
@@ -95,7 +87,7 @@ export default function Session() {
   const [typing, setTyping] = useState(false);
 
   //   States to handle Sessions parameters
-  const [limit, setLimit] = useState(number);
+  const [limit, setLimit] = useState(4);
   const [discordLink, setDiscordLink] = useState({
     usePublic: true,
     public: "",
@@ -113,8 +105,10 @@ export default function Session() {
   };
 
   const handleSendMessage = (e) => {
+    // Prevent normal form submission
     e.preventDefault();
 
+    // Check if message has real characters
     if (messageInput.trim() > 0) {
       //   utils.message.send(currentUser, messageInput);
 
@@ -157,7 +151,11 @@ export default function Session() {
           <Container className={classes.chatContainer}>
             <MessageTimeline
               messages={timelineMessages}
-              currentUser={currentUser}
+              currentUser={currentUser.username}
+            />
+            <TypingIndicator
+              usersTyping={currentTyping}
+              currentUser={currentUser.username}
             />
           </Container>
           <Grid item>
@@ -175,7 +173,7 @@ export default function Session() {
           xs={3}
         >
           <Container className={classes.chatContainer}>
-            <ChatUsers />
+            <ChatUsers usersList={users} />
           </Container>
         </Grid>
       </Grid>
