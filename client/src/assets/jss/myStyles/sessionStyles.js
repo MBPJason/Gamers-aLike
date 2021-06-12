@@ -21,11 +21,6 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(5),
     "& Container": {
       minHeight: "70vh",
-      "& ul": {
-        position: "absolute",
-        bottom: theme.spacing(6),
-        left: theme.spacing(6),
-      },
     },
     "& Grid ": {
       maxHeight: "5vh",
@@ -40,10 +35,6 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
     border: "2px solid black",
     padding: theme.spacing(3),
-    "& ul": {
-      listStyle: "none",
-      "& li": {},
-    },
   },
   chatBubble: {
     margin: "10px",

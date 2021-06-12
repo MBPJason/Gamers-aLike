@@ -6,7 +6,15 @@ import ChatUsers from "./Chat/ChatUsers";
 // Stylesheets
 import useStyles from "../../assets/jss/myStyles/sessionStyles.js";
 
-import { Grid, Paper, Container, TextField } from "@material-ui/core";
+import {
+  Grid,
+  Paper,
+  Container,
+  TextField,
+  IconButton,
+  Avatar,
+} from "@material-ui/core";
+import SendIcon from "@material-ui/icons/Send";
 
 // Not dry, just test run. Will grab user data off JWT context. Just a template right now
 const users = [
@@ -32,7 +40,13 @@ const users = [
   },
 ];
 
-const currentTyping = ["OwnTime", "NoobSlayer", "JohnnyQuest", "MasterChief", "ThisGuy5000"];
+const currentTyping = [
+  "OwnTime",
+  "NoobSlayer",
+  "JohnnyQuest",
+  "MasterChief",
+  "ThisGuy5000",
+];
 
 const discord = [
   {
@@ -117,26 +131,6 @@ export default function Session() {
     }
   };
 
-  // TODO: Make onClick functions for each of the Linked usernames
-  //   const displayChat = discord.map(({ username, userID, message }) => (
-  //     <li key={userID}>
-  //       <div>
-  //         <Link id={userID}>{username}</Link>
-  //         <Typography variant={"subtitle1"}> {message}</Typography>
-  //       </div>
-  //     </li>
-  //   ));
-
-  // TODO: Make a user block that slides other users down and displays a mini user card block of info
-  //   const displayUsers = users.map(({ username, userID, userAvatar }) => (
-  //     <li key={userID}>
-  //       <Avatar alt={username} src={userAvatar} />{" "}
-  //       <Link id={userID} color='inherit'>
-  //         {username}
-  //       </Link>
-  //     </li>
-  //   ));
-
   return (
     <>
       <Grid container className={classes.root} component={Paper} elevation={10}>
@@ -158,9 +152,26 @@ export default function Session() {
               currentUser={currentUser.username}
             />
           </Container>
-          <Grid item>
-            <form>
-              <TextField id='enterChat' label='Enter ' />
+          <Grid container item alignItems="center">
+            <form onSubmit={handleSendMessage} className={classes.form}>
+              <TextField
+                id='chatInput'
+                label='Enter'
+                placeholder='What do you have to say?'
+                margin='normal'
+                fullWidth
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                variant='outlined'
+                value={messageInput}
+                onChange={handleTyping}
+              />
+              <IconButton>
+                <Avatar>
+                  <SendIcon />
+                </Avatar>
+              </IconButton>
             </form>
           </Grid>
         </Grid>
@@ -173,7 +184,7 @@ export default function Session() {
           xs={3}
         >
           <Container className={classes.chatContainer}>
-            <ChatUsers usersList={users} />
+            <ChatUsers usersList={chatUsers} />
           </Container>
         </Grid>
       </Grid>

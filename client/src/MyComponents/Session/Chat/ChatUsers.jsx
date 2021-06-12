@@ -5,9 +5,12 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
   Avatar,
   Link,
 } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
 
 export default function ChatUsers(props) {
   // These should be expandable cards when clicked on.
@@ -18,16 +21,16 @@ export default function ChatUsers(props) {
   return (
     <List>
       {usersList.map((user, index) => (
-        <ListItem
-          alignItems='flex-start'
-          key={"ListItem" + index}
-          button
-          onClick
-        >
+        <ListItem key={"ListItem" + index} button onClick>
           <ListItemAvatar>
             <Avatar alt={user.username} src={user.userAvatar} />
           </ListItemAvatar>
           <ListItemText component={Link} primary={user.username} />
+          <ListItemSecondaryAction>
+            <IconButton edge='end'>
+              <CloseIcon />
+            </IconButton>
+          </ListItemSecondaryAction>
         </ListItem>
       ))}
     </List>
