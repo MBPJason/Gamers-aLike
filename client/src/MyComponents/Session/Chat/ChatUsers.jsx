@@ -16,7 +16,7 @@ export default function ChatUsers(props) {
   // These should be expandable cards when clicked on.
   // Perhaps a Context should be set up so it can be pulled from for usability anywhere
 
-  const { usersList } = props;
+  const { usersList, lobbyOwner, currentUser } = props;
 
   return (
     <List>
@@ -26,11 +26,15 @@ export default function ChatUsers(props) {
             <Avatar alt={user.username} src={user.userAvatar} />
           </ListItemAvatar>
           <ListItemText component={Link} primary={user.username} />
-          <ListItemSecondaryAction>
-            <IconButton edge='end'>
-              <CloseIcon />
-            </IconButton>
-          </ListItemSecondaryAction>
+          {lobbyOwner === currentUser ? (
+            <ListItemSecondaryAction>
+              <IconButton edge='end'>
+                <CloseIcon />
+              </IconButton>
+            </ListItemSecondaryAction>
+          ) : (
+            <div></div>
+          )}
         </ListItem>
       ))}
     </List>

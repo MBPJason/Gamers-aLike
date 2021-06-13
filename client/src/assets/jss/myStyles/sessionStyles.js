@@ -19,25 +19,18 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
     backgroundColor: "white",
     padding: theme.spacing(5),
-    "& Container": {
-      minHeight: "70vh",
-    },
-    "& Grid ": {
-      maxHeight: "5vh",
-      "& form": {
-        position: "absolute",
-        bottom: theme.spacing(6),
-        left: theme.spacing(6),
-      },
-    },
   },
   chatContainer: {
     position: "relative",
     border: "2px solid black",
     padding: theme.spacing(3),
   },
-  chatBubble: {
-    margin: "10px",
+  inputRoot: {
+    width: "100%",
+    maxWidth: "calc(100% - 64px )",
+  },
+  formButton: {
+    display: "flex",
   },
 
   // ===========================
