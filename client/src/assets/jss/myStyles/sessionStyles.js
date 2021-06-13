@@ -21,11 +21,6 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(5),
     "& Container": {
       minHeight: "70vh",
-      "& ul": {
-        position: "absolute",
-        bottom: theme.spacing(6),
-        left: theme.spacing(6),
-      },
     },
     "& Grid ": {
       maxHeight: "5vh",
@@ -40,10 +35,6 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
     border: "2px solid black",
     padding: theme.spacing(3),
-    "& ul": {
-      listStyle: "none",
-      "& li": {},
-    },
   },
   chatBubble: {
     margin: "10px",
@@ -53,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
   // Chat Room Styling
   // ===========================
   clearfix: {
-    content: "",
+    content: '""',
     display: "block",
     clear: "both",
   },
@@ -92,15 +83,16 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "14px",
     lineHeight: "18px",
     fontWeight: "bold",
-    boxShadow: "0px 10px 10px -8px rgba(0,0,0,0.08)",
+    boxShadow: theme.shadows[3],
     boxSizing: "border-box",
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
 
   messageRight: {
-    "& Avatar": {
+    "& div": {
       float: "right",
+      boxShadow: theme.shadows[5],
     },
     "& $messageText": {
       float: "right",
@@ -108,7 +100,7 @@ const useStyles = makeStyles((theme) => ({
       margin: "0 1rem 0 0",
       backgroundColor: "#fafafa",
       "&:after": {
-        content: "",
+        content: '""',
         position: "absolute",
         top: "14px",
         right: "-8px",
@@ -122,8 +114,9 @@ const useStyles = makeStyles((theme) => ({
   },
 
   messageLeft: {
-    "& Avatar": {
+    "& div": {
       float: "left",
+      boxShadow: theme.shadows[5],
     },
     "& $messageText": {
       float: "left",
@@ -132,7 +125,7 @@ const useStyles = makeStyles((theme) => ({
       color: "#fff",
       backgroundColor: "#4870df",
       "&:before": {
-        content: "",
+        content: '""',
         position: "absolute",
         top: "14px",
         left: "-8px",
@@ -147,8 +140,8 @@ const useStyles = makeStyles((theme) => ({
 
   isTyping: {
     position: "absolute",
-    top: "0",
-    fontSize: "10px",
+    bottom: "2px",
+    fontSize: "12px",
     fontWeight: "bold",
   },
 
@@ -165,7 +158,7 @@ const useStyles = makeStyles((theme) => ({
     animationTimingFunction: "ease-in-out",
 
     "&:before, &:after": {
-      content: "",
+      content: '""',
       position: "absolute",
       display: "inline-block",
       width: "2px",
@@ -210,17 +203,17 @@ const useStyles = makeStyles((theme) => ({
       opacity: "1",
       transform: "translateY(0px)",
     },
+  },
 
-    "@keyframes typingMessage": {
-      "0%": {
-        backgroundColor: "#606060",
-      },
-      "50%": {
-        backgroundColor: "#fff",
-      },
-      "100%": {
-        backgroundColor: "#606060",
-      },
+  "@keyframes typingMessage": {
+    "0%": {
+      backgroundColor: "#606060",
+    },
+    "50%": {
+      backgroundColor: "#fff",
+    },
+    "60%": {
+      backgroundColor: "#606060",
     },
   },
 }));

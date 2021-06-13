@@ -14,7 +14,7 @@ export default function MessageTimeline(props) {
   return (
     <div className={classes.messagesTimeline}>
       {messages.map((message, index) => (
-        <MessageBubble key={index} sender={message} currentUser={currentUser} />
+        <MessageBubble key={"Message" + index} sender={message} currentUser={currentUser} />
       ))}
     </div>
   );

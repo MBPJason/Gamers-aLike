@@ -7,20 +7,18 @@ export default function TypingIndicator(props) {
   const classes = useStyles();
 
   // Sets up variables to use for logic gates and for loop
-  const usersTyping = props.usersTyping;
+  const { usersTyping, currentUser } = props;
   let typersDisplay = "";
   let trueTyperCount = 0;
-
   // Looping through provided users typing from socket.io
-  for (let i = 0; i < usersTyping.length; i++) {
-    // Removing self from potential users typing array
-    if (usersTyping[i] === !props.currentUser) {
+  usersTyping.forEach((user) => {
+    if (user !== currentUser) {
       // Taking returned data/usernames and formatting it
-      typersDisplay += ", " + usersTyping[i]; // returns => , username1, username2, username3, ...
+      typersDisplay += ", " + user; // returns => , username1, username2, username3, ...
       // Increments typer count to represent true value
       trueTyperCount++;
     }
-  }
+  });
   // Checks counter for amount typing
   if (trueTyperCount > 3) {
     // If number of typers exceed 3 then returns string below
@@ -34,11 +32,17 @@ export default function TypingIndicator(props) {
   }
 
   // Displays React render if there is a single typer
-  if (trueTyperCount > 0) {
-    return (
-      <div className={classes.isTyping}>
-        {typersDisplay} {"typing"} <span className={classes.isTypingDot}></span>
-      </div>
-    );
-  }
+
+  return (
+    <>
+      {trueTyperCount > 0 ? (
+        <div className={classes.isTyping}>
+          {typersDisplay} {"typing"}{" "}
+          <span className={classes.isTypingDot}></span>
+        </div>
+      ) : (
+        <div></div>
+      )}
+    </>
+  );
 }

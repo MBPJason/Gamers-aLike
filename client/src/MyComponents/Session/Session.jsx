@@ -8,15 +8,13 @@ import useStyles from "../../assets/jss/myStyles/sessionStyles.js";
 
 import {
   Grid,
-  Button,
-  Typography,
-  Avatar,
-  Link,
   Paper,
   Container,
   TextField,
+  IconButton,
+  Avatar,
 } from "@material-ui/core";
-import { number } from "prop-types";
+import SendIcon from "@material-ui/icons/Send";
 
 // Not dry, just test run. Will grab user data off JWT context. Just a template right now
 const users = [
@@ -40,6 +38,14 @@ const users = [
     userID: "K8VNSHT093B",
     userAvatar: "https://i.pravatar.cc/300?img=4",
   },
+];
+
+const currentTyping = [
+  "OwnTime",
+  "NoobSlayer",
+  "JohnnyQuest",
+  "MasterChief",
+  "ThisGuy5000",
 ];
 
 const discord = [
@@ -95,7 +101,7 @@ export default function Session() {
   const [typing, setTyping] = useState(false);
 
   //   States to handle Sessions parameters
-  const [limit, setLimit] = useState(number);
+  const [limit, setLimit] = useState(4);
   const [discordLink, setDiscordLink] = useState({
     usePublic: true,
     public: "",
@@ -113,8 +119,10 @@ export default function Session() {
   };
 
   const handleSendMessage = (e) => {
+    // Prevent normal form submission
     e.preventDefault();
 
+    // Check if message has real characters
     if (messageInput.trim() > 0) {
       //   utils.message.send(currentUser, messageInput);
 
@@ -122,26 +130,6 @@ export default function Session() {
       setMessageInput("");
     }
   };
-
-  // TODO: Make onClick functions for each of the Linked usernames
-  //   const displayChat = discord.map(({ username, userID, message }) => (
-  //     <li key={userID}>
-  //       <div>
-  //         <Link id={userID}>{username}</Link>
-  //         <Typography variant={"subtitle1"}> {message}</Typography>
-  //       </div>
-  //     </li>
-  //   ));
-
-  // TODO: Make a user block that slides other users down and displays a mini user card block of info
-  //   const displayUsers = users.map(({ username, userID, userAvatar }) => (
-  //     <li key={userID}>
-  //       <Avatar alt={username} src={userAvatar} />{" "}
-  //       <Link id={userID} color='inherit'>
-  //         {username}
-  //       </Link>
-  //     </li>
-  //   ));
 
   return (
     <>
@@ -157,12 +145,33 @@ export default function Session() {
           <Container className={classes.chatContainer}>
             <MessageTimeline
               messages={timelineMessages}
-              currentUser={currentUser}
+              currentUser={currentUser.username}
+            />
+            <TypingIndicator
+              usersTyping={currentTyping}
+              currentUser={currentUser.username}
             />
           </Container>
-          <Grid item>
-            <form>
-              <TextField id='enterChat' label='Enter ' />
+          <Grid container item alignItems="center">
+            <form onSubmit={handleSendMessage} className={classes.form}>
+              <TextField
+                id='chatInput'
+                label='Enter'
+                placeholder='What do you have to say?'
+                margin='normal'
+                fullWidth
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                variant='outlined'
+                value={messageInput}
+                onChange={handleTyping}
+              />
+              <IconButton>
+                <Avatar>
+                  <SendIcon />
+                </Avatar>
+              </IconButton>
             </form>
           </Grid>
         </Grid>
@@ -175,7 +184,7 @@ export default function Session() {
           xs={3}
         >
           <Container className={classes.chatContainer}>
-            <ChatUsers />
+            <ChatUsers usersList={chatUsers} />
           </Container>
         </Grid>
       </Grid>
