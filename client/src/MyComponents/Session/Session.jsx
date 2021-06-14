@@ -152,27 +152,24 @@ export default function Session() {
               currentUser={currentUser.username}
             />
           </Container>
-          <Grid container item alignItems="center">
-            <form onSubmit={handleSendMessage} className={classes.form}>
+          <Grid container alignItems='center' direction='row' component='form' onSubmit={handleSendMessage}>
+            <Grid item xs={11}>
               <TextField
                 id='chatInput'
-                label='Enter'
                 placeholder='What do you have to say?'
-                margin='normal'
                 fullWidth
-                InputLabelProps={{
-                  shrink: true,
-                }}
                 variant='outlined'
                 value={messageInput}
                 onChange={handleTyping}
               />
+            </Grid>
+            <Grid item xs={1} className={classes.formButton}>
               <IconButton>
                 <Avatar>
                   <SendIcon />
                 </Avatar>
               </IconButton>
-            </form>
+            </Grid>
           </Grid>
         </Grid>
         <Grid
@@ -184,7 +181,11 @@ export default function Session() {
           xs={3}
         >
           <Container className={classes.chatContainer}>
-            <ChatUsers usersList={chatUsers} />
+            <ChatUsers
+              usersList={chatUsers}
+              lobbyOwner={lobbyOwner.userID}
+              currentUser={currentUser.userID}
+            />
           </Container>
         </Grid>
       </Grid>

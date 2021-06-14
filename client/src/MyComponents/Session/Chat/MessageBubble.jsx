@@ -1,6 +1,6 @@
 import React from "react";
 import classNames from "classnames";
-import { Avatar, Typography } from "@material-ui/core";
+import { Avatar, Typography, Link } from "@material-ui/core";
 
 // Stylesheets
 import useStyles from "../../../assets/jss/myStyles/sessionStyles.js";
@@ -25,7 +25,8 @@ export default function MessageBubble(props) {
         classes.clearfix
       )}
     >
-      <Avatar alt={sender.username} src={sender.userAvatar} />
+      <Avatar alt={sender.username} src={sender.userAvatar} />{" "}
+      <Link>{sender.username}</Link>
       <Typography className={classes.messageText}>{sender.message}</Typography>
     </div>
   );
