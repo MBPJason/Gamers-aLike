@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const mongoose = require("mongoose");
 const path = require("path");
 const session = require("express-session");
@@ -15,6 +16,9 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("client/build"));
+
+// CORS Middleware
+app.use(cors());
 
 
 
