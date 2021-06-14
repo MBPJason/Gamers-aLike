@@ -136,6 +136,10 @@ router.post("/api/signup", async (req, res) => {
 //  LOGIN
 // --------------------------
 
+// TODO: Need a 2 paths for passport authentication
+// 1. For calling directly the function inside the passport strategy being called
+// 2. Then a response path for where to redirect them to based on pass or fail
+
 // Local Login Method
 router.post("/api/login", function (req, res, next) {
   passport.authenticate("local", function (err, user, info) {
