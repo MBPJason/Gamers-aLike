@@ -136,12 +136,12 @@ router.post("/api/signup", async (req, res) => {
 //  LOGIN
 // --------------------------
 
-// TODO: Need a 2 paths for passport authentication
+// TODO: Need 2 paths for passport authentication
 // 1. For calling directly the function inside the passport strategy being called
 // 2. Then a response path for where to redirect them to based on pass or fail
 
 // Local Login Method
-router.post("/api/login", function (req, res, next) {
+router.post("/auth/login/local", function (req, res, next) {
   passport.authenticate("local", function (err, user, info) {
     if (err) {
       return next(err);
@@ -159,59 +159,59 @@ router.post("/api/login", function (req, res, next) {
   })(req, res, next);
 });
 
-// // Facebook Login Method
-// router.get("/auth/facebook", passport.authenticate("facebook"));
+// Facebook Login Method
+router.get("/auth/facebook", passport.authenticate("facebook"));
 
-// router.get(
-//   "/auth/facebook/callback",
-//   passport.authenticate("facebook", { failureRedirect: "/login" }),
-//   function (req, res) {
-//     // Successful authentication, redirect home.
-//     res.redirect("/");
-//   }
-// );
+router.get(
+  "/auth/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "/login" }),
+  function (req, res) {
+    // Successful authentication, redirect home.
+    res.redirect("/");
+  }
+);
 
-// // Google Login Method
-// router.get(
-//   "/auth/google",
-//   passport.authenticate("google", { scope: ["profile"] })
-// );
+// Google Login Method
+router.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile"] })
+);
 
-// router.get(
-//   "/auth/google/callback",
-//   passport.authenticate("google", { failureRedirect: "/login" }),
-//   function (req, res) {
-//     // Successful authentication, redirect home.
-//     res.redirect("/");
-//   }
-// );
+router.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  function (req, res) {
+    // Successful authentication, redirect home.
+    res.redirect("/");
+  }
+);
 
-// // Twitter Login Method
-// router.get("/auth/twitter", passport.authenticate("oauth2"));
+// Twitter Login Method
+router.get("/auth/twitter", passport.authenticate("oauth2"));
 
-// router.get(
-//   "/auth/twitter/callback",
-//   passport.authenticate("oauth2", { failureRedirect: "/login" }),
-//   function (req, res) {
-//     // Successful authentication, redirect home.
-//     res.redirect("/");
-//   }
-// );
+router.get(
+  "/auth/twitter/callback",
+  passport.authenticate("oauth2", { failureRedirect: "/login" }),
+  function (req, res) {
+    // Successful authentication, redirect home.
+    res.redirect("/");
+  }
+);
 
-// // Steam Login Method
-// router.get("/auth/steam", passport.authenticate("steam"), function (req, res) {
-//   // The request will be redirected to Steam for authentication, so
-//   // this function will not be called.
-// });
+// Steam Login Method
+router.get("/auth/steam", passport.authenticate("steam"), function (req, res) {
+  // The request will be redirected to Steam for authentication, so
+  // this function will not be called.
+});
 
-// router.get(
-//   "/auth/steam/return",
-//   passport.authenticate("steam", { failureRedirect: "/login" }),
-//   function (req, res) {
-//     // Successful authentication, redirect home.
-//     res.redirect("/");
-//   }
-// );
+router.get(
+  "/auth/steam/return",
+  passport.authenticate("steam", { failureRedirect: "/login" }),
+  function (req, res) {
+    // Successful authentication, redirect home.
+    res.redirect("/");
+  }
+);
 
 // --------------------------
 //  LOGOUT
@@ -219,7 +219,7 @@ router.post("/api/login", function (req, res, next) {
 
 router.get("/logout", function (req, res) {
   req.logout();
-  res.redirect("/api/config");
+  res.redirect("/login");
 });
 
 // Exporting functions for express use on server.js
