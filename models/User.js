@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
+  DateCreated: { type: Date, default: Date.now },
   email: {
     type: String,
     trim: true,
@@ -11,7 +12,6 @@ const UserSchema = new Schema({
   username: {
     type: String,
     trim: true,
-    required: true,
     minLength: 6,
     maxLength: 26,
   },
@@ -19,10 +19,23 @@ const UserSchema = new Schema({
     type: String,
     trim: true,
   },
-  DateCreated: { type: Date, default: Date.now },
   profileID: {
-    type: String,
-    trim: true,
+    Google: {
+      type: String,
+      trim: true,
+    },
+    Facebook: {
+      type: String,
+      trim: true,
+    },
+    Twitter: {
+      type: String,
+      trim: true,
+    },
+    Steam: {
+      type: String,
+      trim: true,
+    },
   },
   accessToken: {
     type: String,

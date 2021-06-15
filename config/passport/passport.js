@@ -8,103 +8,62 @@ const TwitterStrategy = require("passport-oauth2").Strategy;
 const SteamStrategy = require("passport-steam").Strategy;
 const db = require("../../models");
 
-const makeUser = async function (req, res) {
-  console.log("Signup is being called");
-  const {
-    email,
-    username,
-    password,
-    DiscordID,
-    SteamID,
-    BattleNetID,
-    PlayStationID,
-    XboxID,
-  } = req.body;
+const makeUser = async function (caller, identifier, profile, err) {
+  console.log("Making a user");
 
-  // Check if all required parameters (email, password, username) to make a user is present
-  if (!email.trim() || !password.trim() || !username.trim()) {
-    // If one or more are missing reject response is given
-    console.log("Couldn't make account");
-    res.status(400).json({
-      error: true,
-      message: "Missing one or more of the parameters to make an account",
+  // Main build process for making an account
+
+  // Try/Catch block for potential server side errors
+  try {
+    let userIdentifier = profile.id || identifier;
+
+    // Main User Schema built with user required parameters
+    const user = await db.User.create({
+      [`profileID`[caller]]: userIdentifier,
     });
-  } else {
-    // Main build process for making an account
-    // TODO: Check if the email account provided is already tied to an account
 
-    // Try/Catch block for potential server side errors
-    try {
-      // Hash and salt password
-      const hashedPassword = await bcrypt.hash(password, 20);
+    // Building out User essential Schemas
+    const Ratings = await db.Ratings.create({
+      userID: user._id,
+      RatingsScore: 1,
+    });
+    const PlayersInfo = await db.Players.create({
+      userID: user._id,
+    });
+    const DiscordInfo = await db.Discord.create({
+      userID: user._id,
+    });
+    const GamerTags = await db.Gamertags.create({
+      userID: user._id,
+    });
 
-      // Main User Schema built with user required parameters
-      const user = await db.User.create({
-        email: email,
-        username: username,
-        password: hashedPassword,
-      });
-      // Building out User essential Schemas
-      const Ratings = await db.Ratings.create({
-        userID: user._id,
-        RatingsScore: 1,
-      });
-      const PlayersInfo = await db.Players.create({
-        userID: user._id,
-      });
-      const DiscordInfo = await db.Discord.create({
-        userID: user._id,
-      });
-      const GamerTags = await db.Gamertags.create({
-        userID: user._id,
-      });
+    // Updating/Tying it to new User created Schema
+    await db.User.findByIdAndUpdate(user._id, {
+      Ratings: Ratings._id,
+      PlayersInfo: PlayersInfo._id,
+      DiscordInfo: DiscordInfo._id,
+      GamerTags: GamerTags._id,
+    });
 
-      // Updating/Tying it to new User created Schema
+    // Checks for Steam and non Steam Sign Up
+    if (caller === "Steam") {
+      await db.Gamertags.findByIdAndUpdate(GamerTags._id, {
+        SteamID: identifier._id,
+      });
+    } else {
       await db.User.findByIdAndUpdate(user._id, {
-        Ratings: Ratings._id,
-        PlayersInfo: PlayersInfo._id,
-        DiscordInfo: DiscordInfo._id,
-        GamerTags: GamerTags._id,
+        email: profile.email,
       });
-
-      // Update Discord table if user provides a DiscordID
-      if (DiscordID) {
-        await db.Discord.findByIdAndUpdate(DiscordInfo._id, {
-          DiscordID: DiscordID,
-        });
-      }
-
-      // Update Gamertags table check if any gamertags were given in signup process
-      if (SteamID) {
-        await db.Gamertags.findByIdAndUpdate(GamerTags._id, {
-          SteamID: SteamID,
-        });
-      }
-      if (BattleNetID) {
-        await db.Gamertags.findByIdAndUpdate(GamerTags._id, {
-          BattleNetID: BattleNetID,
-        });
-      }
-      if (PlayStationID) {
-        await db.Gamertags.findByIdAndUpdate(GamerTags._id, {
-          PlayStationID: PlayStationID,
-        });
-      }
-      if (XboxID) {
-        await db.Gamertags.findByIdAndUpdate(GamerTags._id, { XboxID: XboxID });
-      }
-    } catch (error) {
-      // If server side error this is the error response
-      res.status(500).json({
-        error: true,
-        data: error,
-        message: "Something went wrong",
-      });
-      console.log(error);
     }
+  } catch (error) {
+    console.log(error);
+    return (err = {
+      error: true,
+      data: error,
+      message: "Something went wrong",
+    });
   }
 };
-
 
 // Issuing Session tokens
 passport.serializeUser((user, done) => {
@@ -148,7 +107,7 @@ passport.use(
       callbackURL: "http://www.example.com/auth/google/callback",
     },
     function (accessToken, refreshToken, profile, cb) {
-      User.findOrCreate({ googleId: profile.id }, function (err, user) {
+      User.findOrCreate({ email: profile.id }, function (err, user) {
         return cb(err, user);
       });
     }
