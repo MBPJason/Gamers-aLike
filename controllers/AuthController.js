@@ -46,7 +46,7 @@ router.post("/auth/signup", async (req, res) => {
     // Try/Catch block for potential server side errors
     try {
       // Hash and salt password
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 25);
 
       // Main User Schema built with user required parameters
       const user = await db.User.create({
@@ -133,6 +133,57 @@ router.post("/auth/signup", async (req, res) => {
       });
       console.log(error);
     }
+  }
+});
+
+// --------------------------
+// UPDATE
+// --------------------------
+
+// THIS WILL ONLY BE CALLED TO COMPLETE THE SIGN UP PROCESS FOR THE NON-LOCAL PASSPORT STRATEGIES
+router.put("/auth/finishing-touches", isAuthenticated, async (req, res) => {
+  const {
+    userID,
+    email,
+    username,
+    password,
+    DiscordID,
+    SteamID,
+    BattlenetID,
+    PlayStationID,
+    XboxID,
+  } = req.body;
+
+  const hashedPassword = await bcrypt.hash(password, 25);
+
+  const user = await db.User.findByIdAndUpdate(userID, {
+    email: email,
+    password: hashedPassword,
+    username: username,
+  });
+
+  if (DiscordID) {
+    await db.Discord.findByIdAndUpdate(user.DiscordInfo, {
+      DiscordID: DiscordID,
+    });
+  }
+  if (SteamID) {
+    await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
+      SteamID: SteamID,
+    });
+  }
+  if (BattlenetID) {
+    await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
+      BattlenetID: BattlenetID,
+    });
+  }
+  if (PlayStationID) {
+    await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
+      PlayStationID: PlayStationID,
+    });
+  }
+  if (XboxID) {
+    await db.Gamertags.findByIdAndUpdate(user.GamerTags, { XboxID: XboxID });
   }
 });
 
