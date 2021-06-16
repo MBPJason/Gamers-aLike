@@ -19,7 +19,7 @@ const makeUser = async function (caller, identifier, profile, err) {
 
     // Main User Schema built with user required parameters
     const user = await db.User.create({
-      [`profileID`[caller]]: userIdentifier,
+      [caller]: userIdentifier,
     });
 
     // Building out User essential Schemas
@@ -107,8 +107,17 @@ passport.use(
       callbackURL: "http://www.example.com/auth/google/callback",
     },
     function (accessToken, refreshToken, profile, cb) {
-      User.findOrCreate({ email: profile.id }, function (err, user) {
-        return cb(err, user);
+      db.User.findOne({ Google: profile.id }, function (err, user) {
+        if (err) {
+          return cb(err);
+        }
+        if (!user) {
+          return cb(null, makeUser("Google", null, profile, err));
+        }
+        if (!user.username) {
+          return cb(null, user);
+        }
+        return cb(null, user);
       });
     }
   )
@@ -123,8 +132,17 @@ passport.use(
       callbackURL: "http://localhost:3000/auth/facebook/callback",
     },
     function (accessToken, refreshToken, profile, cb) {
-      User.findOrCreate({ facebookId: profile.id }, function (err, user) {
-        return cb(err, user);
+      db.User.findOne({ Facebook: profile.id }, function (err, user) {
+        if (err) {
+          return cb(err);
+        }
+        if (!user) {
+          return cb(null, makeUser("Facebook", null, profile, err));
+        }
+        if (!user.username) {
+          return cb(null, user);
+        }
+        return cb(null, user);
       });
     }
   )
@@ -141,8 +159,17 @@ passport.use(
       callbackURL: "http://localhost:3000/auth/example/callback",
     },
     function (accessToken, refreshToken, profile, cb) {
-      db.User.findOrCreate({ exampleId: profile.id }, function (err, user) {
-        return cb(err, user);
+      db.User.findOne({ Twitter: profile.id }, function (err, user) {
+        if (err) {
+          return cb(err);
+        }
+        if (!user) {
+          return cb(null, makeUser("Twitter", null, profile, err));
+        }
+        if (!user.username) {
+          return cb(null, user);
+        }
+        return cb(null, user);
       });
     }
   )
@@ -157,8 +184,17 @@ passport.use(
       apiKey: process.env.STEAM_API_KEY,
     },
     function (identifier, profile, done) {
-      db.User.findByOpenID({ openId: identifier }, function (err, user) {
-        return done(err, user);
+      db.User.findOne({ Steam: identifier }, function (err, user) {
+        if (err) {
+          return done(err);
+        }
+        if (!user) {
+          return done(null, makeUser("Steam", identifier, null, err));
+        }
+        if (!user.username) {
+          return done(null, user);
+        }
+        return done(null, user);
       });
     }
   )
