@@ -113,10 +113,7 @@ passport.use(
         }
         if (!user) {
           return cb(null, makeUser("Google", null, profile, err));
-        }
-        if (!user.username) {
-          return cb(null, user);
-        }
+        }  
         return cb(null, user);
       });
     }
@@ -138,9 +135,6 @@ passport.use(
         }
         if (!user) {
           return cb(null, makeUser("Facebook", null, profile, err));
-        }
-        if (!user.username) {
-          return cb(null, user);
         }
         return cb(null, user);
       });
@@ -166,9 +160,6 @@ passport.use(
         if (!user) {
           return cb(null, makeUser("Twitter", null, profile, err));
         }
-        if (!user.username) {
-          return cb(null, user);
-        }
         return cb(null, user);
       });
     }
@@ -190,9 +181,6 @@ passport.use(
         }
         if (!user) {
           return done(null, makeUser("Steam", identifier, null, err));
-        }
-        if (!user.username) {
-          return done(null, user);
         }
         return done(null, user);
       });
