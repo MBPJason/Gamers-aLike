@@ -19,24 +19,23 @@ const UserSchema = new Schema({
     type: String,
     trim: true,
   },
-  profileID: {
-    Google: {
-      type: String,
-      trim: true,
-    },
-    Facebook: {
-      type: String,
-      trim: true,
-    },
-    Twitter: {
-      type: String,
-      trim: true,
-    },
-    Steam: {
-      type: String,
-      trim: true,
-    },
+  Google: {
+    type: String,
+    trim: true,
   },
+  Facebook: {
+    type: String,
+    trim: true,
+  },
+  Twitter: {
+    type: String,
+    trim: true,
+  },
+  Steam: {
+    type: String,
+    trim: true,
+  },
+
   accessToken: {
     type: String,
     trim: true,

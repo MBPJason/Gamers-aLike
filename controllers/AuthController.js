@@ -14,7 +14,7 @@ const db = require("../models");
 //  SIGN UP (Create Route)
 // --------------------------
 
-router.post("/auth/signup", async (req, res) => {
+router.post("/api/signup", async (req, res) => {
   console.log("Signup is being called");
   const {
     email,
