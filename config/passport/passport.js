@@ -1,4 +1,5 @@
 // Dependencies
+require("dotenv").config();
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 const LocalStrategy = require("passport-local").Strategy;
@@ -104,7 +105,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://www.example.com/auth/google/callback",
+      callbackURL: "http://www.gamersalike.com/auth/google/callback",
     },
     function (accessToken, refreshToken, profile, cb) {
       db.User.findOne({ Google: profile.id }, function (err, user) {
@@ -113,10 +114,7 @@ passport.use(
         }
         if (!user) {
           return cb(null, makeUser("Google", null, profile, err));
-        }
-        if (!user.username) {
-          return cb(null, user);
-        }
+        }  
         return cb(null, user);
       });
     }
@@ -139,9 +137,6 @@ passport.use(
         if (!user) {
           return cb(null, makeUser("Facebook", null, profile, err));
         }
-        if (!user.username) {
-          return cb(null, user);
-        }
         return cb(null, user);
       });
     }
@@ -154,7 +149,7 @@ passport.use(
     {
       authorizationURL: "https://www.example.com/oauth2/authorize",
       tokenURL: "https://www.example.com/oauth2/token",
-      clientID: process.env.EXAMPLE_CLIENT_ID,
+      clientID: process.env.TWITTER_CLIENT_ID,
       clientSecret: process.env.TWITTER_CLIENT_SECRET,
       callbackURL: "http://localhost:3000/auth/example/callback",
     },
@@ -165,9 +160,6 @@ passport.use(
         }
         if (!user) {
           return cb(null, makeUser("Twitter", null, profile, err));
-        }
-        if (!user.username) {
-          return cb(null, user);
         }
         return cb(null, user);
       });
@@ -190,9 +182,6 @@ passport.use(
         }
         if (!user) {
           return done(null, makeUser("Steam", identifier, null, err));
-        }
-        if (!user.username) {
-          return done(null, user);
         }
         return done(null, user);
       });

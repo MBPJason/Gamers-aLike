@@ -14,7 +14,7 @@ const db = require("../models");
 //  SIGN UP (Create Route)
 // --------------------------
 
-router.post("/api/signup", async (req, res) => {
+router.post("/auth/signup", async (req, res) => {
   console.log("Signup is being called");
   const {
     email,
@@ -35,6 +35,10 @@ router.post("/api/signup", async (req, res) => {
       error: true,
       message: "Missing one or more of the parameters to make an account",
     });
+  } else if (db.User.findOne({ email: email })) {
+    res.json({
+      message: "I am sorry that email is already taken",
+    });
   } else {
     // Main build process for making an account
     // TODO: Check if the email account provided is already tied to an account
@@ -42,7 +46,7 @@ router.post("/api/signup", async (req, res) => {
     // Try/Catch block for potential server side errors
     try {
       // Hash and salt password
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 25);
 
       // Main User Schema built with user required parameters
       const user = await db.User.create({
@@ -133,6 +137,57 @@ router.post("/api/signup", async (req, res) => {
 });
 
 // --------------------------
+// UPDATE
+// --------------------------
+
+// THIS WILL ONLY BE CALLED TO COMPLETE THE SIGN UP PROCESS FOR THE NON-LOCAL PASSPORT STRATEGIES
+router.put("/auth/finishing-touches", isAuthenticated, async (req, res) => {
+  const {
+    userID,
+    email,
+    username,
+    password,
+    DiscordID,
+    SteamID,
+    BattlenetID,
+    PlayStationID,
+    XboxID,
+  } = req.body;
+
+  const hashedPassword = await bcrypt.hash(password, 25);
+
+  const user = await db.User.findByIdAndUpdate(userID, {
+    email: email,
+    password: hashedPassword,
+    username: username,
+  });
+
+  if (DiscordID) {
+    await db.Discord.findByIdAndUpdate(user.DiscordInfo, {
+      DiscordID: DiscordID,
+    });
+  }
+  if (SteamID) {
+    await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
+      SteamID: SteamID,
+    });
+  }
+  if (BattlenetID) {
+    await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
+      BattlenetID: BattlenetID,
+    });
+  }
+  if (PlayStationID) {
+    await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
+      PlayStationID: PlayStationID,
+    });
+  }
+  if (XboxID) {
+    await db.Gamertags.findByIdAndUpdate(user.GamerTags, { XboxID: XboxID });
+  }
+});
+
+// --------------------------
 //  LOGIN
 // --------------------------
 
@@ -166,8 +221,11 @@ router.get(
   "/auth/facebook/callback",
   passport.authenticate("facebook", { failureRedirect: "/login" }),
   function (req, res) {
-    // Successful authentication, redirect home.
-    res.redirect("/");
+    if (!req.user.username) {
+      res.redirect("/finishing-touch");
+    } else {
+      res.redirect("/home");
+    }
   }
 );
 
@@ -181,8 +239,11 @@ router.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   function (req, res) {
-    // Successful authentication, redirect home.
-    res.redirect("/");
+    if (!req.user.username) {
+      res.redirect("/finishing-touch");
+    } else {
+      res.redirect("/home");
+    }
   }
 );
 
@@ -193,23 +254,26 @@ router.get(
   "/auth/twitter/callback",
   passport.authenticate("oauth2", { failureRedirect: "/login" }),
   function (req, res) {
-    // Successful authentication, redirect home.
-    res.redirect("/");
+    if (!req.user.username) {
+      res.redirect("/finishing-touch");
+    } else {
+      res.redirect("/");
+    }
   }
 );
 
 // Steam Login Method
-router.get("/auth/steam", passport.authenticate("steam"), function (req, res) {
-  // The request will be redirected to Steam for authentication, so
-  // this function will not be called.
-});
+router.get("/auth/steam", passport.authenticate("steam"));
 
 router.get(
   "/auth/steam/return",
   passport.authenticate("steam", { failureRedirect: "/login" }),
   function (req, res) {
-    // Successful authentication, redirect home.
-    res.redirect("/");
+    if (!req.user.username) {
+      res.redirect("/finishing-touch");
+    } else {
+      res.redirect("/");
+    }
   }
 );
 
