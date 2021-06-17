@@ -99,73 +99,73 @@ passport.use(
   )
 );
 
-// Google Strategy
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://www.gamersalike.com/auth/google/callback",
-    },
-    function (accessToken, refreshToken, profile, cb) {
-      db.User.findOne({ Google: profile.id }, function (err, user) {
-        if (err) {
-          return cb(err);
-        }
-        if (!user) {
-          return cb(null, makeUser("Google", null, profile, err));
-        }  
-        return cb(null, user);
-      });
-    }
-  )
-);
+// // Google Strategy
+// passport.use(
+//   new GoogleStrategy(
+//     {
+//       clientID: process.env.GOOGLE_CLIENT_ID,
+//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//       callbackURL: "http://www.gamersalike.com/auth/google/callback",
+//     },
+//     function (accessToken, refreshToken, profile, cb) {
+//       db.User.findOne({ Google: profile.id }, function (err, user) {
+//         if (err) {
+//           return cb(err);
+//         }
+//         if (!user) {
+//           return cb(null, makeUser("Google", null, profile, err));
+//         }  
+//         return cb(null, user);
+//       });
+//     }
+//   )
+// );
 
-// Facebook Strategy
-passport.use(
-  new FacebookStrategy(
-    {
-      clientID: process.env.FACEBOOK_APP_ID,
-      clientSecret: process.env.FACEBOOK_APP_SECRET,
-      callbackURL: "http://localhost:3000/auth/facebook/callback",
-    },
-    function (accessToken, refreshToken, profile, cb) {
-      db.User.findOne({ Facebook: profile.id }, function (err, user) {
-        if (err) {
-          return cb(err);
-        }
-        if (!user) {
-          return cb(null, makeUser("Facebook", null, profile, err));
-        }
-        return cb(null, user);
-      });
-    }
-  )
-);
+// // Facebook Strategy
+// passport.use(
+//   new FacebookStrategy(
+//     {
+//       clientID: process.env.FACEBOOK_APP_ID,
+//       clientSecret: process.env.FACEBOOK_APP_SECRET,
+//       callbackURL: "http://localhost:3000/auth/facebook/callback",
+//     },
+//     function (accessToken, refreshToken, profile, cb) {
+//       db.User.findOne({ Facebook: profile.id }, function (err, user) {
+//         if (err) {
+//           return cb(err);
+//         }
+//         if (!user) {
+//           return cb(null, makeUser("Facebook", null, profile, err));
+//         }
+//         return cb(null, user);
+//       });
+//     }
+//   )
+// );
 
 // Twitter Strategy
-passport.use(
-  new TwitterStrategy(
-    {
-      authorizationURL: "https://www.example.com/oauth2/authorize",
-      tokenURL: "https://www.example.com/oauth2/token",
-      clientID: process.env.TWITTER_CLIENT_ID,
-      clientSecret: process.env.TWITTER_CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/auth/example/callback",
-    },
-    function (accessToken, refreshToken, profile, cb) {
-      db.User.findOne({ Twitter: profile.id }, function (err, user) {
-        if (err) {
-          return cb(err);
-        }
-        if (!user) {
-          return cb(null, makeUser("Twitter", null, profile, err));
-        }
-        return cb(null, user);
-      });
-    }
-  )
-);
+// passport.use(
+//   new TwitterStrategy(
+//     {
+//       authorizationURL: "https://www.example.com/oauth2/authorize",
+//       tokenURL: "https://www.example.com/oauth2/token",
+//       clientID: process.env.TWITTER_CLIENT_ID,
+//       clientSecret: process.env.TWITTER_CLIENT_SECRET,
+//       callbackURL: "http://localhost:3000/auth/example/callback",
+//     },
+//     function (accessToken, refreshToken, profile, cb) {
+//       db.User.findOne({ Twitter: profile.id }, function (err, user) {
+//         if (err) {
+//           return cb(err);
+//         }
+//         if (!user) {
+//           return cb(null, makeUser("Twitter", null, profile, err));
+//         }
+//         return cb(null, user);
+//       });
+//     }
+//   )
+// );
 
 // Steam Strategy
 passport.use(

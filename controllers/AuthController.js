@@ -27,6 +27,9 @@ router.post("/auth/signup", async (req, res) => {
     XboxID,
   } = req.body;
 
+  console.log(req.body);
+  const checkUser = await db.User.findOne({ email: email });
+
   // Check if all required parameters (email, password, username) to make a user is present
   if (!email.trim() || !password.trim() || !username.trim()) {
     // If one or more are missing reject response is given
@@ -35,7 +38,7 @@ router.post("/auth/signup", async (req, res) => {
       error: true,
       message: "Missing one or more of the parameters to make an account",
     });
-  } else if (db.User.findOne({ email: email })) {
+  } else if (checkUser !== null) {
     res.json({
       message: "I am sorry that email is already taken",
     });
@@ -46,7 +49,7 @@ router.post("/auth/signup", async (req, res) => {
     // Try/Catch block for potential server side errors
     try {
       // Hash and salt password
-      const hashedPassword = await bcrypt.hash(password, 25);
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       // Main User Schema built with user required parameters
       const user = await db.User.create({
@@ -54,6 +57,7 @@ router.post("/auth/signup", async (req, res) => {
         username: username,
         password: hashedPassword,
       });
+      console.log("User is made");
       // Building out User essential Schemas
       const Ratings = await db.Ratings.create({
         userID: user._id,
@@ -68,6 +72,7 @@ router.post("/auth/signup", async (req, res) => {
       const GamerTags = await db.Gamertags.create({
         userID: user._id,
       });
+      console.log("Made user required schemas");
 
       // Updating/Tying it to new User created Schema
       await db.User.findByIdAndUpdate(user._id, {
@@ -76,7 +81,7 @@ router.post("/auth/signup", async (req, res) => {
         DiscordInfo: DiscordInfo._id,
         GamerTags: GamerTags._id,
       });
-
+      console.log("Attaching required schemas to user");
       // Update Discord table if user provides a DiscordID
       if (DiscordID) {
         await db.Discord.findByIdAndUpdate(DiscordInfo._id, {
@@ -103,27 +108,34 @@ router.post("/auth/signup", async (req, res) => {
       if (XboxID) {
         await db.Gamertags.findByIdAndUpdate(GamerTags._id, { XboxID: XboxID });
       }
+      console.log("Finished checks for additional user data");
 
-      // // Created JWT token; Only an hour use.
-      // const token = jwt.sign(
-      //   {
-      //     id: user._id,
-      //     username: user.username,
-      //     Ratings: user.Ratings,
-      //     PlayersInfo: user.PlayersInfo,
-      //     DiscordInfo: user.DiscordInfo,
-      //     GamerTags: user.GamerTags,
-      //   },
-      //   accessTokenSecret,
-      //   { expiresIn: "1h" }
-      // );
-      // // If everything is done correctly this is the response back
-      // res.json({
-      //   error: false,
-      //   data: token,
-      //   message: "Successfully signed up.",
-      // });
-      // console.log("Everything went right");
+      // Created JWT token; Only an hour use.
+      const token = jwt.sign(
+        {
+          id: user._id,
+          username: user.username,
+          Ratings: user.Ratings,
+          PlayersInfo: user.PlayersInfo,
+          DiscordInfo: user.DiscordInfo,
+          GamerTags: user.GamerTags,
+        },
+        accessTokenSecret,
+        { expiresIn: "5m" }
+      );
+      console.log("JWT made");
+      // If everything is done correctly this is the response back
+
+      res
+        .json({
+          error: false,
+          data: token,
+          message: "Successfully signed up.",
+          usernameField: email,
+          passwordField: password,
+        })
+        .post("/auth/login/local");
+      console.log("Everything went right");
     } catch (error) {
       // If server side error this is the error response
       res.status(500).json({
@@ -141,53 +153,53 @@ router.post("/auth/signup", async (req, res) => {
 // --------------------------
 
 // THIS WILL ONLY BE CALLED TO COMPLETE THE SIGN UP PROCESS FOR THE NON-LOCAL PASSPORT STRATEGIES
-router.put("/auth/finishing-touches", isAuthenticated, async (req, res) => {
-  const {
-    userID,
-    email,
-    username,
-    password,
-    DiscordID,
-    SteamID,
-    BattlenetID,
-    PlayStationID,
-    XboxID,
-  } = req.body;
+// router.put("/auth/finishing-touches", isAuthenticated, async (req, res) => {
+//   const {
+//     userID,
+//     email,
+//     username,
+//     password,
+//     DiscordID,
+//     SteamID,
+//     BattlenetID,
+//     PlayStationID,
+//     XboxID,
+//   } = req.body;
 
-  const hashedPassword = await bcrypt.hash(password, 25);
+//   const hashedPassword = await bcrypt.hash(password, 25);
 
-  const user = await db.User.findByIdAndUpdate(userID, {
-    email: email,
-    password: hashedPassword,
-    username: username,
-  });
+//   const user = await db.User.findByIdAndUpdate(userID, {
+//     email: email,
+//     password: hashedPassword,
+//     username: username,
+//   });
 
-  if (DiscordID) {
-    await db.Discord.findByIdAndUpdate(user.DiscordInfo, {
-      DiscordID: DiscordID,
-    });
-  }
-  if (SteamID) {
-    await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
-      SteamID: SteamID,
-    });
-  }
-  if (BattlenetID) {
-    await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
-      BattlenetID: BattlenetID,
-    });
-  }
-  if (PlayStationID) {
-    await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
-      PlayStationID: PlayStationID,
-    });
-  }
-  if (XboxID) {
-    await db.Gamertags.findByIdAndUpdate(user.GamerTags, { XboxID: XboxID });
-  }
+//   if (DiscordID) {
+//     await db.Discord.findByIdAndUpdate(user.DiscordInfo, {
+//       DiscordID: DiscordID,
+//     });
+//   }
+//   if (SteamID) {
+//     await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
+//       SteamID: SteamID,
+//     });
+//   }
+//   if (BattlenetID) {
+//     await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
+//       BattlenetID: BattlenetID,
+//     });
+//   }
+//   if (PlayStationID) {
+//     await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
+//       PlayStationID: PlayStationID,
+//     });
+//   }
+//   if (XboxID) {
+//     await db.Gamertags.findByIdAndUpdate(user.GamerTags, { XboxID: XboxID });
+//   }
 
-  res.redirect("/home");
-});
+//   res.redirect("/home");
+// });
 
 // --------------------------
 //  LOGIN
