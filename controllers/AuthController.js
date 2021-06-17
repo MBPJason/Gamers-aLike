@@ -185,6 +185,8 @@ router.put("/auth/finishing-touches", isAuthenticated, async (req, res) => {
   if (XboxID) {
     await db.Gamertags.findByIdAndUpdate(user.GamerTags, { XboxID: XboxID });
   }
+
+  res.redirect("/home");
 });
 
 // --------------------------
