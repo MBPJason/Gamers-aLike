@@ -271,8 +271,8 @@ router.get(
   "/auth/steam/return",
   passport.authenticate("steam", { failureRedirect: "/login" }),
   function (req, res) {
-    if (!req.user.username) {
-      res.redirect("/finishing-touch");
+    if (!req.user.email) {
+      res.json({ type: "Steam" }).redirect("/finishing-touch");
     } else {
       res.redirect("/");
     }
