@@ -14,139 +14,16 @@ const db = require("../models");
 //  SIGN UP (Create Route)
 // --------------------------
 
-router.post("/auth/signup", async (req, res) => {
-  console.log("Signup is being called");
-  const {
-    email,
-    username,
-    password,
-    DiscordID,
-    SteamID,
-    BattlenetID,
-    PlayStationID,
-    XboxID,
-  } = req.body;
-
-  console.log(req.body);
-  const checkUser = await db.User.findOne({ email: email });
-
-  // Check if all required parameters (email, password, username) to make a user is present
-  if (!email.trim() || !password.trim() || !username.trim()) {
-    // If one or more are missing reject response is given
-    console.log("Couldn't make account");
-    res.status(400).json({
-      error: true,
-      message: "Missing one or more of the parameters to make an account",
-    });
-  } else if (checkUser !== null) {
-    res.json({
-      message: "I am sorry that email is already taken",
-    });
-  } else {
-    // Main build process for making an account
-    // TODO: Check if the email account provided is already tied to an account
-
-    // Try/Catch block for potential server side errors
-    try {
-      // Hash and salt password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Main User Schema built with user required parameters
-      const user = await db.User.create({
-        email: email,
-        username: username,
-        password: hashedPassword,
-      });
-      console.log("User is made");
-      // Building out User essential Schemas
-      const Ratings = await db.Ratings.create({
-        userID: user._id,
-        RatingsScore: 1,
-      });
-      const PlayersInfo = await db.Players.create({
-        userID: user._id,
-      });
-      const DiscordInfo = await db.Discord.create({
-        userID: user._id,
-      });
-      const GamerTags = await db.Gamertags.create({
-        userID: user._id,
-      });
-      console.log("Made user required schemas");
-
-      // Updating/Tying it to new User created Schema
-      await db.User.findByIdAndUpdate(user._id, {
-        Ratings: Ratings._id,
-        PlayersInfo: PlayersInfo._id,
-        DiscordInfo: DiscordInfo._id,
-        GamerTags: GamerTags._id,
-      });
-      console.log("Attaching required schemas to user");
-      // Update Discord table if user provides a DiscordID
-      if (DiscordID) {
-        await db.Discord.findByIdAndUpdate(DiscordInfo._id, {
-          DiscordID: DiscordID,
-        });
-      }
-
-      // Update Gamertags table check if any gamertags were given in signup process
-      if (SteamID) {
-        await db.Gamertags.findByIdAndUpdate(GamerTags._id, {
-          SteamID: SteamID,
-        });
-      }
-      if (BattlenetID) {
-        await db.Gamertags.findByIdAndUpdate(GamerTags._id, {
-          BattlenetID: BattlenetID,
-        });
-      }
-      if (PlayStationID) {
-        await db.Gamertags.findByIdAndUpdate(GamerTags._id, {
-          PlayStationID: PlayStationID,
-        });
-      }
-      if (XboxID) {
-        await db.Gamertags.findByIdAndUpdate(GamerTags._id, { XboxID: XboxID });
-      }
-      console.log("Finished checks for additional user data");
-
-      // Created JWT token; Only an hour use.
-      const token = jwt.sign(
-        {
-          id: user._id,
-          username: user.username,
-          Ratings: user.Ratings,
-          PlayersInfo: user.PlayersInfo,
-          DiscordInfo: user.DiscordInfo,
-          GamerTags: user.GamerTags,
-        },
-        accessTokenSecret,
-        { expiresIn: "5m" }
-      );
-      console.log("JWT made");
-      // If everything is done correctly this is the response back
-
-      res
-        .json({
-          error: false,
-          data: token,
-          message: "Successfully signed up.",
-          usernameField: email,
-          passwordField: password,
-        })
-        .post("/auth/login/local");
-      console.log("Everything went right");
-    } catch (error) {
-      // If server side error this is the error response
-      res.status(500).json({
-        error: true,
-        data: error,
-        message: "Something went wrong",
-      });
-      console.log(error);
-    }
+router.post(
+  "/auth/signup",
+  passport.authenticate("local", { failureRedirect: "/login" }),
+  function (req, res) {
+    // If this function gets called, authentication was successful.
+    // `req.user` contains the authenticated user.
+    res.json({ message: "Welcome " + req.user.username });
+    console.log("User successfully made and serialized");
   }
-});
+);
 
 // --------------------------
 // UPDATE
@@ -166,7 +43,7 @@ router.post("/auth/signup", async (req, res) => {
 //     XboxID,
 //   } = req.body;
 
-//   const hashedPassword = await bcrypt.hash(password, 25);
+//   const hashedPassword = await bcrypt.hash(password, 10);
 
 //   const user = await db.User.findByIdAndUpdate(userID, {
 //     email: email,
