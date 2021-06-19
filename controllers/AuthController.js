@@ -1,12 +1,11 @@
 // THIS IS FOR LOGIN, LOGOUT AND SIGN UP ONLY
 
 // Dependencies
-const express = require("express");
 const router = require("express-promise-router")();
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const accessTokenSecret = process.env.SECRET;
+const auth = require("../config/middleware/isAuthenticated");
 // Schema Models
 const db = require("../models");
 
@@ -17,12 +16,13 @@ const db = require("../models");
 router.post(
   "/auth/signup",
   passport.authenticate("local", { failureRedirect: "/login" }),
-  function (req, res) {
-    // If this function gets called, authentication was successful.
-    // `req.user` contains the authenticated user.
-    res.json({ message: "Welcome " + req.user.username });
-    console.log("User successfully made and serialized");
-  }
+  auth.setJWT,
+  // function (req, res) {
+  //   // If this function gets called, authentication was successful.
+  //   // `req.user` contains the authenticated user.
+  //   res.json({ message: "Welcome " + req.user.username });
+  //   console.log("User successfully made and serialized");
+  // }
 );
 
 // --------------------------
