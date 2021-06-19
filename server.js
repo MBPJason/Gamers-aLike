@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 const session = require("express-session");
 const passport = require("./config/passport/passport");
+const flash = require("connect-flash");
 
 const PORT = process.env.PORT || 3001;
 
@@ -15,6 +16,7 @@ const app = express();
 // Express Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(flash());
 app.use(express.static("client/build"));
 
 // CORS Middleware
