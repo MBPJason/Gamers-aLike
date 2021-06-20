@@ -9,6 +9,7 @@ const TwitterStrategy = require("passport-oauth2").Strategy;
 const SteamStrategy = require("passport-steam").Strategy;
 const db = require("../../models");
 
+// Making a user for non local sign ups
 const makeUser = async function (caller, identifier, profile, err) {
   console.log("Making a user");
 
@@ -56,11 +57,103 @@ const makeUser = async function (caller, identifier, profile, err) {
         email: profile.email,
       });
     }
+
+    // Sends built user as end result
+    return user;
   } catch (error) {
     console.log(error);
     return (err = {
       error: true,
       data: error,
+      message: "Something went wrong",
+    });
+  }
+};
+
+// Making a user for local sign up process
+const localMakeUser = async function (
+  email,
+  username,
+  password,
+  DiscordID,
+  SteamID,
+  BattlenetID,
+  PlayStationID,
+  XboxID
+) {
+  // Try/Catch block for potential server side errors
+  try {
+    // Hash and salt password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Main User Schema built with user required parameters
+    const user = await db.User.create({
+      email: email,
+      username: username,
+      password: hashedPassword,
+    });
+    console.log("Local user is made");
+    // Building out User essential Schemas
+    const Ratings = await db.Ratings.create({
+      userID: user._id,
+      RatingsScore: 1,
+    });
+    const PlayersInfo = await db.Players.create({
+      userID: user._id,
+    });
+    const DiscordInfo = await db.Discord.create({
+      userID: user._id,
+    });
+    const GamerTags = await db.Gamertags.create({
+      userID: user._id,
+    });
+    console.log("Made local user required schemas");
+
+    // Updating/Tying it to new User created Schema
+    await db.User.findByIdAndUpdate(user._id, {
+      Ratings: Ratings._id,
+      PlayersInfo: PlayersInfo._id,
+      DiscordInfo: DiscordInfo._id,
+      GamerTags: GamerTags._id,
+    });
+    console.log("Attaching required schemas to local user");
+    // Update Discord table if user provides a DiscordID
+    if (DiscordID) {
+      await db.Discord.findByIdAndUpdate(DiscordInfo._id, {
+        DiscordID: DiscordID,
+      });
+    }
+
+    // Update Gamertags table check if any gamertags were given in signup process
+    if (SteamID) {
+      await db.Gamertags.findByIdAndUpdate(GamerTags._id, {
+        SteamID: SteamID,
+      });
+    }
+    if (BattlenetID) {
+      await db.Gamertags.findByIdAndUpdate(GamerTags._id, {
+        BattlenetID: BattlenetID,
+      });
+    }
+    if (PlayStationID) {
+      await db.Gamertags.findByIdAndUpdate(GamerTags._id, {
+        PlayStationID: PlayStationID,
+      });
+    }
+    if (XboxID) {
+      await db.Gamertags.findByIdAndUpdate(GamerTags._id, { XboxID: XboxID });
+    }
+    console.log("Finished checks for additional local user data");
+
+    // If everything is done correctly this is the response back
+    const fullUser = await db.User.findById(user._id);
+    return fullUser;
+  } catch (error) {
+    // If server side error this is the error response
+    console.log(error);
+    return (err = {
+      error: true,
+      data: false,
       message: "Something went wrong",
     });
   }
@@ -80,20 +173,81 @@ passport.deserializeUser((id, done) => {
 // Local Strategy
 passport.use(
   new LocalStrategy(
-    { usernameField: "email", passwordField: "password" },
-    function (email, password, done) {
-      db.User.findOne({ email: email }, function (err, user) {
+    {
+      usernameField: "email",
+      passwordField: "password",
+      passReqToCallback: true,
+    },
+    async function (req, email, password, done) {
+      // Pulling potential additional information from request
+      const {
+        username,
+        DiscordID,
+        SteamID,
+        BattlenetID,
+        PlayStationID,
+        XboxID,
+        type,
+      } = req.body;
+
+      // If this is a signup process then this if/else block will fire
+      if (type === "signup") {
+        console.log("Sign up is being called");
+        // Setting variable for check
+        const checkUser = await db.User.findOne({ email: email });
+        console.log("Check user variable set");
+        console.log(checkUser);
+        // If user exists return false; Email tied to a user account
+        if (checkUser !== null) {
+          console.log("User with that email exists");
+          return done(null, false);
+        } else {
+          // If user doesn't exist the create a user
+         await localMakeUser(
+            email,
+            username,
+            password,
+            DiscordID,
+            SteamID,
+            BattlenetID,
+            PlayStationID,
+            XboxID
+          );
+          console.log("new user made");
+        }
+      }
+
+      // Checking for user via email as key
+      await db.User.findOne({ email: email }, function (err, user) {
+        // Check for errors during the process
         if (err) {
           return done(err);
         }
+
+        // If there is no user, return false; Can't grant access
         if (!user) {
           console.log(email);
           return done(null, false);
         }
-        if (!bcrypt.compare(password, user.password)) {
-          return done(null, false);
+        // A user was found
+        if (user) {
+          // If signup method was called then immediately send up user; Grants access
+          if (type === "signup") {
+            console.log(user);
+            console.log("New user is being serialized");
+            return done(null, user);
+          } else {
+            // If this isn't a signup process the below will occur
+
+            // If user exist but password check fails, return false; Can't grant access
+            if (!bcrypt.compare(password, user.password)) {
+              return done(null, false);
+            }
+            // If all checks pass serialize user; Grants access
+            console.log(user);
+            return done(null, user);
+          }
         }
-        return done(null, user);
       });
     }
   )
@@ -114,7 +268,7 @@ passport.use(
 //         }
 //         if (!user) {
 //           return cb(null, makeUser("Google", null, profile, err));
-//         }  
+//         }
 //         return cb(null, user);
 //       });
 //     }
