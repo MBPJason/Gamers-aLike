@@ -135,7 +135,7 @@ router.post("/auth/signup", async (req, res) => {
           passwordField: password,
         })
         .post("/auth/login/local");
-      console.log("Everything went right");
+      console.log("Signup function completed");
     } catch (error) {
       // If server side error this is the error response
       res.status(500).json({
