@@ -9,6 +9,7 @@ const flash = require("connect-flash");
 const MongoStore = require("connect-mongo");
 
 const PORT = process.env.PORT || 3001;
+const MongoURI =  process.env.MONGODB_URI || "mongodb://localhost/gamers-alike";
 
 const app = express();
 
@@ -25,7 +26,7 @@ app.use(cors());
 
 // Mongoose Middleware
 mongoose.connect(
-  process.env.MONGODB_URI || "mongodb://localhost/gamers-alike",
+  MongoURI,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -52,7 +53,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     store: MongoStore.create({
-      mongoUrl:  process.env.MONGODB_URI || "mongodb://localhost/gamers-alike"
+      mongoUrl: MongoURI
     })
   })
 );
