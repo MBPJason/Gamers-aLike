@@ -56,11 +56,10 @@ module.exports = {
 
         try {
           // TODO: Put auth headers in correct location. Use website for an example: https://medium.com/dev-bits/a-guide-for-adding-jwt-token-based-authentication-to-your-single-page-nodejs-applications-c403f7cf04f4
-          let headers = new Headers();
-          res.setHeader("Authorization", basic).sendStatus(200);
+          res.setHeader("Authorization", basic);
           next();
         } catch (err) {
-          console.error("Couldn't set responses");
+          console.log(err);
           res.json({
             error: true,
             data: err,

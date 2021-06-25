@@ -17,12 +17,12 @@ router.post(
   "/auth/signup",
   passport.authenticate("local", { failureRedirect: "/login" }),
   auth.setJWT,
-  // function (req, res) {
-  //   // If this function gets called, authentication was successful.
-  //   // `req.user` contains the authenticated user.
-  //   res.json({ message: "Welcome " + req.user.username });
-  //   console.log("User successfully made and serialized");
-  // }
+  function (req, res) {
+    // If this function gets called, authentication was successful.
+    // `req.user` contains the authenticated user.
+    res.json({ message: "Welcome " + req.user.username });
+    console.log("User successfully made and serialized");
+  }
 );
 
 // --------------------------
