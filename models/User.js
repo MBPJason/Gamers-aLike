@@ -35,7 +35,10 @@ const UserSchema = new Schema({
     type: String,
     trim: true,
   },
-
+  authProof: {
+    type: String,
+    trim: true,
+  },
   accessToken: {
     type: String,
     trim: true,
