@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const accessTokenSecret = process.env.SECRET;
 const auth = require("../config/middleware/isAuthenticated");
+const bcrypt = require("bcrypt");
 // Schema Models
 const db = require("../models");
 
@@ -13,17 +14,12 @@ const db = require("../models");
 //  SIGN UP (Create Route)
 // --------------------------
 
-router.post(
-  "/auth/signup",
-  passport.authenticate("local", { failureRedirect: "/login" }),
-  auth.setJWT,
-  function (req, res) {
-    // If this function gets called, authentication was successful.
-    // `req.user` contains the authenticated user.
-    res.json({ message: "Welcome " + req.user.username });
-    console.log("User successfully made and serialized");
-  }
-);
+router.post("/auth/signup", async function (req, res) {
+  // If this function gets called, authentication was successful.
+  // `req.user` contains the authenticated user.
+  res.json({ message: "Welcome " + req.user.username });
+  console.log("User successfully made and serialized");
+});
 
 // --------------------------
 // UPDATE
@@ -87,22 +83,18 @@ router.post(
 // 2. Then a response path for where to redirect them to based on pass or fail
 
 // Local Login Method
-router.post("/auth/login/local", function (req, res, next) {
-  passport.authenticate("local", function (err, user, info) {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      return res.json({ message: "Couldn't find user" });
-    }
-    req.logIn(user, function (err) {
-      if (err) {
-        return next(err);
+router.post("/auth/login/local", async function (req, res, next) {
+  const { email, password, type } = req.body;
+  if (type === "signin") {
+    const user = await db.User.findOne({ email: email });
+    if (user) {
+      if (!bcrypt.compare(password, user.password)) {
+        res.status(403).send("Email and/or password did not match");
+      } else {
+        res.redirect(200, "localhost:3000/home");
       }
-      console.log(res);
-      return res.json({ message: "Welcome " + user.username });
-    });
-  })(req, res, next);
+    }
+  }
 });
 
 // Facebook Login Method
