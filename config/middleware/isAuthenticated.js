@@ -29,7 +29,7 @@ module.exports = {
     }
   },
 
-  setJWT: function (req, res, next) {
+  makeJWT: function (req, res, next) {
     try {
       if (req.user) {
         console.log("User data acquired");

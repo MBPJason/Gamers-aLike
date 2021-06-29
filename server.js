@@ -3,10 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const path = require("path");
-const session = require("express-session");
 const passport = require("./config/passport/passport");
 const flash = require("connect-flash");
-const MongoStore = require("connect-mongo");
 
 const PORT = process.env.PORT || 3001;
 const MongoURI =  process.env.MONGODB_URI || "mongodb://localhost/gamers-alike";
@@ -46,21 +44,9 @@ connection.on("error", (err) => {
   console.log("Mongoose connection error: ", err);
 });
 
-// Express Session
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    store: MongoStore.create({
-      mongoUrl: MongoURI
-    })
-  })
-);
 
 // Passport Middleware
 app.use(passport.initialize());
-app.use(passport.session());
 
 // Routes
 app.use(require("./controllers/AuthController.js"));
