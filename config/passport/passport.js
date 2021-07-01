@@ -1,15 +1,21 @@
 // Dependencies
 require("dotenv").config();
-const passport = require("passport");
+const fs = require("fs");
+const path = require("path");
 
+const passport = require("passport");
 const JWTStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const TwitterStrategy = require("passport-oauth2").Strategy;
 const SteamStrategy = require("passport-steam").Strategy;
-const register = require("./register");
+
+
 const db = require("../../models");
+
+const pathToPub = path.join(__dirname, "../..", "jwtRS256.key.pub");
+const CLIENT_PUB_KEY = fs.readFileSync(pathToPub, "utf8");
 
 // Issuing Session tokens
 passport.serializeUser((user, done) => {
@@ -22,79 +28,34 @@ passport.deserializeUser((id, done) => {
   });
 });
 
+// Options commented to out, but left to see full list of options.
 const passportJWTOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: PUB_KEY || "secret phrase",
-  issuer: "enter issuer here",
-  audience: "enter audience here",
+  secretOrKey: CLIENT_PUB_KEY,
+  // issuer: "enter issuer here",
+  // audience: "enter audience here",
   algorithms: ["RS256"],
-  ignoreExpiration: false,
-  passReqToCallback: true,
+  // ignoreExpiration: false,
+  // passReqToCallback: false,
   jsonWebTokenOptions: {
-    complete: false,
-    clockTolerance: "",
-    maxAge: "2d", // 2 days
-    clockTimestamp: "100",
-    nonce: "string here for OpenID",
+    // complete: false,
+    // clockTolerance: "",
+    maxAge: "1y", // 1 year
+    // clockTimestamp: "100",
+    // nonce: "string here for OpenID",
   },
 };
+
 // JWT Strategy
 passport.use(
-  new JWTStrategy(passportJWTOptions, async function (req, jwt_payload, done) {
-    // Pulling potential additional information from request
-    const {
-      email,
-      username,
-      password,
-      DiscordID,
-      SteamID,
-      BattlenetID,
-      PlayStationID,
-      XboxID,
-      type,
-    } = req.body;
+  new JWTStrategy(passportJWTOptions, async ( jwt_payload, done) => {
 
-    // Checking for user via email as key
+    // Checking for user via json as key
     await db.User.findOne({ _id: jwt_payload.sub }, async function (err, user) {
       // Check for errors during the process
       if (err) {
         return done(err);
       }
-
-      if (type === "signup") {
-        const signUp = await db.User.findOne({ email: email });
-        if (signUp === null) {
-          return done(
-            null,
-            await register.localMakeUser(
-              email,
-              username,
-              password,
-              DiscordID,
-              SteamID,
-              BattlenetID,
-              PlayStationID,
-              XboxID
-            )
-          );
-        } else {
-          return done(null, false);
-        }
-      }
-
-      if (type === "signin") {
-        const checkUser = await db.User.findOne({ email: email });
-        if (checkUser !== null) {
-          if (!bcrypt.compare(password, user.password)) {
-            return done(null, false);
-          } else {
-            return done(null, checkUser);
-          }
-        } else if (user) {
-          return done(null, user);
-        }
-      }
-
       if (!user) {
         return done(null, false);
       } else {
