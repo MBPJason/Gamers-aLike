@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
 const db = require("../../models");
+const tough = require("tough-cookie");
+const Cookie = tough.Cookie;
 
 // Client Keys
 const pathToCPriv = path.join(__dirname, "../../jwtRS256.key");
@@ -19,27 +21,40 @@ const SERVER_PUB_KEY = fs.readFileSync(pathToSPub, "utf8");
 // Authentication Process and Checks
 module.exports = {
   checkJWT(req, res, next) {
+    // Pull in headers and user from request
     const authHeader = req.headers.authorization;
     const user = req.user;
 
+    // Check if there is a header
     if (authHeader) {
+      // Extract the token from the header
       const token = authHeader.split(" ")[1];
 
+      // Verify token from header with client paired public key
       jwt.verify(token, CLIENT_PUB_KEY, (err, decoded) => {
+        // Error check
         if (err) {
+          // Error response
           return res.sendStatus(403);
         } else {
+          // Check if there was a serialized user in request
           if (user) {
+            // Construct true token with user spilt signature from User Schema
             const authToken = decoded.authToken + "." + user.authProof;
+            // Verify true token with server paired public key
             jwt.verify(authToken, SERVER_PUB_KEY, (err, proof) => {
+              // Error check
               if (err) {
+                // Error response
                 return res.sendStatus(403);
               } else {
+                // If it checks out set req.user and go to next middleware function
                 req.user = user;
                 next();
               }
             });
           } else {
+            // If no serialized user respond with a 404 code
             res.sendStatus(404);
           }
         }
@@ -91,10 +106,14 @@ module.exports = {
         };
 
         // Take the new object and sign it with the public key(RS256) and make a new token
-        const signedSplitPayload = jwt.sign(splitTokenPayload, CLIENT_PRIV_KEY, {
-          expiresIn: expiresIn,
-          algorithm: "RS256",
-        });
+        const signedSplitPayload = jwt.sign(
+          splitTokenPayload,
+          CLIENT_PRIV_KEY,
+          {
+            expiresIn: expiresIn,
+            algorithm: "RS256",
+          }
+        );
 
         // Add spilt signature onto user schema
         await db.User.findOneAndUpdate(
@@ -115,6 +134,26 @@ module.exports = {
       return new Error(
         "Something went wrong on the server end or executing the function"
       );
+    }
+  },
+
+  setCookieJar(authToken, user) {
+    try {
+      if (authToken && user) {
+        let cookie1 = Cookie.parse("Key=__AUTH; Domain=localhost:3000; Secure");
+        let cookie2 = Cookie.parse("Key=user; Domain=localhost:3000; Path=/");
+        cookie1.value = authToken;
+        cookie2.value = user;
+
+        const cookiejar = new tough.CookieJar();
+        cookiejar.setCookie(
+          cookie1,
+          "http://currentdomain.example.com/path",
+          cb
+        );
+      }
+    } catch (error) {
+      console.log(error);
     }
   },
 };
