@@ -104,5 +104,8 @@ dist
 .tern-port
 
 # Pem key files
-id_rsa_priv.pem
-id_rsa_pub.pem
+jwtRS256.key
+jwtRS256.key.pub
+
+jwtServerRS256.key
+jwtServerRS256.key.pub

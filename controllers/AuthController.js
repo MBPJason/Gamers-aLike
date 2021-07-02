@@ -2,77 +2,65 @@
 
 // Dependencies
 const router = require("express-promise-router")();
-const jwt = require("jsonwebtoken");
 const passport = require("passport");
+const jwt = require("jsonwebtoken");
 const accessTokenSecret = process.env.SECRET;
 const auth = require("../config/middleware/isAuthenticated");
 const bcrypt = require("bcrypt");
+const register = require("../config/passport/register");
 // Schema Models
 const db = require("../models");
 
-// --------------------------
-//  SIGN UP (Create Route)
-// --------------------------
+// ------------------------------
+//  SIGN UP LOCAL (Create Route)
+// ------------------------------
 
-router.post("/auth/signup", async function (req, res) {
+router.post("/auth/signup", async (req, res) => {
   // If this function gets called, authentication was successful.
   // `req.user` contains the authenticated user.
-  res.json({ message: "Welcome " + req.user.username });
-  console.log("User successfully made and serialized");
+  const {
+    email,
+    username,
+    password,
+    DiscordID,
+    SteamID,
+    BattlenetID,
+    PlayStationID,
+    XboxID,
+    type,
+    expire,
+  } = req.body;
+
+  // Check for signup
+  if (type === "signup") {
+    const signUp = await db.User.findOne({ email: email });
+    if (signUp === null) {
+      const madeUser = await register.localMakeUser(
+        email,
+        username,
+        password,
+        DiscordID,
+        SteamID,
+        BattlenetID,
+        PlayStationID,
+        XboxID
+      );
+      const token = await auth.authJWT(madeUser, expire);
+
+      // TODO: Set response cookies
+      res
+        .status(200)
+        .json({ authToken: token, message: "User made and token given" });
+      console.log("User successfully made and serialized");
+      console.log(token);
+    } else {
+      res
+        .status(401)
+        .json({ message: "A user with that email already exists" });
+      console.log("User exists");
+    }
+  }
 });
-
-// --------------------------
-// UPDATE
-// --------------------------
-
-// THIS WILL ONLY BE CALLED TO COMPLETE THE SIGN UP PROCESS FOR THE NON-LOCAL PASSPORT STRATEGIES
-// router.put("/auth/finishing-touches", isAuthenticated, async (req, res) => {
-//   const {
-//     userID,
-//     email,
-//     username,
-//     password,
-//     DiscordID,
-//     SteamID,
-//     BattlenetID,
-//     PlayStationID,
-//     XboxID,
-//   } = req.body;
-
-//   const hashedPassword = await bcrypt.hash(password, 10);
-
-//   const user = await db.User.findByIdAndUpdate(userID, {
-//     email: email,
-//     password: hashedPassword,
-//     username: username,
-//   });
-
-//   if (DiscordID) {
-//     await db.Discord.findByIdAndUpdate(user.DiscordInfo, {
-//       DiscordID: DiscordID,
-//     });
-//   }
-//   if (SteamID) {
-//     await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
-//       SteamID: SteamID,
-//     });
-//   }
-//   if (BattlenetID) {
-//     await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
-//       BattlenetID: BattlenetID,
-//     });
-//   }
-//   if (PlayStationID) {
-//     await db.Gamertags.findByIdAndUpdate(user.GamerTags, {
-//       PlayStationID: PlayStationID,
-//     });
-//   }
-//   if (XboxID) {
-//     await db.Gamertags.findByIdAndUpdate(user.GamerTags, { XboxID: XboxID });
-//   }
-
-//   res.redirect("/home");
-// });
 
 // --------------------------
 //  LOGIN
@@ -83,19 +71,38 @@ router.post("/auth/signup", async function (req, res) {
 // 2. Then a response path for where to redirect them to based on pass or fail
 
 // Local Login Method
-router.post("/auth/login/local", async function (req, res, next) {
-  const { email, password, type } = req.body;
+router.post("/auth/local/login", async (req, res) => {
+  const { email, password, type, expire } = req.body;
   if (type === "signin") {
     const user = await db.User.findOne({ email: email });
     if (user) {
       if (!bcrypt.compare(password, user.password)) {
         res.status(403).send("Email and/or password did not match");
       } else {
-        res.redirect(200, "localhost:3000/home");
+        const token = await auth.authJWT(user, expire);
+
+        // TODO: Set response cookies
+        res.status(200).json({
+          authToken: token,
+          message: "User signed in and token given",
+        });
+        console.log("User successfully signed in and serialized");
+        console.log(token);
       }
     }
   }
 });
+
+router.get(
+  "/auth/cookie/login",
+  passport.authenticate("jwt", { session: false }),
+  auth.checkJWT,
+  async (req, res) => {
+    if (req.user) {
+      res.redirect("http://localhost:3000/home", 200);
+    }
+  }
+);
 
 // Facebook Login Method
 router.get("/auth/facebook", passport.authenticate("facebook"));
@@ -164,9 +171,9 @@ router.get(
 //  LOGOUT
 // --------------------------
 
-router.get("/logout", function (req, res) {
+router.get("/logout", (req, res) => {
   req.logout();
-  res.redirect("/login");
+  res.redirect("http://localhost:3000");
 });
 
 // Exporting functions for express use on server.js
