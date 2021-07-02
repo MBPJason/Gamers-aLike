@@ -72,7 +72,6 @@ module.exports = {
           expiresIn: expiresIn,
           algorithm: "RS256",
         });
-        console.log(signedToken, "This is the originally made token signed with server key");
 
         /**
          * Split the token via "." into 3 parts.
@@ -90,14 +89,13 @@ module.exports = {
           sub: user._id,
           username: user.username,
         };
-        console.log(splitTokenPayload, "This is the split object info before the token is signed");
 
         // Take the new object and sign it with the public key(RS256) and make a new token
         const signedSplitPayload = jwt.sign(splitTokenPayload, CLIENT_PRIV_KEY, {
           expiresIn: expiresIn,
           algorithm: "RS256",
         });
-        console.log(signedSplitPayload, "This is the fully made token signed with client key");
+
         // Add spilt signature onto user schema
         await db.User.findOneAndUpdate(
           { _id: user._id },

@@ -57,7 +57,7 @@ router.post("/auth/signup", async (req, res) => {
       res
         .status(401)
         .json({ message: "A user with that email already exists" });
-        console.log("User exists");
+      console.log("User exists");
     }
   }
 });
@@ -71,7 +71,7 @@ router.post("/auth/signup", async (req, res) => {
 // 2. Then a response path for where to redirect them to based on pass or fail
 
 // Local Login Method
-router.post("/auth/login", async (req, res) => {
+router.post("/auth/local/login", async (req, res) => {
   const { email, password, type, expire } = req.body;
   if (type === "signin") {
     const user = await db.User.findOne({ email: email });
@@ -79,22 +79,30 @@ router.post("/auth/login", async (req, res) => {
       if (!bcrypt.compare(password, user.password)) {
         res.status(403).send("Email and/or password did not match");
       } else {
-        
         const token = await auth.authJWT(user, expire);
 
-         // TODO: Set response cookies
-        res
-          .status(200)
-          .json({
-            authToken: token,
-            message: "User signed in and token given",
-          });
+        // TODO: Set response cookies
+        res.status(200).json({
+          authToken: token,
+          message: "User signed in and token given",
+        });
         console.log("User successfully signed in and serialized");
         console.log(token);
       }
     }
   }
 });
+
+router.get(
+  "/auth/cookie/login",
+  passport.authenticate("jwt", { session: false }),
+  auth.checkJWT,
+  async (req, res) => {
+    if (req.user) {
+      res.redirect("http://localhost:3000/home", 200);
+    }
+  }
+);
 
 // Facebook Login Method
 router.get("/auth/facebook", passport.authenticate("facebook"));
@@ -165,7 +173,7 @@ router.get(
 
 router.get("/logout", (req, res) => {
   req.logout();
-  res.redirect("/login");
+  res.redirect("http://localhost:3000");
 });
 
 // Exporting functions for express use on server.js
