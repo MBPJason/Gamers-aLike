@@ -1,15 +1,20 @@
 // THIS IS FOR LOGIN, LOGOUT AND SIGN UP ONLY
 
 // Dependencies
+require("dotenv").config();
 const router = require("express-promise-router")();
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const accessTokenSecret = process.env.SECRET;
+const cookieSecret = process.env.COOKIE_CRYPTO;
 const auth = require("../config/middleware/isAuthenticated");
 const bcrypt = require("bcrypt");
 const register = require("../config/passport/register");
+const baseURL = "localhost";
+
 // Schema Models
 const db = require("../models");
+
 
 // ------------------------------
 //  SIGN UP LOCAL (Create Route)
@@ -46,10 +51,37 @@ router.post("/auth/signup", async (req, res) => {
         XboxID
       );
       const token = await auth.authJWT(madeUser, expire);
+      const lockedCookieSecret = await bcrypt.hash(cookieSecret, 10);
+
+      let maxAge;
+      if (expire === null) {
+        maxAge = 1000 * 60 * 60 * 24;
+      } else {
+        maxAge = 1000 * 60 * 60 * 24 * 7 * 52;
+      }
+      const cookieSignOptions = {
+        domain: baseURL,
+        path: "/",
+        maxAge: maxAge,
+        signed: true,
+      };
 
       // TODO: Set response cookies
       res
         .status(200)
+        .cookie("__AUTH", token, cookieSignOptions)
+        .cookie(
+          "user",
+          { userID: madeUser._id, username: madeUser.username },
+          cookieSignOptions
+        )
+        .cookie("special", lockedCookieSecret, {
+          domain: baseURL,
+          path: "/",
+          maxAge: maxAge,
+          httpOnly: true,
+          signed: true,
+        })
         .json({ authToken: token, message: "User made and token given" });
       console.log("User successfully made and serialized");
       console.log(token);
@@ -59,7 +91,15 @@ router.post("/auth/signup", async (req, res) => {
         .json({ message: "A user with that email already exists" });
       console.log("User exists");
     }
+  } else {
+    res.status(401).redirect("http://localhost:3000");
   }
+});
+
+// Test route for middleware checks
+router.get("/protected", auth.validateCookie, (req, res) => {
+  console.log("protected was called");
+  res.json({ message: "You are authorized" });
 });
 
 // --------------------------
@@ -80,12 +120,42 @@ router.post("/auth/local/login", async (req, res) => {
         res.status(403).send("Email and/or password did not match");
       } else {
         const token = await auth.authJWT(user, expire);
+        const lockedCookieSecret = await bcrypt.hash(cookieSecret, 10);
+
+        let maxAge;
+        if (expire === null) {
+          maxAge = 1000 * 60 * 60 * 24;
+        } else {
+          maxAge = 1000 * 60 * 60 * 24 * 7 * 52;
+        }
+        const cookieSignOptions = {
+          domain: baseURL,
+          path: "/",
+          maxAge: maxAge,
+          signed: true,
+        };
 
         // TODO: Set response cookies
-        res.status(200).json({
-          authToken: token,
-          message: "User signed in and token given",
-        });
+
+        res
+          .status(200)
+          .cookie("__AUTH", token, cookieSignOptions)
+          .cookie(
+            "user",
+            { userID: user._id, username: user.username },
+            cookieSignOptions
+          )
+          .cookie("special", lockedCookieSecret, {
+            domain: baseURL,
+            path: "/",
+            maxAge: maxAge,
+            httpOnly: true,
+            signed: true,
+          })
+          .json({
+            authToken: token,
+            message: "User signed in and token given",
+          });
         console.log("User successfully signed in and serialized");
         console.log(token);
       }

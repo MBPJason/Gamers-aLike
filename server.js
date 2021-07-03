@@ -5,9 +5,10 @@ const mongoose = require("mongoose");
 const path = require("path");
 const passport = require("./config/passport/passport");
 const flash = require("connect-flash");
+const cookieParser = require("cookie-parser");
 
 const PORT = process.env.PORT || 3001;
-const MongoURI =  process.env.MONGODB_URI || "mongodb://localhost/gamers-alike";
+const MongoURI = process.env.MONGODB_URI || "mongodb://localhost/gamers-alike";
 
 const app = express();
 
@@ -16,6 +17,7 @@ const app = express();
 // Express Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(flash());
 app.use(express.static("client/build"));
 
@@ -23,15 +25,12 @@ app.use(express.static("client/build"));
 app.use(cors());
 
 // Mongoose Middleware
-mongoose.connect(
-  MongoURI,
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-  }
-);
+mongoose.connect(MongoURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+});
 
 // Mongoose/MongoDB Connection
 const connection = mongoose.connection;
@@ -43,7 +42,6 @@ connection.on("connected", () => {
 connection.on("error", (err) => {
   console.log("Mongoose connection error: ", err);
 });
-
 
 // Passport Middleware
 app.use(passport.initialize());
