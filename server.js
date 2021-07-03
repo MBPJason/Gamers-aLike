@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 const passport = require("./config/passport/passport");
 const flash = require("connect-flash");
+const cookieParser = require("cookie-parser");
 
 const PORT = process.env.PORT || 3001;
 const MongoURI =  process.env.MONGODB_URI || "mongodb://localhost/gamers-alike";
@@ -16,6 +17,7 @@ const app = express();
 // Express Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(flash());
 app.use(express.static("client/build"));
 

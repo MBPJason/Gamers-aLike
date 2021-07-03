@@ -17,8 +17,8 @@
     "keypair-server:set": "openssl rsa -in jwtServerRS256.key -pubout -outform PEM -out jwtServerRS256.key.pub",
     "keypair-client": "ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key",
     "keypair-client:set": "openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub",
-    "server-keys": "npm keypair-server && npm keypair-server:set",
-    "client-keys": "npm keypair-client && npm keypair-client:set"
+    "server-keys": "npm run keypair-server && npm run keypair-server:set",
+    "client-keys": "npm run keypair-client && npm run keypair-client:set"
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,7 @@
     "bcrypt": "^5.0.0",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^4.4.1",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
