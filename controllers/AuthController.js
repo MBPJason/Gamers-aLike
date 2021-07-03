@@ -15,7 +15,6 @@ const baseURL = "localhost";
 // Schema Models
 const db = require("../models");
 
-// Cookie Dependencies
 
 // ------------------------------
 //  SIGN UP LOCAL (Create Route)
@@ -92,6 +91,8 @@ router.post("/auth/signup", async (req, res) => {
         .json({ message: "A user with that email already exists" });
       console.log("User exists");
     }
+  } else {
+    res.status(401).redirect("http://localhost:3000");
   }
 });
 

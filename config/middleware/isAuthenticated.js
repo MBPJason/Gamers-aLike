@@ -18,7 +18,9 @@ const SERVER_PRIV_KEY = fs.readFileSync(pathToSPriv, "utf8");
 const pathToSPub = path.join(__dirname, "../../jwtServerRS256.key.pub");
 const SERVER_PUB_KEY = fs.readFileSync(pathToSPub, "utf8");
 
+// ========================================
 // Authentication Process and Checks
+// ========================================
 module.exports = {
   checkJWT(req, res, next) {
     // Pull in headers and user from request
@@ -48,8 +50,7 @@ module.exports = {
                 // Error response
                 return res.sendStatus(403);
               } else {
-                // If it checks out set req.user and go to next middleware function
-                req.user = user;
+                // Pass off into next middleware check
                 next();
               }
             });
@@ -137,31 +138,39 @@ module.exports = {
     }
   },
 
-  async validateCookie(req, res, next) {
+  // Cookie check method
+  validateCookie(req, res, next) {
     try {
+      // Pull signed cookies out of request
       const { signedCookies } = req;
-
+      // Check if special cookie is in there
       if ("special" in signedCookies) {
+        // Compare the value against stored value
         const cookieCheck = bcrypt.compare(
           process.env.COOKIE_CRYPTO,
           signedCookies.special
         );
-
+        // Check if the comparison passes
         if (cookieCheck) {
+          // If it passes go to the next middleware/final response
           next();
         } else {
+          // If it fails send failure message
           res.status(403).json({ message: "You are not allowed access" });
         }
       } else {
-        res
-          .status(403)
-          .json({
-            message:
-              "Couldn't find authorization check. You are not allowed access",
-          });
+        // If special cookie isn't inside then send failure message
+        res.status(403).json({
+          message:
+            "Couldn't find authorization check. You are not allowed access",
+        });
       }
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      // If server error
+      console.log(err);
+      return new Error(
+        "Something went wrong on the server end or executing the function"
+      );
     }
   },
 };
