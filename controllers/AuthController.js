@@ -15,7 +15,6 @@ const baseURL = "localhost";
 // Schema Models
 const db = require("../models");
 
-
 // ------------------------------
 //  SIGN UP LOCAL (Create Route)
 // ------------------------------
@@ -114,11 +113,13 @@ router.get("/protected", auth.validateCookie, (req, res) => {
 router.post("/auth/local/login", async (req, res) => {
   const { email, password, type, expire } = req.body;
   if (type === "signin") {
-    const user = await db.User.findOne({ email: email });
+    let user = await db.User.findOne({ email: email });
     if (user) {
       if (!bcrypt.compare(password, user.password)) {
         res.status(403).send("Email and/or password did not match");
       } else {
+        
+        console.log( await user.fullyBuiltUser);
         const token = await auth.authJWT(user, expire);
         const lockedCookieSecret = await bcrypt.hash(cookieSecret, 10);
 
