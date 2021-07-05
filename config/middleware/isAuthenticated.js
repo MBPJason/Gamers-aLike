@@ -23,9 +23,9 @@ const SERVER_PUB_KEY = fs.readFileSync(pathToSPub, "utf8");
 // ========================================
 module.exports = {
   checkJWT(req, res, next) {
-    // Pull in headers and user from request
+    // Pull in headers and userID from request
     const authHeader = req.headers.authorization;
-    const user = req.user;
+    const user = db.User.findOne({ _id: req.user.userID });
 
     // Check if there is a header
     if (authHeader) {
@@ -73,9 +73,12 @@ module.exports = {
       if (user) {
         const expiresIn = expire || "5m"; // Pulls expire parameter or sets jwt to last for a day
 
+        if(!user.userID) {
+          throw new Error("userID was not included in the user object");
+        }
         // Sets up token value
         const payload = {
-          sub: user._id,
+          sub: user.userID,
           iat: Date.now(),
           expires: expiresIn,
         };
@@ -102,7 +105,7 @@ module.exports = {
         // Combine the header and payload and put it into an object
         const splitTokenPayload = {
           authToken: authHeader + "." + authPayload,
-          sub: user._id,
+          sub: user.userID,
           username: user.username,
         };
 
@@ -118,7 +121,7 @@ module.exports = {
 
         // Add spilt signature onto user schema
         await db.User.findOneAndUpdate(
-          { _id: user._id },
+          { _id: user.userID },
           { authProof: splitTokenSignature }
         );
 

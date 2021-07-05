@@ -77,27 +77,27 @@ UserSchema.virtual("fullyBuiltUser").get(function () {
   return {
     userID: this._id,
     username: this.username,
-    currentGame: this.CurrentLFG,
-    gamesPlayed: this.GamesPlayed,
+    currentGame: this.CurrentLFG || null,
+    gamesPlayed: this.GamesPlayed || null,
     userRatings: {
       userScore: this.Ratings.RatingsScore,
       userRatings: this.Ratings.ratings,
     },
     userGamerTags: {
-      steam: this.GamerTags.SteamID,
-      battleNet: this.GamerTags.BattlenetID,
-      playstation: this.GamerTags.PlayStationID,
-      xbox: this.GamerTags.XboxID,
+      steam: this.GamerTags.SteamID || null,
+      battlenet: this.GamerTags.BattlenetID || null,
+      playstation: this.GamerTags.PlayStationID || null,
+      xbox: this.GamerTags.XboxID || null,
     },
     userDiscordInfo: {
-      discordID: this.DiscordInfo.DiscordID,
-      discordLink: this.DiscordInfo.DiscordLink,
-      isUserOnPublic: this.DiscordInfo.IsOnPublic,
+      discordID: this.DiscordInfo.DiscordID || null,
+      discordLink: this.DiscordInfo.DiscordLink || null,
+      isUserOnPublic: this.DiscordInfo.IsOnPublic || null,
     },
     userPlayersInfo: {
-      quickplay: this.PlayersInfo.QuickPlay,
-      playersMet: this.PlayersInfo.PlayersMet,
-      ignoreList: this.PlayersInfo.Ignore,
+      quickplay: this.PlayersInfo.QuickPlay || null,
+      playersMet: this.PlayersInfo.PlayersMet || null,
+      ignoreList: this.PlayersInfo.Ignore || null,
     },
   };
 });
@@ -106,16 +106,10 @@ UserSchema.virtual("briefUser").get(function () {
   return {
     userID: this._id,
     username: this.username,
-    userRatings: this.populate("Ratings").execPopulate(function (err, table) {
-      if (err) {
-        return new Error(err, "Something went wrong populating user ratings");
-      } else {
-        return {
-          userScore: table.RatingsScore,
-          userRatings: table.ratings,
-        };
-      }
-    }),
+    userRatings: {
+      userScore: this.Ratings.RatingsScore,
+      userRatings: this.Ratings.ratings,
+    },
   };
 });
 
