@@ -113,13 +113,13 @@ router.get("/protected", auth.validateCookie, (req, res) => {
 router.post("/auth/local/login", async (req, res) => {
   const { email, password, type, expire } = req.body;
   if (type === "signin") {
-    let user = await db.User.findOne({ email: email });
+    let user = await db.User.findOne({ email: email }).populate('GamerTags', 'DiscordInfo').exec();
     if (user) {
       if (!bcrypt.compare(password, user.password)) {
         res.status(403).send("Email and/or password did not match");
       } else {
         
-        console.log( await user.fullyBuiltUser);
+        console.log(user);
         const token = await auth.authJWT(user, expire);
         const lockedCookieSecret = await bcrypt.hash(cookieSecret, 10);
 

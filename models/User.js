@@ -73,56 +73,32 @@ const UserSchema = new Schema(
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
-UserSchema.virtual("fullyBuiltUser").get( async function () {
+UserSchema.virtual("fullyBuiltUser").get(function () {
   return {
     userID: this._id,
     username: this.username,
     currentGame: this.CurrentLFG,
     gamesPlayed: this.GamesPlayed,
-    userRatings: this.populate("Ratings").execPopulate( function (err, table) {
-      if (err) {
-        return new Error(err, "Something went wrong populating user ratings");
-      } else {
-        return {
-          userScore: table.RatingsScore,
-          userRatings: table.ratings,
-        };
-      }
-    }),
-    userGamerTags: await this.populate("GamerTags").execPopulate(function(err, table) {
-      if (err) {
-        console.log(err);
-        return new Error("couldn't populate user gamertags")
-      }
-    }),
-    userDiscordInfo: this.populate("DiscordInfo").execPopulate(function (err, table) {
-      if (err) {
-        return new Error(
-          err,
-          "Something went wrong populating user discord info"
-        );
-      } else {
-        return {
-          discordID: table.DiscordID,
-          discordLink: table.DiscordLink,
-          isUserOnPublic: table.IsOnPublic,
-        };
-      }
-    }),
-    userPlayersInfo: this.populate("PlayersInfo").execPopulate(function (err, table) {
-      if (err) {
-        return new Error(
-          err,
-          "Something went wrong populating user players info"
-        );
-      } else {
-        return {
-          quickplay: table.QuickPlay,
-          playersMet: table.PlayersMet,
-          ignoreList: table.Ignore,
-        };
-      }
-    }),
+    userRatings: {
+      userScore: this.Ratings.RatingsScore,
+      userRatings: this.Ratings.ratings,
+    },
+    userGamerTags: {
+      steam: this.GamerTags.SteamID,
+      battleNet: this.GamerTags.BattlenetID,
+      playstation: this.GamerTags.PlayStationID,
+      xbox: this.GamerTags.XboxID,
+    },
+    userDiscordInfo: {
+      discordID: this.DiscordInfo.DiscordID,
+      discordLink: this.DiscordInfo.DiscordLink,
+      isUserOnPublic: this.DiscordInfo.IsOnPublic,
+    },
+    userPlayersInfo: {
+      quickplay: this.PlayersInfo.QuickPlay,
+      playersMet: this.PlayersInfo.PlayersMet,
+      ignoreList: this.PlayersInfo.Ignore,
+    },
   };
 });
 
@@ -139,7 +115,7 @@ UserSchema.virtual("briefUser").get(function () {
           userRatings: table.ratings,
         };
       }
-    }),s
+    }),
   };
 });
 
