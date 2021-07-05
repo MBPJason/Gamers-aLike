@@ -105,30 +105,50 @@ router.get("/protected", auth.validateCookie, (req, res) => {
 //  LOGIN
 // --------------------------
 
-// TODO: Need 2 paths for passport authentication
+// TODO: Need 2 paths for passport OAUTH and OpenID authentication
 // 1. For calling directly the function inside the passport strategy being called
 // 2. Then a response path for where to redirect them to based on pass or fail
 
 // Local Login Method
 router.post("/auth/local/login", async (req, res) => {
+  // Pull email, password, type, and expire out of req.body
   const { email, password, type, expire } = req.body;
+  // Check for correct form input
   if (type === "signin") {
-    let user = await db.User.findOne({ email: email }).populate('GamerTags', 'DiscordInfo').exec();
+    // Find user by email, populate all fields and set user variable
+    let user = await db.User.findOne({ email: email })
+      .populate("GamerTags")
+      .populate("DiscordInfo")
+      .populate("Ratings")
+      .populate("PlayersInfo")
+      .exec();
+
+    // Check is a user was provided with email check
     if (user) {
+      // If user is present check password given against stored hashed password
       if (!bcrypt.compare(password, user.password)) {
+        // If no match give a 403 error
         res.status(403).send("Email and/or password did not match");
       } else {
-        
-        console.log(user);
+        /**
+         * Set user variable as user.fullyBuiltUser virtual
+         * Grab user auth token
+         * Hash cookie secret
+         */
+        user = user.fullyBuiltUser;
         const token = await auth.authJWT(user, expire);
         const lockedCookieSecret = await bcrypt.hash(cookieSecret, 10);
 
+        // Set empty maxAge variable
         let maxAge;
-        if (expire === null) {
-          maxAge = 1000 * 60 * 60 * 24;
-        } else {
-          maxAge = 1000 * 60 * 60 * 24 * 7 * 52;
-        }
+        // If req.body.expire is null set maxAge to a day. If it isn't set maxAge to a year
+        expire === null ? (maxAge = 86400e3) : (maxAge = 314496e5);
+
+        const userInfoToken = jwt.sign(user, accessTokenSecret, {
+          expiresIn: "3m",
+        });
+
+        // Set up cookie options object variable
         const cookieSignOptions = {
           domain: baseURL,
           path: "/",
@@ -136,11 +156,14 @@ router.post("/auth/local/login", async (req, res) => {
           signed: true,
         };
 
-        // TODO: Set response cookies
-
+        /**
+         * Set status code as 200
+         * Set Auth cookie TODO: Make it a secure and samesite cookie eventually
+         * Set "special" cookie TODO: Make it a secure and samesite cookie eventually
+         */
         res
-          .status(200)
-          .cookie("__AUTH", token, cookieSignOptions)
+          .status(200) // Set status code as 200
+          .cookie("__AUTH", token, cookieSignOptions) //
           .cookie(
             "user",
             { userID: user._id, username: user.username },
@@ -153,13 +176,20 @@ router.post("/auth/local/login", async (req, res) => {
             httpOnly: true,
             signed: true,
           })
+          .setHeader("Authorization", "Bearer " + token)
+          // .setHeader("Authorization", "Basic " + userInfoToken)
+          // Test json to see data
           .json({
             authToken: token,
+            userToken: userInfoToken,
             message: "User signed in and token given",
           });
         console.log("User successfully signed in and serialized");
-        console.log(token);
+        console.log(userInfoToken);
       }
+    } else {
+      // If no user send back 403 status code
+      res.status(403).send("Email and/or password did not match");
     }
   }
 });
