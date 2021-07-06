@@ -105,9 +105,7 @@ router.get("/protected", auth.validateCookie, (req, res) => {
 //  LOGIN
 // --------------------------
 
-// TODO: Need 2 paths for passport OAUTH and OpenID authentication
-// 1. For calling directly the function inside the passport strategy being called
-// 2. Then a response path for where to redirect them to based on pass or fail
+
 
 // Local Login Method
 router.post("/auth/local/login", async (req, res) => {
@@ -204,6 +202,12 @@ router.get(
     }
   }
 );
+
+// =================================================================================
+// TODO: Need 2 paths for passport OAUTH and OpenID authentication
+// 1. For calling directly the function inside the passport strategy being called
+// 2. Then a response path for where to redirect them to based on pass or fail
+// =================================================================================
 
 // Facebook Login Method
 router.get("/auth/facebook", passport.authenticate("facebook"));

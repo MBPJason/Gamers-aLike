@@ -25,29 +25,33 @@ module.exports = {
   checkJWT(req, res, next) {
     // Pull in headers and userID from request
     const authHeader = req.headers.authorization;
-    const user = db.User.findOne({ _id: req.user.userID });
+    const user = db.User.findOne({ _id: req.user.userID })
+      .populate({
+        path: "Auth",
+        select: "AuthProof",
+      })
+      .exec();
 
     // Check if there is a header
     if (authHeader) {
       // Extract the token from the header
       const token = authHeader.split(" ")[1];
-
       // Verify token from header with client paired public key
       jwt.verify(token, CLIENT_PUB_KEY, (err, decoded) => {
         // Error check
         if (err) {
-          // Error response
-          return res.sendStatus(403);
+          // Error 403 response
+          return res.sendStatus(401);
         } else {
           // Check if there was a serialized user in request
           if (user) {
             // Construct true token with user spilt signature from User Schema
-            const authToken = decoded.authToken + "." + user.authProof;
+            const authToken = decoded.authToken + "." + user.Auth.AuthProof;
             // Verify true token with server paired public key
             jwt.verify(authToken, SERVER_PUB_KEY, (err, proof) => {
               // Error check
               if (err) {
-                // Error response
+                // Error 403 response
                 return res.sendStatus(403);
               } else {
                 // Pass off into next middleware check
@@ -55,8 +59,8 @@ module.exports = {
               }
             });
           } else {
-            // If no serialized user respond with a 404 code
-            res.sendStatus(404);
+            // If no serialized user respond with a 401 code
+            res.sendStatus(401);
           }
         }
       });
@@ -73,7 +77,7 @@ module.exports = {
       if (user) {
         const expiresIn = expire || "5m"; // Pulls expire parameter or sets jwt to last for a day
 
-        if(!user.userID) {
+        if (!user.userID) {
           throw new Error("userID was not included in the user object");
         }
         // Sets up token value
@@ -119,10 +123,10 @@ module.exports = {
           }
         );
 
-        // Add spilt signature onto user schema
-        await db.User.findOneAndUpdate(
-          { _id: user.userID },
-          { authProof: splitTokenSignature }
+        // Add spilt signature onto auth schema
+        await db.Auth.findOneAndUpdate(
+          { userID: user.userID },
+          { AuthProof: splitTokenSignature }
         );
 
         // Return new publicly signed token
