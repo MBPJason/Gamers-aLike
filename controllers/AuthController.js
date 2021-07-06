@@ -52,12 +52,16 @@ router.post("/auth/signup", async (req, res) => {
       const token = await auth.authJWT(madeUser, expire);
       const lockedCookieSecret = await bcrypt.hash(cookieSecret, 10);
 
+      // Set empty maxAge variable
       let maxAge;
-      if (expire === null) {
-        maxAge = 1000 * 60 * 60 * 24;
-      } else {
-        maxAge = 1000 * 60 * 60 * 24 * 7 * 52;
-      }
+      // If req.body.expire is null set maxAge to a day. If it isn't set maxAge to a year
+      expire === null ? (maxAge = 86400e3) : (maxAge = 314496e5);
+
+      const userInfoToken = jwt.sign(madeUser, accessTokenSecret, {
+        expiresIn: "3m",
+      });
+
+      // Set up cookie options object variable
       const cookieSignOptions = {
         domain: baseURL,
         path: "/",
@@ -65,13 +69,17 @@ router.post("/auth/signup", async (req, res) => {
         signed: true,
       };
 
-      // TODO: Set response cookies
+      /**
+       * Set status code as 200
+       * Set Auth cookie TODO: Make it a secure and samesite cookie eventually
+       * Set "special" cookie TODO: Make it a secure and samesite cookie eventually
+       */
       res
-        .status(200)
-        .cookie("__AUTH", token, cookieSignOptions)
+        .status(200) // Set status code as 200
+        .cookie("__AUTH", token, cookieSignOptions) //
         .cookie(
           "user",
-          { userID: madeUser._id, username: madeUser.username },
+          { userID: madeUser.userID, username: madeUser.username },
           cookieSignOptions
         )
         .cookie("special", lockedCookieSecret, {
@@ -81,7 +89,16 @@ router.post("/auth/signup", async (req, res) => {
           httpOnly: true,
           signed: true,
         })
-        .json({ authToken: token, message: "User made and token given" });
+        .setHeader("Authorization", "Bearer " + token)
+        // .setHeader("Authorization", "Basic " + userInfoToken)
+        // Test json to see data
+        .json({
+          authToken: token,
+          userToken: userInfoToken,
+          message: "User signed in and token given",
+        });
+     
+      console.log(userInfoToken);
       console.log("User successfully made and serialized");
       console.log(token);
     } else {
@@ -91,7 +108,7 @@ router.post("/auth/signup", async (req, res) => {
       console.log("User exists");
     }
   } else {
-    res.status(401).redirect("http://localhost:3000");
+    res.status(401).send("Please signup with the normal route");
   }
 });
 
@@ -189,6 +206,8 @@ router.post("/auth/local/login", async (req, res) => {
       // If no user send back 403 status code
       res.status(403).send("Email and/or password did not match");
     }
+  } else {
+    res.status(401).send("Go login in with the proper route");
   }
 });
 

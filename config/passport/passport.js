@@ -14,7 +14,7 @@ const SteamStrategy = require("passport-steam").Strategy;
 
 const db = require("../../models");
 
-const pathToPub = path.join(__dirname, "../..", "jwtRS256.key.pub");
+const pathToPub = path.join(__dirname, "../../keys", "jwtRS256.key.pub");
 const CLIENT_PUB_KEY = fs.readFileSync(pathToPub, "utf8");
 
 // Issuing Session tokens
