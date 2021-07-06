@@ -96,6 +96,9 @@ module.exports = {
           algorithm: "RS256",
         });
 
+        if (!signedToken) {
+          throw new Error("Unable to make authentication token");
+        }
         /**
          * Split the token via "." into 3 parts.
          * Header
@@ -139,9 +142,7 @@ module.exports = {
     } catch (err) {
       // If server error display error
       console.log(err);
-      return new Error(
-        "Something went wrong on the server end or executing the function"
-      );
+      return;
     }
   },
 
