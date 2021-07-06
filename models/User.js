@@ -20,30 +20,6 @@ const UserSchema = new Schema(
       type: String,
       trim: true,
     },
-    Google: {
-      type: String,
-      trim: true,
-    },
-    Facebook: {
-      type: String,
-      trim: true,
-    },
-    Twitter: {
-      type: String,
-      trim: true,
-    },
-    Steam: {
-      type: String,
-      trim: true,
-    },
-    authProof: {
-      type: String,
-      trim: true,
-    },
-    accessToken: {
-      type: String,
-      trim: true,
-    },
     CurrentLFG: {
       type: String,
       trim: true,
@@ -54,6 +30,10 @@ const UserSchema = new Schema(
         trim: true,
       },
     ],
+    Auth: {
+      type: Schema.Types.ObjectId,
+      ref: "Auth",
+    },
     Ratings: {
       type: Schema.Types.ObjectId,
       ref: "Ratings",
