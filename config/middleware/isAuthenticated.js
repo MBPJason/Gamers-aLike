@@ -7,15 +7,15 @@ const db = require("../../models");
 const bcrypt = require("bcrypt");
 
 // Client Keys
-const pathToCPriv = path.join(__dirname, "../../jwtRS256.key");
+const pathToCPriv = path.join(__dirname, "../../keys/jwtRS256.key");
 const CLIENT_PRIV_KEY = fs.readFileSync(pathToCPriv, "utf8");
-const pathToCPub = path.join(__dirname, "../../jwtRS256.key.pub");
+const pathToCPub = path.join(__dirname, "../../keys/jwtRS256.key.pub");
 const CLIENT_PUB_KEY = fs.readFileSync(pathToCPub, "utf8");
 
 // Sever Keys
-const pathToSPriv = path.join(__dirname, "../../jwtServerRS256.key");
+const pathToSPriv = path.join(__dirname, "../../keys/jwtServerRS256.key");
 const SERVER_PRIV_KEY = fs.readFileSync(pathToSPriv, "utf8");
-const pathToSPub = path.join(__dirname, "../../jwtServerRS256.key.pub");
+const pathToSPub = path.join(__dirname, "../../keys/jwtServerRS256.key.pub");
 const SERVER_PUB_KEY = fs.readFileSync(pathToSPub, "utf8");
 
 // ========================================
@@ -96,6 +96,9 @@ module.exports = {
           algorithm: "RS256",
         });
 
+        if (!signedToken) {
+          throw new Error("Unable to make authentication token");
+        }
         /**
          * Split the token via "." into 3 parts.
          * Header
@@ -139,9 +142,7 @@ module.exports = {
     } catch (err) {
       // If server error display error
       console.log(err);
-      return new Error(
-        "Something went wrong on the server end or executing the function"
-      );
+      return;
     }
   },
 

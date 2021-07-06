@@ -103,9 +103,5 @@ dist
 # TernJS port file
 .tern-port
 
-# Pem key files
-jwtRS256.key
-jwtRS256.key.pub
-
-jwtServerRS256.key
-jwtServerRS256.key.pub
+# Keys directory
+keys/

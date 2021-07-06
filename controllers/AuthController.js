@@ -52,38 +52,59 @@ router.post("/auth/signup", async (req, res) => {
       const token = await auth.authJWT(madeUser, expire);
       const lockedCookieSecret = await bcrypt.hash(cookieSecret, 10);
 
-      let maxAge;
-      if (expire === null) {
-        maxAge = 1000 * 60 * 60 * 24;
+      if (!token) {
+        res.status(500).send("Couldn't authorize user");
       } else {
-        maxAge = 1000 * 60 * 60 * 24 * 7 * 52;
-      }
-      const cookieSignOptions = {
-        domain: baseURL,
-        path: "/",
-        maxAge: maxAge,
-        signed: true,
-      };
+        // Set empty maxAge variable
+        let maxAge;
+        // If req.body.expire is null set maxAge to a day. If it isn't set maxAge to a year
+        expire === null ? (maxAge = 86400e3) : (maxAge = 314496e5);
 
-      // TODO: Set response cookies
-      res
-        .status(200)
-        .cookie("__AUTH", token, cookieSignOptions)
-        .cookie(
-          "user",
-          { userID: madeUser._id, username: madeUser.username },
-          cookieSignOptions
-        )
-        .cookie("special", lockedCookieSecret, {
+        const userInfoToken = jwt.sign(madeUser, accessTokenSecret, {
+          expiresIn: "3m",
+        });
+
+        // Set up cookie options object variable
+        const cookieSignOptions = {
           domain: baseURL,
           path: "/",
           maxAge: maxAge,
-          httpOnly: true,
           signed: true,
-        })
-        .json({ authToken: token, message: "User made and token given" });
-      console.log("User successfully made and serialized");
-      console.log(token);
+        };
+
+        /**
+         * Set status code as 200
+         * Set Auth cookie TODO: Make it a secure and samesite cookie eventually
+         * Set "special" cookie TODO: Make it a secure and samesite cookie eventually
+         */
+        res
+          .status(200) // Set status code as 200
+          .cookie("__AUTH", token, cookieSignOptions) //
+          .cookie(
+            "user",
+            { userID: madeUser.userID, username: madeUser.username },
+            cookieSignOptions
+          )
+          .cookie("special", lockedCookieSecret, {
+            domain: baseURL,
+            path: "/",
+            maxAge: maxAge,
+            httpOnly: true,
+            signed: true,
+          })
+          .setHeader("Authorization", "Bearer " + token)
+          // .setHeader("Authorization", "Basic " + userInfoToken)
+          // Test json to see data
+          .json({
+            authToken: token,
+            userToken: userInfoToken,
+            message: "User signed in and token given",
+          });
+
+        console.log(userInfoToken);
+        console.log("User successfully made and serialized");
+        console.log(token);
+      }
     } else {
       res
         .status(401)
@@ -91,7 +112,7 @@ router.post("/auth/signup", async (req, res) => {
       console.log("User exists");
     }
   } else {
-    res.status(401).redirect("http://localhost:3000");
+    res.status(401).send("Please signup with the normal route");
   }
 });
 
@@ -104,8 +125,6 @@ router.get("/protected", auth.validateCookie, (req, res) => {
 // --------------------------
 //  LOGIN
 // --------------------------
-
-
 
 // Local Login Method
 router.post("/auth/local/login", async (req, res) => {
@@ -137,58 +156,64 @@ router.post("/auth/local/login", async (req, res) => {
         const token = await auth.authJWT(user, expire);
         const lockedCookieSecret = await bcrypt.hash(cookieSecret, 10);
 
-        // Set empty maxAge variable
-        let maxAge;
-        // If req.body.expire is null set maxAge to a day. If it isn't set maxAge to a year
-        expire === null ? (maxAge = 86400e3) : (maxAge = 314496e5);
+        if (!token) {
+          res.status(500).send("Couldn't authorize user");
+        } else {
+          // Set empty maxAge variable
+          let maxAge;
+          // If req.body.expire is null set maxAge to a day. If it isn't set maxAge to a year
+          expire === null ? (maxAge = 86400e3) : (maxAge = 314496e5);
 
-        const userInfoToken = jwt.sign(user, accessTokenSecret, {
-          expiresIn: "3m",
-        });
+          const userInfoToken = jwt.sign(user, accessTokenSecret, {
+            expiresIn: "3m",
+          });
 
-        // Set up cookie options object variable
-        const cookieSignOptions = {
-          domain: baseURL,
-          path: "/",
-          maxAge: maxAge,
-          signed: true,
-        };
-
-        /**
-         * Set status code as 200
-         * Set Auth cookie TODO: Make it a secure and samesite cookie eventually
-         * Set "special" cookie TODO: Make it a secure and samesite cookie eventually
-         */
-        res
-          .status(200) // Set status code as 200
-          .cookie("__AUTH", token, cookieSignOptions) //
-          .cookie(
-            "user",
-            { userID: user._id, username: user.username },
-            cookieSignOptions
-          )
-          .cookie("special", lockedCookieSecret, {
+          // Set up cookie options object variable
+          const cookieSignOptions = {
             domain: baseURL,
             path: "/",
             maxAge: maxAge,
-            httpOnly: true,
             signed: true,
-          })
-          .setHeader("Authorization", "Bearer " + token)
-          // .setHeader("Authorization", "Basic " + userInfoToken)
-          // Test json to see data
-          .json({
-            authToken: token,
-            userToken: userInfoToken,
-            message: "User signed in and token given",
-          });
-        console.log("User successfully signed in and serialized");
-        console.log(userInfoToken);
+          };
+
+          /**
+           * Set status code as 200
+           * Set Auth cookie TODO: Make it a secure and samesite cookie eventually
+           * Set "special" cookie TODO: Make it a secure and samesite cookie eventually
+           */
+          res
+            .status(200) // Set status code as 200
+            .cookie("__AUTH", token, cookieSignOptions) //
+            .cookie(
+              "user",
+              { userID: user._id, username: user.username },
+              cookieSignOptions
+            )
+            .cookie("special", lockedCookieSecret, {
+              domain: baseURL,
+              path: "/",
+              maxAge: maxAge,
+              httpOnly: true,
+              signed: true,
+            })
+            .setHeader("Authorization", "Bearer " + token)
+            // .setHeader("Authorization", "Basic " + userInfoToken)
+            // Test json to see data
+            .json({
+              authToken: token,
+              userToken: userInfoToken,
+              message: "User signed in and token given",
+            });
+          console.log("User successfully signed in and serialized");
+          console.log(userInfoToken);
+        }
       }
     } else {
       // If no user send back 403 status code
       res.status(403).send("Email and/or password did not match");
     }
+  } else {
+    res.status(401).send("Go login in with the proper route");
   }
 });
 
