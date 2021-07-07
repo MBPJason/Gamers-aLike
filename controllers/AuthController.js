@@ -183,7 +183,7 @@ router.post("/auth/local/login", async (req, res) => {
            */
           res
             .status(200) // Set status code as 200
-            .cookie("__AUTH", token, cookieSignOptions) //
+            .cookie("__AUTH", Buffer.from(token).toString('base64'), cookieSignOptions) //
             .cookie(
               "user",
               { userID: user._id, username: user.username },
@@ -196,9 +196,7 @@ router.post("/auth/local/login", async (req, res) => {
               httpOnly: true,
               signed: true,
             })
-            .setHeader("Authorization", "Bearer " + token)
-            // .setHeader("Authorization", "Basic " + userInfoToken)
-            // Test json to see data
+            .header("Authorization", "Bearer " + token)
             .json({
               authToken: token,
               userToken: userInfoToken,
