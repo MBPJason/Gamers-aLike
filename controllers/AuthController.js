@@ -191,7 +191,8 @@ router.post("/auth/local/login", async (req, res) => {
               httpOnly: true,
               signed: true,
             })
-            .header("Authorization", "Bearer " + token)
+            // .header("Authorization", "Bearer " + token) This is expected on client side
+            // On server side to request the header it we write 'WWW-Authenticate' : Basic realm="User visible realm"
             .json({
               userToken: userInfoToken,
               message: "User signed in and token given",
