@@ -77,33 +77,28 @@ router.post("/auth/signup", async (req, res) => {
          * Set Auth cookie TODO: Make it a secure and samesite cookie eventually
          * Set "special" cookie TODO: Make it a secure and samesite cookie eventually
          */
-        res
-          .status(200) // Set status code as 200
-          .cookie("__AUTH", token, cookieSignOptions) //
-          .cookie(
-            "user",
-            { userID: madeUser.userID, username: madeUser.username },
-            cookieSignOptions
-          )
-          .cookie("special", lockedCookieSecret, {
-            domain: baseURL,
-            path: "/",
-            maxAge: maxAge,
-            httpOnly: true,
-            signed: true,
-          })
-          .setHeader("Authorization", "Bearer " + token)
-          // .setHeader("Authorization", "Basic " + userInfoToken)
-          // Test json to see data
-          .json({
-            authToken: token,
-            userToken: userInfoToken,
-            message: "User signed in and token given",
-          });
-
-        console.log(userInfoToken);
-        console.log("User successfully made and serialized");
-        console.log(token);
+         res
+         .status(200) // Set status code as 200
+         .cookie("__AUTH", Buffer.from(token).toString('base64'), cookieSignOptions) //
+         .cookie(
+           "user",
+           { userID: user._id, username: user.username },
+           cookieSignOptions
+         )
+         .cookie("special", lockedCookieSecret, {
+           domain: baseURL,
+           path: "/",
+           maxAge: maxAge,
+           httpOnly: true,
+           signed: true,
+         })
+         .header("Authorization", "Bearer " + token)
+         .json({
+           userToken: userInfoToken,
+           message: "User signed in and token given",
+         });
+       console.log("User successfully signed in and serialized");
+       console.log(userInfoToken);
       }
     } else {
       res
@@ -183,7 +178,7 @@ router.post("/auth/local/login", async (req, res) => {
            */
           res
             .status(200) // Set status code as 200
-            .cookie("__AUTH", token, cookieSignOptions) //
+            .cookie("__AUTH", Buffer.from(token).toString('base64'), cookieSignOptions) //
             .cookie(
               "user",
               { userID: user._id, username: user.username },
@@ -196,11 +191,9 @@ router.post("/auth/local/login", async (req, res) => {
               httpOnly: true,
               signed: true,
             })
-            .setHeader("Authorization", "Bearer " + token)
-            // .setHeader("Authorization", "Basic " + userInfoToken)
-            // Test json to see data
+            // .header("Authorization", "Bearer " + token) This is expected on client side
+            // On server side to request the header it we write 'WWW-Authenticate' : Basic realm="User visible realm"
             .json({
-              authToken: token,
               userToken: userInfoToken,
               message: "User signed in and token given",
             });
