@@ -68,6 +68,7 @@ export default function AccessPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [expire, setExpire] = useState("1d");
 
   const handleEmail = (e) => {
     const { value } = e.target;
@@ -79,18 +80,26 @@ export default function AccessPage() {
     setPassword(value);
   };
 
-  const handleLogin = (e, email, password) => {
-    e.preventDefault();
-    axios.post("/auth/login", { email, password }).then((response) => {
-      // Deal with the response and set up Auth Context and/or Headers
+  const handleExpire = (e) => {
+    const { value } = e.target;
+    value === "1d" ? setExpire("1y") : setExpire("1d");
+  };
 
-      console.log(response);
-    });
+  const handleLogin = (e, email, password, expire) => {
+    e.preventDefault();
+    const type = "signin";
+    axios
+      .post("/auth/login", { email, password, expire, type })
+      .then((response) => {
+        // Deal with the response and set up Auth Context and/or Headers
+        console.log(response);
+      });
   };
 
   useEffect(() => {
     setEmail("");
     setPassword("");
+    setExpire("1d");
   }, []);
 
   return (
@@ -108,7 +117,7 @@ export default function AccessPage() {
           <form
             className={classes.form}
             onSubmit={(e) => {
-              handleLogin(e, email, password);
+              handleLogin(e, email, password, expire);
             }}
             noValidate
           >
@@ -140,7 +149,13 @@ export default function AccessPage() {
               autoComplete='current-password'
             />
             <FormControlLabel
-              control={<Checkbox value='remember' color='primary' />}
+              control={
+                <Checkbox
+                  value={expire}
+                  color='primary'
+                  onChange={handleExpire}
+                />
+              }
               label='Remember me'
             />
             <Button
