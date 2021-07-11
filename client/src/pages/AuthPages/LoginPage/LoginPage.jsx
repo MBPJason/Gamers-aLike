@@ -1,19 +1,24 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import Avatar from "@material-ui/core/Avatar";
-import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import Link from "@material-ui/core/Link";
-import Paper from "@material-ui/core/Paper";
-import Box from "@material-ui/core/Box";
-import Grid from "@material-ui/core/Grid";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import Typography from "@material-ui/core/Typography";
+import React, { useState, useEffect, useContext } from "react";
+import { useHistory } from "react-router-dom";
+import cookie from "react-cookie";
+import {
+  Avatar,
+  Button,
+  CssBaseline,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Link,
+  Paper,
+  Box,
+  Grid,
+  LockOutlinedIcon,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link as Li } from "react-router-dom";
+import UserContext from "../../../MyComponents/Context/UserContext";
+import { login, setUserContext } from "../../../utils/API";
 
 import Social from "../SocialLinks";
 
@@ -65,7 +70,9 @@ const useStyles = makeStyles((theme) => ({
 
 export default function AccessPage() {
   const classes = useStyles();
+  const history = useHistory();
 
+  const { setJWT, setUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [expire, setExpire] = useState("1d");
@@ -85,15 +92,16 @@ export default function AccessPage() {
     value === "1d" ? setExpire("1y") : setExpire("1d");
   };
 
-  const handleLogin = (e, email, password, expire) => {
+  const handleLogin = async (e, email, password, expire) => {
     e.preventDefault();
     const type = "signin";
-    axios
-      .post("/auth/login", { email, password, expire, type })
-      .then((response) => {
-        // Deal with the response and set up Auth Context and/or Headers
-        console.log(response);
-      });
+    const user = await login(email, password, expire, type);
+    if (user) {
+      const authToken = cookie.load("__AUTH");
+      setUserContext(setUser, setJWT, user, authToken, history);
+    } else {
+      history.push("/login");
+    }
   };
 
   useEffect(() => {

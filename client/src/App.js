@@ -33,11 +33,12 @@ const pathToCKey = path.join(__dirname, "../keys/jwtRS256.key.pub");
 const CLIENT_KEY = fs.readFileSync(pathToCKey, "utf8");
 const jwtSecret = process.env.SECRET;
 
+// TODO: Wrap App in Cookie Provider
 function App() {
   // Set up states
   const history = useHistory();
   const [user, setUser] = useState({});
-  const [jwt, setJwt] = useState("");
+  const [jwt, setJWT] = useState("");
 
   // On website load, look for cookies
   useEffect(() => {
@@ -52,7 +53,7 @@ function App() {
           const decID = decoded.sub;
           const userID = userInfo.userID;
           if (decID === userID) {
-            setJwt(auth); // If userID from user cookie and userID from auth cookie decoded match set auth value as jwt
+            setJWT(auth); // If userID from user cookie and userID from auth cookie decoded match set auth value as jwt
           } else {
             axios.get("/auth/logout"); // Error clear all cookies and login info
           }
@@ -81,7 +82,7 @@ function App() {
   return (
     <>
       <Router>
-        <UserContext.Provider value={{ user, setUser }}>
+        <UserContext.Provider value={{ user, setUser, jwt, setJWT }}>
           <Switch>
             <Route exact path='/' component={Landing} />
             <Route exact path='/signup' component={SignUp} />
