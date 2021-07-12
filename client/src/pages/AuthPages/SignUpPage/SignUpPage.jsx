@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
-import cookie from "react-cookie";
+import { useCookies } from "react-cookie";
 import {
   Avatar,
   Button,
@@ -18,14 +18,7 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import { Link as Li } from "react-router-dom";
 import UserContext from "../../../MyComponents/Context/UserContext";
-import {
-  signup,
-  facebookSignup,
-  googleSignup,
-  twitterSignup,
-  steamSignup,
-  setUserContext,
-} from "../../../utils/API";
+import { signup, upDateUser, setUserContext } from "../../../utils/API";
 
 import Social from "../SocialLinks";
 
@@ -79,11 +72,13 @@ export default function AccessPage() {
   // React Hooks
   const classes = useStyles();
   const history = useHistory();
+  const [cookies, setCookie, removeCookie] = useCookies(["__AUTH", "signup"]);
 
   // States and State Changers
   const { setJWT, setUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPW, setConfirmPW] = useState("");
   const [username, setUsername] = useState("");
   const [discordID, setDiscordID] = useState("");
   const [steamID, setSteamID] = useState("");
@@ -91,6 +86,7 @@ export default function AccessPage() {
   const [playStationID, setPlayStationID] = useState("");
   const [xboxID, setXboxID] = useState("");
   const [method, setMethod] = useState("");
+  const [step, setStep] = useState(0);
 
   const handleEmail = (e) => {
     const { value } = e.target;
@@ -102,9 +98,39 @@ export default function AccessPage() {
     setPassword(value);
   };
 
+  const handleConfirmPassword = (e) => {
+    const { value } = e.target;
+    setConfirmPW(value);
+  };
+
   const handleUsername = (e) => {
     const { value } = e.target;
     setUsername(value);
+  };
+
+  const handleDiscord = (e) => {
+    const { value } = e.target;
+    setDiscordID(value);
+  };
+
+  const handleSteam = (e) => {
+    const { value } = e.target;
+    setSteamID(value);
+  };
+
+  const handleBattlenet = (e) => {
+    const { value } = e.target;
+    setBattlenetID(value);
+  };
+
+  const handlePlaystation = (e) => {
+    const { value } = e.target;
+    setPlayStationID(value);
+  };
+
+  const handleXbox = (e) => {
+    const { value } = e.target;
+    setXboxID(value);
   };
 
   const handleSignUp = async (
@@ -136,15 +162,7 @@ export default function AccessPage() {
         xboxID
       );
     } else {
-      method === "facebook"
-        ? (user = await facebookSignup())
-        : method === "google"
-        ? (user = await googleSignup())
-        : method === "twitter"
-        ? (user = await twitterSignup())
-        : (user = await steamSignup());
-
-      const authToken = cookie.get("__AUTH");
+      const authToken = cookies.__AUTH.value;
       setUserContext(setUser, setJWT, user, authToken, history);
       // Switch to stepper
     }
@@ -161,6 +179,20 @@ export default function AccessPage() {
     setXboxID("");
     setMethod("");
   }, []);
+
+  const userDefault = { email, password, confirmPW, username };
+  const userDefaultMethod = {
+    handleEmail,
+    handlePassword,
+    handleConfirmPassword,
+    handleUsername,
+  };
+
+  const pcID = { discordID, steamID, battlenetID };
+  const pcIDMethod = { handleDiscord, handleSteam, handleBattlenet };
+
+  const consoleID = { playStationID, xboxID };
+  const consoleIDMethod = { handlePlaystation, handleXbox };
 
   return (
     <Grid container component='main' className={classes.root}>
@@ -181,7 +213,7 @@ export default function AccessPage() {
             }}
             noValidate
           >
-            <Social />
+            <Social type='signup' />
             <TextField
               variant='outlined'
               margin='normal'
