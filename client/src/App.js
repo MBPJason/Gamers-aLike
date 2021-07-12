@@ -11,7 +11,7 @@ import {
   Switch,
   useHistory,
 } from "react-router-dom";
-import cookie from "react-cookie";
+import { useCookies } from "react-cookie";
 
 // Axios Dependencies
 import { setAxiosDefaults } from "./utils/axiosDefaults";
@@ -33,17 +33,17 @@ const pathToCKey = path.join(__dirname, "../keys/jwtRS256.key.pub");
 const CLIENT_KEY = fs.readFileSync(pathToCKey, "utf8");
 const jwtSecret = process.env.SECRET;
 
-// TODO: Wrap App in Cookie Provider
 function App() {
   // Set up states
   const history = useHistory();
+  const [cookies] = useCookies(["__AUTH", "user"]);
   const [user, setUser] = useState({});
   const [jwt, setJWT] = useState("");
 
   // On website load, look for cookies
   useEffect(() => {
-    const auth = cookie.load("__AUTH");
-    const userInfo = cookie.load("user");
+    const auth = cookies.__AUTH.value;
+    const userInfo = cookies.user.value;
     // If cookies are present, decoded auth
     if (auth && userInfo) {
       jwtMod.verify(auth, CLIENT_KEY, (err, decoded) => {
@@ -62,7 +62,7 @@ function App() {
     } else {
       axios.get("/auth/logout"); // Error clear all cookies and login info
     }
-  }, []);
+  }, [cookies]);
 
   // On website load second process, get user info
   useEffect(() => {
@@ -79,6 +79,8 @@ function App() {
     }
   }, [jwt, history]);
 
+  // TODO: potential check for cookie and/or local storage item for sign up to automatically redirect for easier sign up
+
   return (
     <>
       <Router>
@@ -86,9 +88,10 @@ function App() {
           <Switch>
             <Route exact path='/' component={Landing} />
             <Route exact path='/signup' component={SignUp} />
+            <Route exact path='/signup' component={SignUp} />
             <Route exact path='/login' component={Login} />
             <Route exact path='/home' component={Home} />
-            <Route path='/Profile' component={Landing} />
+            <Route path='/:username/profile' component={Landing} />
             <Route path='/lobby' component={Lobby} />
             <Route path='/session' component={Session} />
           </Switch>

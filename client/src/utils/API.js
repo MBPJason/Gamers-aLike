@@ -46,32 +46,20 @@ const API = {
       });
   },
 
-  async facebookSignup() {
-    return await axios.get("/auth/facebook/callback").then((res) => {
-      let user = res.body.userToken;
-      return user;
-    });
+  facebookPassport() {
+    axios.get("/auth/facebook");
   },
 
-  async googleSignup() {
-    return await axios.get("/auth/google/callback").then((res) => {
-      let user = res.body.userToken;
-      return user;
-    });
+  googlePassport() {
+    axios.get("/auth/google");
   },
 
-  async twitterSignup() {
-    return await axios.get("/auth/twitter/callback").then((res) => {
-      let user = res.body.userToken;
-      return user;
-    });
+  twitterPassport() {
+    axios.get("/auth/twitter");
   },
 
-  async steamSignup() {
-    return await axios.get("/auth/steam/callback").then((res) => {
-      let user = res.body.userToken;
-      return user;
-    });
+  steamPassport() {
+    axios.get("/auth/steam");
   },
 
   setUserContext(setUser, setJWT, user, authToken, history) {

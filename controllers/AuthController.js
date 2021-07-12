@@ -15,13 +15,20 @@ const baseURL = "localhost";
 // Schema Models
 const db = require("../models");
 
+// Build options for Dryness
+let maxAge;
+const cookieSignOptions = {
+  domain: baseURL,
+  path: "/",
+  maxAge: maxAge,
+  signed: true,
+};
+
 // ------------------------------
 //  SIGN UP LOCAL (Create Route)
 // ------------------------------
 
 router.post("/auth/signup", async (req, res) => {
-  // If this function gets called, authentication was successful.
-  // `req.user` contains the authenticated user.
   const {
     email,
     username,
@@ -55,50 +62,38 @@ router.post("/auth/signup", async (req, res) => {
       if (!token) {
         res.status(500).send("Couldn't authorize user");
       } else {
-        // Set empty maxAge variable
-        let maxAge;
         // If req.body.expire is null set maxAge to a day. If it isn't set maxAge to a year
-        expire === null ? (maxAge = 86400e3) : (maxAge = 314496e5);
+        expire === "1d" ? (maxAge = 86400e3) : (maxAge = 314496e5);
 
         const userInfoToken = jwt.sign(madeUser, accessTokenSecret, {
           expiresIn: "3m",
         });
-
-        // Set up cookie options object variable
-        const cookieSignOptions = {
-          domain: baseURL,
-          path: "/",
-          maxAge: maxAge,
-          signed: true,
-        };
 
         /**
          * Set status code as 200
          * Set Auth cookie TODO: Make it a secure and samesite cookie eventually
          * Set "special" cookie TODO: Make it a secure and samesite cookie eventually
          */
-         res
-         .status(200) // Set status code as 200
-         .cookie("__AUTH", Buffer.from(token).toString('base64'), cookieSignOptions) //
-         .cookie(
-           "user",
-           { userID: user._id, username: user.username },
-           cookieSignOptions
-         )
-         .cookie("special", lockedCookieSecret, {
-           domain: baseURL,
-           path: "/",
-           maxAge: maxAge,
-           httpOnly: true,
-           signed: true,
-         })
-         .header("Authorization", "Bearer " + token)
-         .json({
-           userToken: userInfoToken,
-           message: "User signed in and token given",
-         });
-       console.log("User successfully signed in and serialized");
-       console.log(userInfoToken);
+        res
+          .status(200) // Set status code as 200
+          .cookie("__AUTH", token, cookieSignOptions) //
+          .cookie(
+            "user",
+            { userID: user.userID, username: user.username },
+            cookieSignOptions
+          )
+          .cookie("special", lockedCookieSecret, {
+            domain: baseURL,
+            path: "/",
+            maxAge: maxAge,
+            httpOnly: true,
+            signed: true,
+          })
+          .json({
+            userToken: userInfoToken,
+          });
+        console.log("User successfully signed in and serialized");
+        console.log(userInfoToken);
       }
     } else {
       res
@@ -154,22 +149,12 @@ router.post("/auth/local/login", async (req, res) => {
         if (!token) {
           res.status(500).send("Couldn't authorize user");
         } else {
-          // Set empty maxAge variable
-          let maxAge;
-          // If req.body.expire is null set maxAge to a day. If it isn't set maxAge to a year
-          expire === null ? (maxAge = 86400e3) : (maxAge = 314496e5);
+          // If req.body.expire is '1d' set maxAge to a day. If it isn't set maxAge to a year
+          expire === "1d" ? (maxAge = 86400e3) : (maxAge = 314496e5);
 
           const userInfoToken = jwt.sign(user, accessTokenSecret, {
             expiresIn: "3m",
           });
-
-          // Set up cookie options object variable
-          const cookieSignOptions = {
-            domain: baseURL,
-            path: "/",
-            maxAge: maxAge,
-            signed: true,
-          };
 
           /**
            * Set status code as 200
@@ -178,10 +163,10 @@ router.post("/auth/local/login", async (req, res) => {
            */
           res
             .status(200) // Set status code as 200
-            .cookie("__AUTH", Buffer.from(token).toString('base64'), cookieSignOptions) //
+            .cookie("__AUTH", token, cookieSignOptions) //
             .cookie(
               "user",
-              { userID: user._id, username: user.username },
+              { userID: user.userID, username: user.username },
               cookieSignOptions
             )
             .cookie("special", lockedCookieSecret, {
@@ -191,11 +176,8 @@ router.post("/auth/local/login", async (req, res) => {
               httpOnly: true,
               signed: true,
             })
-            // .header("Authorization", "Bearer " + token) This is expected on client side
-            // On server side to request the header it we write 'WWW-Authenticate' : Basic realm="User visible realm"
             .json({
               userToken: userInfoToken,
-              message: "User signed in and token given",
             });
           console.log("User successfully signed in and serialized");
           console.log(userInfoToken);
@@ -212,7 +194,7 @@ router.post("/auth/local/login", async (req, res) => {
 
 router.get(
   "/auth/cookie/login",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { session: false }, { session: false }),
   auth.checkJWT,
   async (req, res) => {
     if (req.user) {
@@ -245,12 +227,15 @@ router.get(
 // Google Login Method
 router.get(
   "/auth/google",
-  passport.authenticate("google", { scope: ["profile"] })
+  passport.authenticate("google", { session: false, scope: ["profile"] })
 );
 
 router.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
+  passport.authenticate("google", {
+    session: false,
+    failureRedirect: "/login",
+  }),
   function (req, res) {
     if (!req.user.username) {
       res.redirect("/finishing-touch");
@@ -261,11 +246,17 @@ router.get(
 );
 
 // Twitter Login Method
-router.get("/auth/twitter", passport.authenticate("oauth2"));
+router.get(
+  "/auth/twitter",
+  passport.authenticate("oauth2", { session: false })
+);
 
 router.get(
   "/auth/twitter/callback",
-  passport.authenticate("oauth2", { failureRedirect: "/login" }),
+  passport.authenticate("oauth2", {
+    session: false,
+    failureRedirect: "/login",
+  }),
   function (req, res) {
     if (!req.user.username) {
       res.redirect("/finishing-touch");
@@ -276,11 +267,11 @@ router.get(
 );
 
 // Steam Login Method
-router.get("/auth/steam", passport.authenticate("steam"));
+router.get("/auth/steam", passport.authenticate("steam", { session: false }));
 
 router.get(
   "/auth/steam/return",
-  passport.authenticate("steam", { failureRedirect: "/login" }),
+  passport.authenticate("steam", { session: false, failureRedirect: "/login" }),
   function (req, res) {
     if (!req.user.email) {
       res.json({ type: "Steam" }).redirect("/finishing-touch");
@@ -294,9 +285,23 @@ router.get(
 //  LOGOUT
 // --------------------------
 
-router.get("/logout", (req, res) => {
+router.get("/auth/logout", (req, res) => {
+  let clearCookieOptions = {
+    domain: baseURL,
+    path: "/",
+    signed: true,
+  };
   req.logout();
-  res.redirect("http://localhost:3000");
+  res
+    .clearCookie("__AUTH", clearCookieOptions)
+    .clearCookie("user", clearCookieOptions)
+    .clearCookie("special", {
+      domain: baseURL,
+      path: "/",
+      signed: true,
+      httpOnly: true,
+    })
+    .redirect("http://localhost:3000");
 });
 
 // Exporting functions for express use on server.js

@@ -1,9 +1,15 @@
 import React from "react";
 import Button from "../../components/CustomButtons/Button.js";
+import {
+  facebookPassport,
+  googlePassport,
+  twitterPassport,
+  steamPassport,
+} from "../../utils/API";
 
 // Need to bring in styling and Icons
 
-export default function SocialLinks() {
+export default function SocialLinks(props) {
   return (
     <>
       <Button
@@ -13,8 +19,11 @@ export default function SocialLinks() {
         target='_blank'
         rel='noopener noreferrer'
         fullWidth
+        onClick={(e) => {
+          twitterPassport(e, props.type);
+        }}
       >
-        <i className={"fab fa-twitter"} /> Connect with Twitter  
+        <i className={"fab fa-twitter"} /> Connect with Twitter
       </Button>
       <br />
       <Button
@@ -24,6 +33,9 @@ export default function SocialLinks() {
         target='_blank'
         rel='noopener noreferrer'
         fullWidth
+        onClick={(e) => {
+          facebookPassport(e, props.type);
+        }}
       >
         <i className={"fab fa-facebook-square"} /> Connect with FaceBook
       </Button>
@@ -35,6 +47,9 @@ export default function SocialLinks() {
         target='_blank'
         rel='noopener noreferrer'
         fullWidth
+        onClick={(e) => {
+          googlePassport(e, props.type);
+        }}
       >
         <i className={"fab fa-google"} /> Connect with Google
       </Button>

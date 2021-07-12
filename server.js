@@ -59,7 +59,7 @@ app.listen(PORT, () => {
 });
 
 // Test Route to see if server is being seen
-app.get("/api/config", (req, res) => {
+app.get("/config", (req, res) => {
   res.json({
     success: true,
   });
