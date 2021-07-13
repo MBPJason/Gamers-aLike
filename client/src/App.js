@@ -1,7 +1,7 @@
 // import logo from './logo.svg';
 import "./App.css";
-import fs from "fs";
-import path from "path";
+// import fs from "fs";
+// import path from "path";
 
 // React Dependencies
 import { useEffect, useState } from "react";
@@ -14,7 +14,7 @@ import {
 import { useCookies } from "react-cookie";
 
 // Axios Dependencies
-import { setAxiosDefaults } from "./utils/axiosDefaults";
+import { setAxiosDefaults } from "./utils/AxiosHeaders";
 import axios from "axios";
 
 // Context Dependencies
@@ -29,9 +29,10 @@ import Home from "./pages/HomePage/HomePage";
 import Lobby from "./pages/LobbyPage/LobbyPage";
 import Session from "./pages/SessionPage/SessionPage";
 
-const pathToCKey = path.join(__dirname, "../keys/jwtRS256.key.pub");
-const CLIENT_KEY = fs.readFileSync(pathToCKey, "utf8");
+// const pathToCKey = path.join(__dirname, "../keys/jwtRS256.key.pub");
+// const CLIENT_KEY = fs.readFileSync(pathToCKey, "utf8");
 const jwtSecret = process.env.SECRET;
+const CLIENT_KEY = process.env.CLIENT_KEY;
 
 function App() {
   // Set up states
@@ -42,16 +43,16 @@ function App() {
 
   // On website load, look for cookies
   useEffect(() => {
-    const auth = cookies.__AUTH.value;
-    const userInfo = cookies.user.value;
+    const auth = cookies.__AUTH;
+    const userInfo = cookies.user;
     // If cookies are present, decoded auth
     if (auth && userInfo) {
-      jwtMod.verify(auth, CLIENT_KEY, (err, decoded) => {
+      jwtMod.verify(auth.value, CLIENT_KEY, (err, decoded) => {
         if (err) {
           axios.get("/auth/logout"); // Error clear all cookies and login info
         } else if (decoded) {
           const decID = decoded.sub;
-          const userID = userInfo.userID;
+          const userID = userInfo.value.userID;
           if (decID === userID) {
             setJWT(auth); // If userID from user cookie and userID from auth cookie decoded match set auth value as jwt
           } else {
@@ -62,7 +63,7 @@ function App() {
     } else {
       axios.get("/auth/logout"); // Error clear all cookies and login info
     }
-  }, [cookies]);
+  }, []); //Left empty to get initial value only once on first render
 
   // On website load second process, get user info
   useEffect(() => {
@@ -77,7 +78,7 @@ function App() {
         history.push("/home"); // send user to home page
       });
     }
-  }, [jwt, history]);
+  }, []); //Left empty to get initial value only once on first render
 
   // TODO: potential check for cookie and/or local storage item for sign up to automatically redirect for easier sign up
 
@@ -88,7 +89,7 @@ function App() {
           <Switch>
             <Route exact path='/' component={Landing} />
             <Route exact path='/signup' component={SignUp} />
-            <Route exact path='/signup' component={SignUp} />
+            <Route exact path='/finishing-touch' component={SignUp} />
             <Route exact path='/login' component={Login} />
             <Route exact path='/home' component={Home} />
             <Route path='/:username/profile' component={Landing} />

@@ -12,15 +12,16 @@ import {
   Paper,
   Box,
   Grid,
-  LockOutlinedIcon,
   Typography,
 } from "@material-ui/core";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link as Li } from "react-router-dom";
 import UserContext from "../../../MyComponents/Context/UserContext";
-import { signup, upDateUser, setUserContext } from "../../../utils/API";
+import API from "../../../utils/API";
 
 import Social from "../SocialLinks";
+import StepperForm from "./StepperForm";
 
 function Copyright() {
   return (
@@ -135,6 +136,7 @@ export default function AccessPage() {
 
   const handleSignUp = async (
     e,
+    method,
     expire,
     username,
     email,
@@ -149,7 +151,7 @@ export default function AccessPage() {
     const type = "siginup";
     let user;
     if (method === "local") {
-      user = signup(
+      user = API.signup(
         expire,
         type,
         username,
@@ -163,9 +165,22 @@ export default function AccessPage() {
       );
     } else {
       const authToken = cookies.__AUTH.value;
-      setUserContext(setUser, setJWT, user, authToken, history);
-      // Switch to stepper
+      API.setUserContext(setUser, setJWT, user, authToken, history);
     }
+  };
+
+  const nextStep = (e, step) => {
+    e.preventDefault();
+    if (step < 3) {
+      setStep(step + 1);
+    } else if (step === 3) {
+      setStep(3);
+    }
+  };
+
+  const backStep = (e, step) => {
+    e.preventDefault();
+    step >= 2 ? setStep(step - 1) : setStep(1);
   };
 
   useEffect(() => {
@@ -177,104 +192,150 @@ export default function AccessPage() {
     setBattlenetID("");
     setPlayStationID("");
     setXboxID("");
-    setMethod("");
+    !cookies.signup ? setStep(0) : setStep(1);
+    !cookies.signup.value
+      ? setMethod("")
+      : cookies.signup.value === "local"
+      ? setMethod("local")
+      : setMethod("non-local");
   }, []);
 
-  const userDefault = { email, password, confirmPW, username };
-  const userDefaultMethod = {
-    handleEmail,
-    handlePassword,
-    handleConfirmPassword,
-    handleUsername,
+  const userDefaults = [
+    { value: email, name: "Email", method: handleEmail },
+    { value: username, name: "Username", method: handleUsername },
+    { value: password, name: "Password", method: handlePassword },
+    {
+      value: confirmPW,
+      name: "Confirm Password",
+      method: handleConfirmPassword,
+    },
+  ];
+
+  const gamerIDs = [
+    { value: discordID, name: "Discord ID", method: handleDiscord },
+    { value: steamID, name: "Steam Username", method: handleSteam },
+    { value: battlenetID, name: "Battle.Net ID", method: handleBattlenet },
+    { value: playStationID, name: "Playstation ID", method: handlePlaystation },
+    { value: xboxID, name: "Xbox Gamertag", method: handleXbox },
+  ];
+
+  const stepValues = {
+    step,
+    nextStep,
   };
 
-  const pcID = { discordID, steamID, battlenetID };
-  const pcIDMethod = { handleDiscord, handleSteam, handleBattlenet };
-
-  const consoleID = { playStationID, xboxID };
-  const consoleIDMethod = { handlePlaystation, handleXbox };
-
-  return (
-    <Grid container component='main' className={classes.root}>
-      <CssBaseline />
-      <Grid item xs={false} sm={4} md={7} className={classes.image} />
-      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-        <div className={classes.paper}>
-          <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component='h1' variant='h5'>
-            Sign Up
-          </Typography>
-          <form
-            className={classes.form}
-            onSubmit={(e) => {
-              handleSignUp(e, username, email, password);
-            }}
-            noValidate
+  switch (step) {
+    case 1:
+      return (
+        <>
+          <StepperForm
+            classes={classes}
+            valueMethods={userDefaults}
+            step={stepValues}
+          />
+        </>
+      );
+    case 2:
+      return (
+        <>
+          <StepperForm
+            classes={classes}
+            valueMethods={gamerIDs}
+            step={stepValues}
+          />
+        </>
+      );
+    default:
+      return (
+        <Grid container component='main' className={classes.root}>
+          <CssBaseline />
+          <Grid item xs={false} sm={4} md={7} className={classes.image} />
+          <Grid
+            item
+            xs={12}
+            sm={8}
+            md={5}
+            component={Paper}
+            elevation={6}
+            square
           >
-            <Social type='signup' />
-            <TextField
-              variant='outlined'
-              margin='normal'
-              required
-              fullWidth
-              id='username'
-              label='Username'
-              name='username'
-              value={username}
-              onChange={handleUsername}
-              autoFocus
-            />
-            <TextField
-              variant='outlined'
-              margin='normal'
-              required
-              fullWidth
-              id='email'
-              label='Email Address'
-              name='email'
-              value={email}
-              onChange={handleEmail}
-            />
-            <TextField
-              variant='outlined'
-              margin='normal'
-              required
-              fullWidth
-              id='password'
-              name='password'
-              label='Password'
-              type='password'
-              value={password}
-              onChange={handlePassword}
-            />
-            <FormControlLabel
-              control={<Checkbox value='remember' color='primary' />}
-              label='Remember me'
-            />
-            <Button
-              type='submit'
-              fullWidth
-              variant='contained'
-              color='primary'
-              className={classes.submit}
-            >
-              Sign Up
-            </Button>
-            <Grid container justify='center'>
-              <Grid item>
-                <Link component={Li} to={"/Login"} variant='body2'>
-                  {"Already have an account?"}
-                </Link>
-              </Grid>
-            </Grid>
-            <Box mt={5}>
-              <Copyright />
-            </Box>
-          </form>
-        </div>
-      </Grid>
-    </Grid>
-  );
+            <div className={classes.paper}>
+              <Avatar className={classes.avatar}>
+                <LockOutlinedIcon />
+              </Avatar>
+              <Typography component='h1' variant='h5'>
+                Sign Up
+              </Typography>
+              <form
+                className={classes.form}
+                onSubmit={(e) => {
+                  nextStep(e, step);
+                }}
+                noValidate
+              >
+                <Social type='signup' method={setMethod} />
+                <TextField
+                  variant='outlined'
+                  margin='normal'
+                  required
+                  fullWidth
+                  id='username'
+                  label='Username'
+                  name='username'
+                  value={username}
+                  onChange={handleUsername}
+                  autoFocus
+                />
+                <TextField
+                  variant='outlined'
+                  margin='normal'
+                  required
+                  fullWidth
+                  id='email'
+                  label='Email Address'
+                  name='email'
+                  value={email}
+                  onChange={handleEmail}
+                />
+                <TextField
+                  variant='outlined'
+                  margin='normal'
+                  required
+                  fullWidth
+                  id='password'
+                  name='password'
+                  label='Password'
+                  type='password'
+                  value={password}
+                  onChange={handlePassword}
+                />
+                <FormControlLabel
+                  control={<Checkbox value='remember' color='primary' />}
+                  label='Remember me'
+                />
+                <Button
+                  type='submit'
+                  fullWidth
+                  variant='contained'
+                  color='primary'
+                  className={classes.submit}
+                >
+                  Sign Up
+                </Button>
+                <Grid container justify='center'>
+                  <Grid item>
+                    <Link component={Li} to={"/Login"} variant='body2'>
+                      {"Already have an account?"}
+                    </Link>
+                  </Grid>
+                </Grid>
+                <Box mt={5}>
+                  <Copyright />
+                </Box>
+              </form>
+            </div>
+          </Grid>
+        </Grid>
+      );
+  }
 }

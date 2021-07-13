@@ -1,11 +1,6 @@
 import React from "react";
 import Button from "../../components/CustomButtons/Button.js";
-import {
-  facebookPassport,
-  googlePassport,
-  twitterPassport,
-  steamPassport,
-} from "../../utils/API";
+import API from "../../utils/API";
 
 // Need to bring in styling and Icons
 
@@ -20,7 +15,8 @@ export default function SocialLinks(props) {
         rel='noopener noreferrer'
         fullWidth
         onClick={(e) => {
-          twitterPassport(e, props.type);
+          API.twitterPassport(e, props.type);
+          props.method("non-local");
         }}
       >
         <i className={"fab fa-twitter"} /> Connect with Twitter
@@ -34,7 +30,8 @@ export default function SocialLinks(props) {
         rel='noopener noreferrer'
         fullWidth
         onClick={(e) => {
-          facebookPassport(e, props.type);
+          API.facebookPassport(e, props.type);
+          props.method("non-local");
         }}
       >
         <i className={"fab fa-facebook-square"} /> Connect with FaceBook
@@ -48,7 +45,7 @@ export default function SocialLinks(props) {
         rel='noopener noreferrer'
         fullWidth
         onClick={(e) => {
-          googlePassport(e, props.type);
+          API.googlePassport(e, props.type);
         }}
       >
         <i className={"fab fa-google"} /> Connect with Google

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
-import cookie from "react-cookie";
+import { useCookies } from "react-cookie";
 import {
   Avatar,
   Button,
@@ -12,13 +12,13 @@ import {
   Paper,
   Box,
   Grid,
-  LockOutlinedIcon,
   Typography,
 } from "@material-ui/core";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link as Li } from "react-router-dom";
 import UserContext from "../../../MyComponents/Context/UserContext";
-import { login, setUserContext } from "../../../utils/API";
+import API from "../../../utils/API";
 
 import Social from "../SocialLinks";
 
@@ -71,6 +71,7 @@ const useStyles = makeStyles((theme) => ({
 export default function AccessPage() {
   const classes = useStyles();
   const history = useHistory();
+  const [cookies] = useCookies(["__AUTH", "user"]);
 
   const { setJWT, setUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
@@ -95,10 +96,10 @@ export default function AccessPage() {
   const handleLogin = async (e, email, password, expire) => {
     e.preventDefault();
     const type = "signin";
-    const user = await login(email, password, expire, type);
+    const user = await API.login(email, password, expire, type);
     if (user) {
-      const authToken = cookie.load("__AUTH");
-      setUserContext(setUser, setJWT, user, authToken, history);
+      const authToken = cookies.__AUTH.value;
+      API.setUserContext(setUser, setJWT, user, authToken, history);
     } else {
       history.push("/login");
     }

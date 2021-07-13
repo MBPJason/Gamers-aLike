@@ -261,7 +261,7 @@ router.get(
     if (!req.user.username) {
       res.redirect("/finishing-touch");
     } else {
-      res.redirect("/");
+      res.redirect("/home");
     }
   }
 );
