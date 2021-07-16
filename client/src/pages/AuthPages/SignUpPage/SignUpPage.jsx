@@ -22,7 +22,7 @@ import API from "../../../utils/API";
 
 import Social from "../SocialLinks";
 import StepperForm from "./StepperForm";
-import StepperConfirm from "./StepperConfirm"
+import StepperConfirm from "./StepperConfirm";
 
 function Copyright() {
   return (
@@ -80,6 +80,7 @@ export default function AccessPage() {
   const { setJWT, setUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [expire, setExpire] = useState("1d");
   const [confirmPW, setConfirmPW] = useState("");
   const [username, setUsername] = useState("");
   const [discordID, setDiscordID] = useState("");
@@ -91,6 +92,7 @@ export default function AccessPage() {
   const [step, setStep] = useState(0);
   const [open, setOpen] = useState(false);
 
+  // Functions for state changing
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -107,6 +109,11 @@ export default function AccessPage() {
   const handlePassword = (e) => {
     const { value } = e.target;
     setPassword(value);
+  };
+
+  const handleExpire = (e) => {
+    const { value } = e.target;
+    value === "1d" ? setExpire("1y") : setExpire("1d");
   };
 
   const handleConfirmPassword = (e) => {
@@ -145,7 +152,6 @@ export default function AccessPage() {
   };
 
   const handleSignUp = async (
-    e,
     method,
     expire,
     username,
@@ -157,21 +163,20 @@ export default function AccessPage() {
     playStationID,
     xboxID
   ) => {
-    e.preventDefault();
     const type = "siginup";
     let user;
     if (method === "local") {
       user = API.signup(
         expire,
         type,
-        username,
-        email,
-        password,
-        discordID,
-        steamID,
-        battlenetID,
-        playStationID,
-        xboxID
+        username.trim(),
+        email.trim(),
+        password.trim(),
+        discordID.trim(),
+        steamID.trim(),
+        battlenetID.trim(),
+        playStationID.trim(),
+        xboxID.trim()
       );
     } else {
       const authToken = cookies.__AUTH.value;
@@ -207,14 +212,14 @@ export default function AccessPage() {
   useEffect(() => {
     if (!cookies.signup) {
       setMethod("");
-      setStep(0)
+      setStep(0);
     } else {
-      setStep(1)
+      setStep(1);
       cookies.signup.value === "local"
-      ? setMethod("local")
-      : setMethod("non-local");
+        ? setMethod("local")
+        : setMethod("non-local");
     }
-  }, [])
+  }, []);
 
   const userDefaults = [
     { value: email, name: "Email", method: handleEmail },
@@ -246,12 +251,27 @@ export default function AccessPage() {
     { value: xboxID, name: "Xbox Gamertag" },
   ];
 
-  const modal = {state: open, closeModal: handleClose, openModal: handleClickOpen}
+  const modal = {
+    state: open,
+    closeModal: handleClose,
+    openModal: handleClickOpen,
+  };
 
   const stepValues = {
     step,
     nextStep,
-    submit: handleSignUp
+    submit: handleSignUp(
+      method,
+      expire,
+      username,
+      email,
+      password,
+      discordID,
+      steamID,
+      battlenetID,
+      playStationID,
+      xboxID
+    ),
   };
 
   // =============================================
@@ -355,7 +375,13 @@ export default function AccessPage() {
                   onChange={handlePassword}
                 />
                 <FormControlLabel
-                  control={<Checkbox value='remember' color='primary' />}
+                  control={
+                    <Checkbox
+                      value={expire}
+                      onChange={(e) => handleExpire(e)}
+                      color='primary'
+                    />
+                  }
                   label='Remember me'
                 />
                 <Button

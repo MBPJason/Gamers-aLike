@@ -12,7 +12,12 @@ export default function Step1(props) {
   const { classes, valueMethods, Title, step, Stepper } = props;
   return (
     <>
-      <Grid container justify='center' component='main'>
+      <Grid
+        container
+        justify='center'
+        className={classNames(classes.root, classes.image)}
+        component='main'
+      >
         <CssBaseline />
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={9}>
           <div className={classes.paper}>
@@ -30,7 +35,7 @@ export default function Step1(props) {
                   key={valueMethod.name.toLowerCase().split(" ")[0]}
                   variant='outlined'
                   margin='normal'
-                  required={valueMethods.length > 4 && valueMethods.length < 5 ? false : true}
+                  required={valueMethods.length > 4 ? false : true}
                   fullWidth
                   id={valueMethod.name.toLowerCase().split(" ")[0]}
                   label={valueMethod.name}
