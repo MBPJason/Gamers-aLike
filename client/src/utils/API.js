@@ -8,7 +8,7 @@ const API = {
   // ===================================================================================
   async login(email, password, expire, type) {
     return await axios
-      .post("/auth/login", { email, password, expire, type })
+      .post("http://localhost:3000/auth/login", { email, password, expire, type })
       .then((res) => {
         let user = res.body.userToken;
         return user;
@@ -28,7 +28,7 @@ const API = {
     xboxID
   ) {
     return await axios
-      .post("/auth/login", {
+      .post("http://localhost:3000/auth/login", {
         expire,
         type,
         username,
@@ -47,19 +47,19 @@ const API = {
   },
 
   facebookPassport() {
-    axios.get("/auth/facebook");
+    axios.get("http://localhost:3000/auth/facebook");
   },
 
   googlePassport() {
-    axios.get("/auth/google");
+    axios.get("http://localhost:3000/auth/google");
   },
 
   twitterPassport() {
-    axios.get("/auth/twitter");
+    axios.get("http://localhost:3000/auth/twitter");
   },
 
   steamPassport() {
-    axios.get("/auth/steam");
+    axios.get("http://localhost:3000/auth/steam");
   },
 
   setUserContext(setUser, setJWT, user, authToken, history) {
@@ -70,7 +70,6 @@ const API = {
       history.push("/home");
     } else {
       history.push("/login");
-      return new Error("Authentication couldn't be performed");
     }
   },
   // =====================================================================================

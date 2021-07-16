@@ -1,7 +1,4 @@
-// import logo from './logo.svg';
 import "./App.css";
-// import fs from "fs";
-// import path from "path";
 
 // React Dependencies
 import { useEffect, useState } from "react";
@@ -30,10 +27,9 @@ import Lobby from "./pages/LobbyPage/LobbyPage";
 import Session from "./pages/SessionPage/SessionPage";
 
 // const pathToCKey = path.join(__dirname, "../keys/jwtRS256.key.pub");
-// const CLIENT_KEY = fs.readFileSync(pathToCKey, "utf8");
 const jwtSecret = process.env.SECRET;
-const CLIENT_KEY = process.env.CLIENT_KEY;
-
+// const CLIENT_KEY = crypto.subtle.importKey("pkcs8", "../keys/jwtRS256.key.pub",)
+const CLIENT_KEY = process.env.CLIENT_KEY
 function App() {
   // Set up states
   const history = useHistory();
@@ -49,19 +45,17 @@ function App() {
     if (auth && userInfo) {
       jwtMod.verify(auth.value, CLIENT_KEY, (err, decoded) => {
         if (err) {
-          axios.get("/auth/logout"); // Error clear all cookies and login info
+          axios.get("http://localhost:3000/auth/logout"); // Error clear all cookies and login info
         } else if (decoded) {
           const decID = decoded.sub;
           const userID = userInfo.value.userID;
           if (decID === userID) {
             setJWT(auth); // If userID from user cookie and userID from auth cookie decoded match set auth value as jwt
           } else {
-            axios.get("/auth/logout"); // Error clear all cookies and login info
+            axios.get("http://localhost:3000/auth/logout"); // Error clear all cookies and login info
           }
         }
       });
-    } else {
-      axios.get("/auth/logout"); // Error clear all cookies and login info
     }
   }, []); //Left empty to get initial value only once on first render
 

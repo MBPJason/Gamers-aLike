@@ -22,6 +22,7 @@ import API from "../../../utils/API";
 
 import Social from "../SocialLinks";
 import StepperForm from "./StepperForm";
+import StepperConfirm from "./StepperConfirm"
 
 function Copyright() {
   return (
@@ -88,6 +89,15 @@ export default function AccessPage() {
   const [xboxID, setXboxID] = useState("");
   const [method, setMethod] = useState("");
   const [step, setStep] = useState(0);
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const handleEmail = (e) => {
     const { value } = e.target;
@@ -192,13 +202,19 @@ export default function AccessPage() {
     setBattlenetID("");
     setPlayStationID("");
     setXboxID("");
-    !cookies.signup ? setStep(0) : setStep(1);
-    !cookies.signup.value
-      ? setMethod("")
-      : cookies.signup.value === "local"
+  }, []);
+
+  useEffect(() => {
+    if (!cookies.signup) {
+      setMethod("");
+      setStep(0)
+    } else {
+      setStep(1)
+      cookies.signup.value === "local"
       ? setMethod("local")
       : setMethod("non-local");
-  }, []);
+    }
+  }, [])
 
   const userDefaults = [
     { value: email, name: "Email", method: handleEmail },
@@ -214,15 +230,33 @@ export default function AccessPage() {
   const gamerIDs = [
     { value: discordID, name: "Discord ID", method: handleDiscord },
     { value: steamID, name: "Steam Username", method: handleSteam },
-    { value: battlenetID, name: "Battle.Net ID", method: handleBattlenet },
+    { value: battlenetID, name: "BattleNet ID", method: handleBattlenet },
     { value: playStationID, name: "Playstation ID", method: handlePlaystation },
     { value: xboxID, name: "Xbox Gamertag", method: handleXbox },
   ];
 
+  const allSentValues = [
+    { value: email, name: "Email" },
+    { value: username, name: "Username" },
+    { value: password, name: "Password" },
+    { value: discordID, name: "Discord ID" },
+    { value: steamID, name: "Steam Username" },
+    { value: battlenetID, name: "BattleNet ID" },
+    { value: playStationID, name: "Playstation ID" },
+    { value: xboxID, name: "Xbox Gamertag" },
+  ];
+
+  const modal = {state: open, closeModal: handleClose, openModal: handleClickOpen}
+
   const stepValues = {
     step,
     nextStep,
+    submit: handleSignUp
   };
+
+  // =============================================
+  //                  Switch Case
+  // =============================================
 
   switch (step) {
     case 1:
@@ -242,6 +276,17 @@ export default function AccessPage() {
             classes={classes}
             valueMethods={gamerIDs}
             step={stepValues}
+          />
+        </>
+      );
+    case 3:
+      return (
+        <>
+          <StepperConfirm
+            classes={classes}
+            values={allSentValues}
+            step={stepValues}
+            modal={modal}
           />
         </>
       );
