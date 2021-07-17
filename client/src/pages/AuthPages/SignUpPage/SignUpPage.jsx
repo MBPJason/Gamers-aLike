@@ -179,8 +179,10 @@ export default function AccessPage() {
         xboxID.trim()
       );
     } else {
-      const authToken = cookies.__AUTH.value;
-      API.setUserContext(setUser, setJWT, user, authToken, history);
+      if (cookies.__AUTH) {
+        let authToken = cookies.__AUTH.value;
+        API.setUserContext(setUser, setJWT, user, authToken, history);
+      }
     }
   };
 

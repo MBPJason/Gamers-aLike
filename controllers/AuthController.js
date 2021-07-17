@@ -16,13 +16,6 @@ const baseURL = "localhost";
 const db = require("../models");
 
 // Build options for Dryness
-let maxAge;
-const cookieSignOptions = {
-  domain: baseURL,
-  path: "/",
-  maxAge: maxAge,
-  signed: true,
-};
 
 // ------------------------------
 //  SIGN UP LOCAL (Create Route)
@@ -62,12 +55,21 @@ router.post("/auth/signup", async (req, res) => {
       if (!token) {
         res.status(500).send("Couldn't authorize user");
       } else {
+        let maxAge;
+
         // If req.body.expire is null set maxAge to a day. If it isn't set maxAge to a year
         expire === "1d" ? (maxAge = 86400e3) : (maxAge = 314496e5);
 
         const userInfoToken = jwt.sign(madeUser, accessTokenSecret, {
           expiresIn: "3m",
         });
+
+        const cookieSignOptions = {
+          domain: baseURL,
+          path: "/",
+          maxAge: maxAge,
+          signed: true,
+        };
 
         /**
          * Set status code as 200
@@ -107,10 +109,15 @@ router.post("/auth/signup", async (req, res) => {
 });
 
 // Test route for middleware checks
-router.get("/protected", auth.validateCookie, (req, res) => {
-  console.log("protected was called");
-  res.json({ message: "You are authorized" });
-});
+router.get(
+  "/validate-cookies",
+  auth.validateCookie,
+  auth.checkJWT,
+  (req, res) => {
+    console.log("Cookies check out");
+    res.json({ message: "You are authorized" });
+  }
+);
 
 // --------------------------
 //  LOGIN
@@ -149,12 +156,21 @@ router.post("/auth/local/login", async (req, res) => {
         if (!token) {
           res.status(500).send("Couldn't authorize user");
         } else {
+          let maxAge;
+
           // If req.body.expire is '1d' set maxAge to a day. If it isn't set maxAge to a year
           expire === "1d" ? (maxAge = 86400e3) : (maxAge = 314496e5);
 
           const userInfoToken = jwt.sign(user, accessTokenSecret, {
-            expiresIn: "3m",
+            expiresIn: expire || "1d",
           });
+
+          const cookieSignOptions = {
+            domain: baseURL,
+            path: "/",
+            maxAge: maxAge,
+            signed: true,
+          };
 
           /**
            * Set status code as 200
@@ -193,13 +209,14 @@ router.post("/auth/local/login", async (req, res) => {
 });
 
 router.get(
-  "/auth/cookie/login",
-  passport.authenticate("jwt", { session: false }, { session: false }),
+  "/api/userInfo",
+  passport.authenticate("jwt", { session: false }),
   auth.checkJWT,
   async (req, res) => {
-    if (req.user) {
-      res.redirect("http://localhost:3000/home", 200);
-    }
+    const userInfoToken = jwt.sign(req.user, accessTokenSecret, {
+      expiresIn: "5m",
+    });
+    res.json({ userToken: userInfoToken });
   }
 );
 

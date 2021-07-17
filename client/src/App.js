@@ -8,7 +8,7 @@ import {
   Switch,
   useHistory,
 } from "react-router-dom";
-import { useCookies } from "react-cookie";
+import Cookies from "js-cookie";
 
 // Axios Dependencies
 import { setAxiosDefaults } from "./utils/AxiosHeaders";
@@ -26,34 +26,24 @@ import Home from "./pages/HomePage/HomePage";
 import Lobby from "./pages/LobbyPage/LobbyPage";
 import Session from "./pages/SessionPage/SessionPage";
 
-// const pathToCKey = path.join(__dirname, "../keys/jwtRS256.key.pub");
 const jwtSecret = process.env.SECRET;
-// const CLIENT_KEY = crypto.subtle.importKey("pkcs8", "../keys/jwtRS256.key.pub",)
-const CLIENT_KEY = process.env.CLIENT_KEY
 function App() {
   // Set up states
   const history = useHistory();
-  const [cookies] = useCookies(["__AUTH", "user"]);
   const [user, setUser] = useState({});
   const [jwt, setJWT] = useState("");
 
   // On website load, look for cookies
   useEffect(() => {
-    const auth = cookies.__AUTH;
-    const userInfo = cookies.user;
+    const auth = Cookies.get("__AUTH");
+    const userInfo = Cookies.get("user");
     // If cookies are present, decoded auth
     if (auth && userInfo) {
-      jwtMod.verify(auth.value, CLIENT_KEY, (err, decoded) => {
-        if (err) {
+      axios.get("http://localhost:3000/validate-cookies").then((res) => {
+        if (res.status !== 200) {
           axios.get("http://localhost:3000/auth/logout"); // Error clear all cookies and login info
-        } else if (decoded) {
-          const decID = decoded.sub;
-          const userID = userInfo.value.userID;
-          if (decID === userID) {
-            setJWT(auth); // If userID from user cookie and userID from auth cookie decoded match set auth value as jwt
-          } else {
-            axios.get("http://localhost:3000/auth/logout"); // Error clear all cookies and login info
-          }
+        } else if (res.status === 200) {
+          setJWT(auth);
         }
       });
     }
@@ -67,7 +57,7 @@ function App() {
       setAxiosDefaults(jwt);
       // Fetch user info
       axios.get("/api/userInfo").then((res) => {
-        const userDecoded = jwtMod.verify(res.body.user, jwtSecret); // Decode response jwt
+        const userDecoded = jwtMod.verify(res.data.user, jwtSecret); // Decode response jwt
         setUser(userDecoded); // set user with decoded user info
         history.push("/home"); // send user to home page
       });

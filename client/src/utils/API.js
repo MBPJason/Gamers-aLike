@@ -7,10 +7,17 @@ const API = {
   //                        SIGNUP AND LOGIN RELATED FUNCTIONS
   // ===================================================================================
   async login(email, password, expire, type) {
+    console.log("Login called");
     return await axios
-      .post("http://localhost:3000/auth/login", { email, password, expire, type })
+      .post("http://localhost:3000/auth/local/login", {
+        email,
+        password,
+        expire,
+        type,
+      })
       .then((res) => {
-        let user = res.body.userToken;
+        console.log(res);
+        let user = res.data.userToken;
         return user;
       });
   },
@@ -63,14 +70,15 @@ const API = {
   },
 
   setUserContext(setUser, setJWT, user, authToken, history) {
-    const decoded = jwt.verify(authToken, SECRET);
-    if (user.userID === decoded.userID) {
-      setUser(user);
-      setJWT(authToken);
-      history.push("/home");
-    } else {
-      history.push("/login");
-    }
+    axios.get("http://localhost:3000/validate-cookies").then((res) => {
+      if (res.status !== 200) {
+        history.push("/login");
+      } else if (res.status !== 200) {
+        setUser(user);
+        setJWT(authToken);
+        history.push("/home");
+      }
+    });
   },
   // =====================================================================================
   //                                          END

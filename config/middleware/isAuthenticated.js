@@ -75,7 +75,7 @@ module.exports = {
     try {
       // Check if user parameter is was given
       if (user) {
-        const expiresIn = expire || "5m"; // Pulls expire parameter or sets jwt to last for a day
+        const expiresIn = expire || "1d"; // Pulls expire parameter or sets jwt to last for a day
 
         if (!user.userID) {
           throw new Error("userID was not included in the user object");
