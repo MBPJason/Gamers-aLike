@@ -96,8 +96,10 @@ export default function AccessPage() {
     e.preventDefault();
     const type = "signin";
     const user = await API.login(email, password, expire, type);
+    console.log(user);
     if (user) {
-      const authToken = Cookies.get("__AUTH");
+      const authToken = Cookies.get("__AUTH").split(":")[1];
+      console.log(authToken);
       API.setUserContext(setUser, setJWT, user, authToken, history);
     } else {
       history.push("/login");

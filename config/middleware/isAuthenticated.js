@@ -22,25 +22,34 @@ const SERVER_PUB_KEY = fs.readFileSync(pathToSPub, "utf8");
 // Authentication Process and Checks
 // ========================================
 module.exports = {
-  checkJWT(req, res, next) {
+  async checkJWT(req, res, next) {
     // Pull in headers and userID from request
     const authHeader = req.headers.authorization;
-    const user = db.User.findOne({ _id: req.user.userID })
+    const user = await db.User.findOne({
+      _id: req.signedCookies.user.userID,
+    })
       .populate({
         path: "Auth",
         select: "AuthProof",
       })
       .exec();
 
+
+
     // Check if there is a header
     if (authHeader) {
+      
       // Extract the token from the header
-      const token = authHeader.split(" ")[1];
+      const part1 = authHeader.split(" ")[1];
+      const cookieToken = part1.split(".")
+      const trueToken = cookieToken[0] + "." + cookieToken[1] + "." + cookieToken[2]
+      
       // Verify token from header with client paired public key
-      jwt.verify(token, CLIENT_PUB_KEY, (err, decoded) => {
+      jwt.verify(trueToken, CLIENT_PUB_KEY, (err, decoded) => {
         // Error check
         if (err) {
           // Error 403 response
+          console.log("Couldn't decode cookie");
           return res.sendStatus(401);
         } else {
           // Check if there was a serialized user in request
@@ -52,6 +61,7 @@ module.exports = {
               // Error check
               if (err) {
                 // Error 403 response
+                console.log("Cookie didn't pass final check");
                 return res.sendStatus(403);
               } else {
                 // Pass off into next middleware check
@@ -60,11 +70,13 @@ module.exports = {
             });
           } else {
             // If no serialized user respond with a 401 code
+            console.log("Couldn't find user");
             res.sendStatus(401);
           }
         }
       });
     } else {
+      console.log("No provided auth header to check");
       res.sendStatus(401);
     }
   },
@@ -132,6 +144,7 @@ module.exports = {
           { AuthProof: splitTokenSignature }
         );
 
+        console.log(signedSplitPayload.split("."))
         // Return new publicly signed token
         return signedSplitPayload;
       } else {

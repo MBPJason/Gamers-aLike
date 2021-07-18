@@ -60,9 +60,6 @@ router.post("/auth/signup", async (req, res) => {
         // If req.body.expire is null set maxAge to a day. If it isn't set maxAge to a year
         expire === "1d" ? (maxAge = 86400e3) : (maxAge = 314496e5);
 
-        const userInfoToken = jwt.sign(madeUser, accessTokenSecret, {
-          expiresIn: "3m",
-        });
 
         const cookieSignOptions = {
           domain: baseURL,
@@ -92,7 +89,7 @@ router.post("/auth/signup", async (req, res) => {
             signed: true,
           })
           .json({
-            userToken: userInfoToken,
+            user: user,
           });
         console.log("User successfully signed in and serialized");
         console.log(userInfoToken);
@@ -115,7 +112,7 @@ router.get(
   auth.checkJWT,
   (req, res) => {
     console.log("Cookies check out");
-    res.json({ message: "You are authorized" });
+    res.json({ message: "Access granted" });
   }
 );
 
@@ -196,7 +193,6 @@ router.post("/auth/local/login", async (req, res) => {
               userToken: userInfoToken,
             });
           console.log("User successfully signed in and serialized");
-          console.log(userInfoToken);
         }
       }
     } else {

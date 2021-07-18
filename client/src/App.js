@@ -11,7 +11,7 @@ import {
 import Cookies from "js-cookie";
 
 // Axios Dependencies
-import { setAxiosDefaults } from "./utils/AxiosHeaders";
+import axiosConfig, { setAxiosDefaults } from "./utils/AxiosHeaders";
 import axios from "axios";
 
 // Context Dependencies
@@ -39,9 +39,9 @@ function App() {
     const userInfo = Cookies.get("user");
     // If cookies are present, decoded auth
     if (auth && userInfo) {
-      axios.get("http://localhost:3000/validate-cookies").then((res) => {
+      axiosConfig.get("/validate-cookies").then((res) => {
         if (res.status !== 200) {
-          axios.get("http://localhost:3000/auth/logout"); // Error clear all cookies and login info
+          axiosConfig.get("/auth/logout"); // Error clear all cookies and login info
         } else if (res.status === 200) {
           setJWT(auth);
         }
@@ -49,20 +49,26 @@ function App() {
     }
   }, []); //Left empty to get initial value only once on first render
 
-  // On website load second process, get user info
+  // Second step. Constant look for jwt changes
   useEffect(() => {
     // Check for jwt in state
     if (jwt) {
       // Set axios auth header with jwt token
       setAxiosDefaults(jwt);
-      // Fetch user info
+    }
+  }, [jwt]); // To update when jwt is changed/added
+
+  // First and only render call this useEffect
+  useEffect(() => {
+    // Check for jwt in state
+    if (jwt) {
       axios.get("/api/userInfo").then((res) => {
         const userDecoded = jwtMod.verify(res.data.user, jwtSecret); // Decode response jwt
         setUser(userDecoded); // set user with decoded user info
         history.push("/home"); // send user to home page
       });
     }
-  }, []); //Left empty to get initial value only once on first render
+  }, []); // First and only render call this useEffect
 
   // TODO: potential check for cookie and/or local storage item for sign up to automatically redirect for easier sign up
 

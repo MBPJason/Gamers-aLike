@@ -211,17 +211,17 @@ export default function AccessPage() {
     setXboxID("");
   }, []);
 
-  useEffect(() => {
-    if (!cookies.signup) {
-      setMethod("");
-      setStep(0);
-    } else {
-      setStep(1);
-      cookies.signup.value === "local"
-        ? setMethod("local")
-        : setMethod("non-local");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!cookies.signup) {
+  //     setMethod("");
+  //     setStep(0);
+  //   } else {
+  //     setStep(1);
+  //     cookies.signup.value === "local"
+  //       ? setMethod("local")
+  //       : setMethod("non-local");
+  //   }
+  // }, []);
 
   const userDefaults = [
     { value: email, name: "Email", method: handleEmail },

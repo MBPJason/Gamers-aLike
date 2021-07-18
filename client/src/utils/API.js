@@ -1,5 +1,5 @@
-import axios from "axios";
-import { jsonwebtoken as jwt } from "jsonwebtoken";
+import axiosConfig from "./AxiosHeaders";
+import jwt from "jsonwebtoken";
 const { SECRET } = process.env;
 
 const API = {
@@ -8,8 +8,8 @@ const API = {
   // ===================================================================================
   async login(email, password, expire, type) {
     console.log("Login called");
-    return await axios
-      .post("http://localhost:3000/auth/local/login", {
+    return await axiosConfig
+      .post("/auth/local/login", {
         email,
         password,
         expire,
@@ -34,8 +34,8 @@ const API = {
     playStationID,
     xboxID
   ) {
-    return await axios
-      .post("http://localhost:3000/auth/login", {
+    return await axiosConfig
+      .post("/auth/login", {
         expire,
         type,
         username,
@@ -54,38 +54,45 @@ const API = {
   },
 
   facebookPassport() {
-    axios.get("http://localhost:3000/auth/facebook");
+    axiosConfig.get("/auth/facebook");
   },
 
   googlePassport() {
-    axios.get("http://localhost:3000/auth/google");
+    axiosConfig.get("/auth/google");
   },
 
   twitterPassport() {
-    axios.get("http://localhost:3000/auth/twitter");
+    axiosConfig.get("/auth/twitter");
   },
 
   steamPassport() {
-    axios.get("http://localhost:3000/auth/steam");
+    axiosConfig.get("/auth/steam");
   },
 
   setUserContext(setUser, setJWT, user, authToken, history) {
-    axios.get("http://localhost:3000/validate-cookies").then((res) => {
-      if (res.status !== 200) {
-        history.push("/login");
-      } else if (res.status !== 200) {
-        setUser(user);
-        setJWT(authToken);
-        history.push("/home");
-      }
-    });
+    setJWT(authToken);
+    // const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64')
+    axiosConfig
+      .get("/validate-cookies", {
+        headers: { 'Authorization': `Bearer ${authToken}` },
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          setJWT("");
+          history.push("/login");
+        } else if (res.status === 200) {
+          setUser(user);
+          history.push("/home");
+        }
+        console.log(res.config);
+      });
   },
   // =====================================================================================
   //                                          END
   // =====================================================================================
 
   async getUserInfo(id) {
-    return await axios.get(`/api/user/${id}`).then((res) => {
+    return await axiosConfig.get(`/api/user/${id}`).then((res) => {
       const decoded = jwt.verify(res.body.userInfo, SECRET);
       return decoded;
     });

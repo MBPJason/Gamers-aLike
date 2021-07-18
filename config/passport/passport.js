@@ -11,7 +11,6 @@ const FacebookStrategy = require("passport-facebook").Strategy;
 const TwitterStrategy = require("passport-oauth2").Strategy;
 const SteamStrategy = require("passport-steam").Strategy;
 
-
 const db = require("../../models");
 
 const pathToPub = path.join(__dirname, "../../keys", "jwtRS256.key.pub");
@@ -48,17 +47,19 @@ const passportJWTOptions = {
 
 // JWT Strategy
 passport.use(
-  new JWTStrategy(passportJWTOptions, async ( jwt_payload, done) => {
-
+  new JWTStrategy(passportJWTOptions, async (jwt_payload, done) => {
     // Checking for user via json as key
+    console.log("passport checking jwt");
     await db.User.findOne({ _id: jwt_payload.sub }, async function (err, user) {
       // Check for errors during the process
       if (err) {
         return done(err);
       }
       if (!user) {
+        console.log("User failed passport jwt check");
         return done(null, false);
       } else {
+        console.log("User passed passport jwt check");
         return done(null, user);
       }
     });
