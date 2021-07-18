@@ -17,7 +17,7 @@ const API = {
       })
       .then((res) => {
         console.log(res);
-        let user = res.data.userToken;
+        let user = res.data.user;
         return user;
       });
   },
@@ -70,11 +70,14 @@ const API = {
   },
 
   setUserContext(setUser, setJWT, user, authToken, history) {
-    setJWT(authToken);
+    const cookieToken = authToken.split(".");
+    const trueToken =
+      cookieToken[0] + "." + cookieToken[1] + "." + cookieToken[2];
+    setJWT(trueToken);
     // const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64')
     axiosConfig
       .get("/validate-cookies", {
-        headers: { 'Authorization': `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${trueToken}` },
       })
       .then((res) => {
         if (res.status !== 200) {

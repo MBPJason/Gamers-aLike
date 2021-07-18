@@ -108,10 +108,11 @@ router.post("/auth/signup", async (req, res) => {
 // Test route for middleware checks
 router.get(
   "/validate-cookies",
+  passport.authenticate("jwt", { session: false }),
   auth.validateCookie,
   auth.checkJWT,
   (req, res) => {
-    console.log("Cookies check out");
+    console.log("Everything checks out");
     res.json({ message: "Access granted" });
   }
 );
@@ -158,9 +159,6 @@ router.post("/auth/local/login", async (req, res) => {
           // If req.body.expire is '1d' set maxAge to a day. If it isn't set maxAge to a year
           expire === "1d" ? (maxAge = 86400e3) : (maxAge = 314496e5);
 
-          const userInfoToken = jwt.sign(user, accessTokenSecret, {
-            expiresIn: expire || "1d",
-          });
 
           const cookieSignOptions = {
             domain: baseURL,
@@ -190,7 +188,7 @@ router.post("/auth/local/login", async (req, res) => {
               signed: true,
             })
             .json({
-              userToken: userInfoToken,
+              user: user,
             });
           console.log("User successfully signed in and serialized");
         }

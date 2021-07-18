@@ -24,6 +24,7 @@ const SERVER_PUB_KEY = fs.readFileSync(pathToSPub, "utf8");
 module.exports = {
   async checkJWT(req, res, next) {
     // Pull in headers and userID from request
+    console.log("Checking full jwt structure")
     const authHeader = req.headers.authorization;
     const user = await db.User.findOne({
       _id: req.signedCookies.user.userID,
@@ -40,9 +41,7 @@ module.exports = {
     if (authHeader) {
       
       // Extract the token from the header
-      const part1 = authHeader.split(" ")[1];
-      const cookieToken = part1.split(".")
-      const trueToken = cookieToken[0] + "." + cookieToken[1] + "." + cookieToken[2]
+      const trueToken = authHeader.split(" ")[1];
       
       // Verify token from header with client paired public key
       jwt.verify(trueToken, CLIENT_PUB_KEY, (err, decoded) => {
@@ -65,6 +64,7 @@ module.exports = {
                 return res.sendStatus(403);
               } else {
                 // Pass off into next middleware check
+                console.log("Full jwt structure is clear")
                 next();
               }
             });
@@ -144,7 +144,7 @@ module.exports = {
           { AuthProof: splitTokenSignature }
         );
 
-        console.log(signedSplitPayload.split("."))
+        console.log(signedSplitPayload)
         // Return new publicly signed token
         return signedSplitPayload;
       } else {
@@ -161,6 +161,7 @@ module.exports = {
 
   // Cookie check method
   validateCookie(req, res, next) {
+    console.log("verifying cookies")
     try {
       // Pull signed cookies out of request
       const { signedCookies } = req;
@@ -174,6 +175,7 @@ module.exports = {
         // Check if the comparison passes
         if (cookieCheck) {
           // If it passes go to the next middleware/final response
+          console.log("Special cookie verified")
           next();
         } else {
           // If it fails send failure message
