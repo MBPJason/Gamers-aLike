@@ -19,7 +19,7 @@ export default function Step1(props) {
 
   return (
     <>
-      <Grid container justify='center' component='main'>
+      <Grid container justify='center' component='main' className={classNames(classes.root, classes.image)}>
         <CssBaseline />
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={9}>
           <div className={classes.paper}>
@@ -65,7 +65,7 @@ export default function Step1(props) {
                     <Button onClick={modal.closeModal} color='secondary'>
                       Let me rethink this..
                     </Button>
-                    <Button onClick={step.submit} color='primary' autoFocus>
+                    <Button onClick={step.submit(...values.value)} color='primary' autoFocus>
                       This is fine.
                     </Button>
                   </DialogActions>
