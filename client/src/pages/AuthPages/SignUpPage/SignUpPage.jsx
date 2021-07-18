@@ -13,6 +13,9 @@ import {
   Box,
   Grid,
   Typography,
+  Stepper,
+  Step,
+  StepLabel,
 } from "@material-ui/core";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { makeStyles } from "@material-ui/core/styles";
@@ -23,7 +26,6 @@ import API from "../../../utils/API";
 import Social from "../SocialLinks";
 import StepperForm from "./StepperForm";
 import StepperConfirm from "./StepperConfirm";
-import Stepper from "./Stepper";
 
 function Copyright() {
   return (
@@ -36,6 +38,19 @@ function Copyright() {
       {"."}
     </Typography>
   );
+}
+
+function getStepContent(stepIndex) {
+  switch (stepIndex) {
+    case 1:
+      return "Constructing User Base...";
+    case 2:
+      return "Got anymore of that sweet, sweet gamer info?";
+    case 3:
+      return "Let's see what got here...";
+    default:
+      return "You shouldn't be here";
+  }
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -69,14 +84,29 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+
+  stepRoot: {
+    width: "100%",
+  },
+  backButton: {
+    marginRight: theme.spacing(1),
+  },
+  instructions: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+  },
 }));
 
 export default function AccessPage() {
-  // React Hooks
+  // ==========================
+  //        React Hooks
+  // ==========================
   const classes = useStyles();
   const history = useHistory();
 
+  // ==============================
   // States and State Changers
+  // ==============================
   const { setJWT, setUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -92,7 +122,11 @@ export default function AccessPage() {
   const [step, setStep] = useState(0);
   const [open, setOpen] = useState(false);
 
+  // ================================
   // Functions for state changing
+  // ================================
+
+  // Modal handles
   const handleClickOpen = (e) => {
     e.preventDefault();
     setOpen(true);
@@ -102,6 +136,7 @@ export default function AccessPage() {
     setOpen(false);
   };
 
+  // Sign up handles
   const handleEmail = (e) => {
     const { value } = e.target;
     setEmail(value);
@@ -152,6 +187,9 @@ export default function AccessPage() {
     setXboxID(value);
   };
 
+  // ==================================
+  //        Main Sign Up Function
+  // ==================================
   const handleSignUp = async (
     method,
     expire,
@@ -190,6 +228,9 @@ export default function AccessPage() {
     }
   };
 
+  // ==============================
+  //         Stepper Changer
+  // ==============================
   const nextStep = (e, step) => {
     e.preventDefault();
     step >= 3 ? setStep(3) : setStep(step + 1);
@@ -199,6 +240,9 @@ export default function AccessPage() {
     step === 1 ? setStep(1) : setStep(step - 1);
   };
 
+  // ==============================
+  //        On Load Functions
+  // ==============================
   useEffect(() => {
     setEmail("");
     setPassword("");
@@ -222,6 +266,9 @@ export default function AccessPage() {
   //   }
   // }, []);
 
+  // ======================================
+  //      Prop Values/Methods Variables
+  // ======================================
   const userDefaults = [
     { value: email, name: "Email", method: handleEmail },
     { value: username, name: "Username", method: handleUsername },
@@ -261,8 +308,6 @@ export default function AccessPage() {
   const stepValues = {
     steps: step,
     next: nextStep,
-    back: backStep(step),
-    openModal: handleClickOpen,
     submit: handleSignUp(
       method,
       expire,
@@ -277,8 +322,56 @@ export default function AccessPage() {
     ),
   };
 
+  // Stepper component
+
+  const getSteps = [
+    "Fill out all fields",
+    "Enter any gamertags you have",
+    "Confirm Profile",
+  ];
+
+  const stepper = (
+    <div className={classes.stepRoot}>
+      <Stepper activeStep={step} alternativeLabel>
+        {getSteps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+      <div>
+        <div>
+          <Typography className={classes.instructions}>
+            {getStepContent(step)}
+          </Typography>
+          <div>
+            <Button
+              disabled={step === 1}
+              onClick={backStep(step)}
+              className={classes.backButton}
+            >
+              Back
+            </Button>
+            <Button
+              type='submit'
+              variant='contained'
+              color='primary'
+              onClick={
+                step === 3
+                  ? (e) => handleClickOpen(e)
+                  : (e) => nextStep(e, step)
+              }
+            >
+              {step === 3 ? "Finish" : "Next"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   // =============================================
-  //                  Switch Case
+  //              Main Switch Case
   // =============================================
 
   switch (step) {
@@ -289,7 +382,7 @@ export default function AccessPage() {
             classes={classes}
             valueMethods={userDefaults}
             step={stepValues}
-            // Stepper={<Stepper info={stepValues} />}
+            Stepper={stepper}
           />
         </>
       );
@@ -300,7 +393,7 @@ export default function AccessPage() {
             classes={classes}
             valueMethods={gamerIDs}
             step={stepValues}
-            // Stepper={<Stepper info={stepValues} />}
+            Stepper={stepper}
           />
         </>
       );
@@ -312,7 +405,7 @@ export default function AccessPage() {
             values={allSentValues}
             step={stepValues}
             modal={modal}
-            // Stepper={<Stepper info={stepValues} />}
+            Stepper={stepper}
           />
         </>
       );
