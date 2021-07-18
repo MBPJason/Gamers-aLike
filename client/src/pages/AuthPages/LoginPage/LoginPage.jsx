@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
-import { useCookies } from "react-cookie";
+import Cookies from "js-cookie";
 import {
   Avatar,
   Button,
@@ -71,7 +71,6 @@ const useStyles = makeStyles((theme) => ({
 export default function AccessPage() {
   const classes = useStyles();
   const history = useHistory();
-  const [cookies] = useCookies(["__AUTH", "user"]);
 
   const { setJWT, setUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
@@ -97,8 +96,10 @@ export default function AccessPage() {
     e.preventDefault();
     const type = "signin";
     const user = await API.login(email, password, expire, type);
+    console.log(user);
     if (user) {
-      const authToken = cookies.__AUTH.value;
+      const authToken = Cookies.get("__AUTH").split(":")[1];
+      console.log(authToken);
       API.setUserContext(setUser, setJWT, user, authToken, history);
     } else {
       history.push("/login");
