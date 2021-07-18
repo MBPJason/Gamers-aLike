@@ -5,11 +5,10 @@ const instance = axios.create({
 
 let authToken;
 
-export const setAxiosDefaults = async (token) => {
+export const setAxiosDefaults = (token) => {
   authToken = token;
-  console.log(authToken);
 };
 
-// instance.defaults.headers.common["Authorization"] = "Bearer " + authToken;
+instance.defaults.headers.common["Authorization"] = authToken !== undefined ? `Bearer ${authToken}` : ''
 
 export default instance;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
-import { useCookies } from "react-cookie";
+import Cookies from "js-cookie";
 import {
   Avatar,
   Button,
@@ -23,6 +23,7 @@ import API from "../../../utils/API";
 import Social from "../SocialLinks";
 import StepperForm from "./StepperForm";
 import StepperConfirm from "./StepperConfirm";
+import Stepper from "./Stepper";
 
 function Copyright() {
   return (
@@ -74,7 +75,6 @@ export default function AccessPage() {
   // React Hooks
   const classes = useStyles();
   const history = useHistory();
-  const [cookies, setCookie, removeCookie] = useCookies(["__AUTH", "signup"]);
 
   // States and State Changers
   const { setJWT, setUser } = useContext(UserContext);
@@ -93,7 +93,8 @@ export default function AccessPage() {
   const [open, setOpen] = useState(false);
 
   // Functions for state changing
-  const handleClickOpen = () => {
+  const handleClickOpen = (e) => {
+    e.preventDefault();
     setOpen(true);
   };
 
@@ -179,25 +180,23 @@ export default function AccessPage() {
         xboxID.trim()
       );
     } else {
-      if (cookies.__AUTH) {
-        let authToken = cookies.__AUTH.value;
+      // TODO: Get update user route place and
+      if (Cookies.get("__AUTH")) {
+        let authToken = Cookies.get("__AUTH").split(":")[1];
         API.setUserContext(setUser, setJWT, user, authToken, history);
+      } else {
+        history.push("/login");
       }
     }
   };
 
   const nextStep = (e, step) => {
     e.preventDefault();
-    if (step < 3) {
-      setStep(step + 1);
-    } else if (step === 3) {
-      setStep(3);
-    }
+    step >= 3 ? setStep(3) : setStep(step + 1);
   };
 
-  const backStep = (e, step) => {
-    e.preventDefault();
-    step >= 2 ? setStep(step - 1) : setStep(1);
+  const backStep = (step) => {
+    step === 1 ? setStep(1) : setStep(step - 1);
   };
 
   useEffect(() => {
@@ -260,8 +259,10 @@ export default function AccessPage() {
   };
 
   const stepValues = {
-    step,
-    nextStep,
+    steps: step,
+    next: nextStep,
+    back: backStep(step),
+    openModal: handleClickOpen,
     submit: handleSignUp(
       method,
       expire,
@@ -288,6 +289,7 @@ export default function AccessPage() {
             classes={classes}
             valueMethods={userDefaults}
             step={stepValues}
+            // Stepper={<Stepper info={stepValues} />}
           />
         </>
       );
@@ -298,6 +300,7 @@ export default function AccessPage() {
             classes={classes}
             valueMethods={gamerIDs}
             step={stepValues}
+            // Stepper={<Stepper info={stepValues} />}
           />
         </>
       );
@@ -309,6 +312,7 @@ export default function AccessPage() {
             values={allSentValues}
             step={stepValues}
             modal={modal}
+            // Stepper={<Stepper info={stepValues} />}
           />
         </>
       );
@@ -380,7 +384,7 @@ export default function AccessPage() {
                   control={
                     <Checkbox
                       value={expire}
-                      onChange={(e) => handleExpire(e)}
+                      onChange={handleExpire}
                       color='primary'
                     />
                   }

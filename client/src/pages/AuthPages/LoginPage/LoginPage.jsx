@@ -99,7 +99,6 @@ export default function AccessPage() {
     console.log(user);
     if (user) {
       const authToken = Cookies.get("__AUTH").split(":")[1];
-      console.log(authToken);
       API.setUserContext(setUser, setJWT, user, authToken, history);
     } else {
       history.push("/login");
