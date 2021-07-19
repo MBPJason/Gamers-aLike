@@ -9,7 +9,7 @@ const authToken = Cookies.get("__AUTH") ? Cookies.get("__AUTH").split(":")[1] : 
 const cookieToken =  authToken ? authToken.split(".") : undefined;
 const trueToken = cookieToken ? cookieToken[0] + "." + cookieToken[1] + "." + cookieToken[2] : undefined;
 
-instance.defaults.headers.common["Authorization"] =
+instance.defaults.headers["Authorization"] =
 trueToken !== undefined ? `Bearer ${trueToken}` : "";
 
 export default instance;

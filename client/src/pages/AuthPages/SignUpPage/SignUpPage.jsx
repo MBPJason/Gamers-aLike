@@ -175,10 +175,10 @@ export default function AccessPage() {
   // ==================================
   //        Main Sign Up Function
   // ==================================
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     const type = "signup";
     if (method === "local") {
-      let user = API.signup(
+      let user = await API.signup(
         expire,
         type,
         email.trim(),

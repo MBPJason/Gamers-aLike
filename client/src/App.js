@@ -35,7 +35,7 @@ function App() {
   useEffect(() => {
     const auth = Cookies.get("__AUTH");
     const userInfo = Cookies.get("user");
-    // If cookies are present, decoded auth
+    // If cookies are present, call server and validate them
     if (auth && userInfo) {
       axiosConfig.get("/validate-cookies").then((res) => {
         if (res.status !== 200) {
@@ -45,7 +45,7 @@ function App() {
         }
       });
     }
-  }, []); //Left empty to get initial value only once on first render
+  }, []);
 
   // First and only render call this useEffect
   useEffect(() => {

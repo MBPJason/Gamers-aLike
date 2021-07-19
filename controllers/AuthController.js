@@ -55,11 +55,16 @@ router.post("/auth/signup", async (req, res) => {
       if (!token) {
         res.status(500).send("Couldn't authorize user");
       } else {
+        let user = await db.User.findOne({ email: email })
+          .populate("GamerTags")
+          .populate("DiscordInfo")
+          .populate("Ratings")
+          .populate("PlayersInfo")
+          .exec();
         let maxAge;
 
         // If req.body.expire is null set maxAge to a day. If it isn't set maxAge to a year
         expire === "1d" ? (maxAge = 86400e3) : (maxAge = 314496e5);
-
 
         const cookieSignOptions = {
           domain: baseURL,
@@ -67,6 +72,8 @@ router.post("/auth/signup", async (req, res) => {
           maxAge: maxAge,
           signed: true,
         };
+
+        user = user.fullyBuiltUser;
 
         /**
          * Set status code as 200
@@ -92,7 +99,7 @@ router.post("/auth/signup", async (req, res) => {
             user: user,
           });
         console.log("User successfully signed in and serialized");
-        console.log(userInfoToken);
+        console.log(user);
       }
     } else {
       res
@@ -137,11 +144,14 @@ router.post("/auth/local/login", async (req, res) => {
 
     // Check is a user was provided with email check
     if (user) {
+      const match = await bcrypt.compare(password, user.password);
       // If user is present check password given against stored hashed password
-      if (!bcrypt.compare(password, user.password)) {
+      if (match === false) {
         // If no match give a 403 error
+        console.log(`Password check failed. PW: ${password}`);
         res.status(403).send("Email and/or password did not match");
       } else {
+        console.log(match);
         /**
          * Set user variable as user.fullyBuiltUser virtual
          * Grab user auth token
@@ -158,7 +168,6 @@ router.post("/auth/local/login", async (req, res) => {
 
           // If req.body.expire is '1d' set maxAge to a day. If it isn't set maxAge to a year
           expire === "1d" ? (maxAge = 86400e3) : (maxAge = 314496e5);
-
 
           const cookieSignOptions = {
             domain: baseURL,
@@ -205,12 +214,10 @@ router.post("/auth/local/login", async (req, res) => {
 router.get(
   "/api/userInfo",
   passport.authenticate("jwt", { session: false }),
+  auth.validateCookie,
   auth.checkJWT,
   async (req, res) => {
-    const userInfoToken = jwt.sign(req.user, accessTokenSecret, {
-      expiresIn: "5m",
-    });
-    res.json({ userToken: userInfoToken });
+    res.json({ user: req.user });
   }
 );
 
