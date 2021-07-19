@@ -47,7 +47,7 @@ const API = {
         XboxID,
       })
       .then((res) => {
-        let user = res.body.userToken;
+        let user = res.data.user;
         return user;
       })
       .catch((error) => {
@@ -98,7 +98,7 @@ const API = {
 
   getUserInfo(setUser, setJWT, history) {
     axiosConfig
-      .get(`/api/userInfo`)
+      .get("/api/userInfo")
       .then(async (res) => {
         if (res.status !== 200) {
           setJWT("");

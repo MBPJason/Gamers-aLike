@@ -24,7 +24,7 @@ const SERVER_PUB_KEY = fs.readFileSync(pathToSPub, "utf8");
 module.exports = {
   async checkJWT(req, res, next) {
     // Pull in headers and userID from request
-    console.log("Checking full jwt structure")
+    console.log("Checking full jwt structure");
     const authHeader = req.headers.authorization;
     const user = await db.User.findOne({
       _id: req.signedCookies.user.userID,
@@ -35,14 +35,11 @@ module.exports = {
       })
       .exec();
 
-
-
     // Check if there is a header
     if (authHeader) {
-      
       // Extract the token from the header
       const trueToken = authHeader.split(" ")[1];
-      
+
       // Verify token from header with client paired public key
       jwt.verify(trueToken, CLIENT_PUB_KEY, (err, decoded) => {
         // Error check
@@ -56,6 +53,7 @@ module.exports = {
             // Construct true token with user spilt signature from User Schema
             const authToken = decoded.authToken + "." + user.Auth.AuthProof;
             // Verify true token with server paired public key
+            console.log(authToken.split("."));
             jwt.verify(authToken, SERVER_PUB_KEY, (err, proof) => {
               // Error check
               if (err) {
@@ -64,7 +62,7 @@ module.exports = {
                 return res.sendStatus(403);
               } else {
                 // Pass off into next middleware check
-                console.log("Full jwt structure is clear")
+                console.log("Full jwt structure is clear");
                 next();
               }
             });
@@ -144,7 +142,7 @@ module.exports = {
           { AuthProof: splitTokenSignature }
         );
 
-        console.log(signedSplitPayload)
+        console.log(signedSplitPayload);
         // Return new publicly signed token
         return signedSplitPayload;
       } else {
@@ -161,7 +159,7 @@ module.exports = {
 
   // Cookie check method
   validateCookie(req, res, next) {
-    console.log("verifying cookies")
+    console.log("verifying cookies");
     try {
       // Pull signed cookies out of request
       const { signedCookies } = req;
@@ -175,7 +173,7 @@ module.exports = {
         // Check if the comparison passes
         if (cookieCheck) {
           // If it passes go to the next middleware/final response
-          console.log("Special cookie verified")
+          console.log("Special cookie verified");
           next();
         } else {
           // If it fails send failure message
