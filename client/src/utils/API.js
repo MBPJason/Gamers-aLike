@@ -1,11 +1,10 @@
 import axiosConfig from "./AxiosHeaders";
-import jwt from "jsonwebtoken";
-const { SECRET } = process.env;
 
 const API = {
   // ===================================================================================
   //                        SIGNUP AND LOGIN RELATED FUNCTIONS
   // ===================================================================================
+
   async login(email, password, expire, type) {
     console.log("Login called");
     return await axiosConfig
@@ -25,31 +24,34 @@ const API = {
   async signup(
     expire,
     type,
-    username,
     email,
+    username,
     password,
-    discordID,
-    steamID,
-    battlenetID,
-    playStationID,
-    xboxID
+    DiscordID,
+    SteamID,
+    BattlenetID,
+    PlayStationID,
+    XboxID
   ) {
     return await axiosConfig
-      .post("/auth/login", {
+      .post("/auth/signup", {
         expire,
         type,
-        username,
         email,
+        username,
         password,
-        discordID,
-        steamID,
-        battlenetID,
-        playStationID,
-        xboxID,
+        DiscordID,
+        SteamID,
+        BattlenetID,
+        PlayStationID,
+        XboxID,
       })
       .then((res) => {
         let user = res.body.userToken;
         return user;
+      })
+      .catch((error) => {
+        console.log(error);
       });
   },
 
@@ -94,11 +96,21 @@ const API = {
   //                                          END
   // =====================================================================================
 
-  async getUserInfo(id) {
-    return await axiosConfig.get(`/api/user/${id}`).then((res) => {
-      const decoded = jwt.verify(res.body.userInfo, SECRET);
-      return decoded;
-    });
+  getUserInfo(setUser, setJWT, history) {
+    axiosConfig
+      .get(`/api/userInfo`)
+      .then(async (res) => {
+        if (res.status !== 200) {
+          setJWT("");
+          await axiosConfig.get("/auth/logout");
+        } else if (res.status === 200) {
+          setUser(res.data.user);
+          history.push("/home");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   },
 };
 

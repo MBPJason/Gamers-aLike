@@ -72,11 +72,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function AccessPage() {
-  // React Hooks
+  // ==========================
+  //        React Hooks
+  // ==========================
   const classes = useStyles();
   const history = useHistory();
 
+  // ==============================
   // States and State Changers
+  // ==============================
   const { setJWT, setUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -89,10 +93,15 @@ export default function AccessPage() {
   const [playStationID, setPlayStationID] = useState("");
   const [xboxID, setXboxID] = useState("");
   const [method, setMethod] = useState("");
+  const [counter, setCounter] = useState(0);
   const [step, setStep] = useState(0);
   const [open, setOpen] = useState(false);
 
+  // ================================
   // Functions for state changing
+  // ================================
+
+  // Modal Handle Functions
   const handleClickOpen = (e) => {
     e.preventDefault();
     setOpen(true);
@@ -102,6 +111,7 @@ export default function AccessPage() {
     setOpen(false);
   };
 
+  // User Handle Functions
   const handleEmail = (e) => {
     const { value } = e.target;
     setEmail(value);
@@ -152,26 +162,27 @@ export default function AccessPage() {
     setXboxID(value);
   };
 
-  const handleSignUp = async (
-    method,
-    expire,
-    username,
-    email,
-    password,
-    discordID,
-    steamID,
-    battlenetID,
-    playStationID,
-    xboxID
-  ) => {
-    const type = "siginup";
-    let user;
+  const handleCounter = (e, method, counter) => {
+    e.preventDefault();
+    setMethod("local");
+    if (counter < 1) {
+      let inFifteenMinutes = new Date(new Date().getTime() + 15 * 60 * 1000);
+      Cookies.set("signup", method, { expires: inFifteenMinutes, path: "" });
+      setCounter(1);
+    }
+  };
+
+  // ==================================
+  //        Main Sign Up Function
+  // ==================================
+  const handleSignUp = () => {
+    const type = "signup";
     if (method === "local") {
-      user = API.signup(
+      let user = API.signup(
         expire,
         type,
-        username.trim(),
         email.trim(),
+        username.trim(),
         password.trim(),
         discordID.trim(),
         steamID.trim(),
@@ -179,17 +190,23 @@ export default function AccessPage() {
         playStationID.trim(),
         xboxID.trim()
       );
+      let authToken = Cookies.get("__AUTH").split(":")[1];
+      Cookies.remove("signup", method, { path: "" });
+      API.setUserContext(setUser, setJWT, user, authToken, history);
     } else {
       // TODO: Get update user route place and
       if (Cookies.get("__AUTH")) {
-        let authToken = Cookies.get("__AUTH").split(":")[1];
-        API.setUserContext(setUser, setJWT, user, authToken, history);
+        // let authToken = Cookies.get("__AUTH").split(":")[1];
+        // API.setUserContext(setUser, setJWT, user, authToken, history);
       } else {
         history.push("/login");
       }
     }
   };
 
+  // ============================
+  //        Stepper Changer
+  // ============================
   const nextStep = (e, step) => {
     e.preventDefault();
     step >= 3 ? setStep(3) : setStep(step + 1);
@@ -199,6 +216,9 @@ export default function AccessPage() {
     step === 1 ? setStep(1) : setStep(step - 1);
   };
 
+  // ============================
+  //      On Load Functions
+  // ============================
   useEffect(() => {
     setEmail("");
     setPassword("");
@@ -222,6 +242,9 @@ export default function AccessPage() {
   //   }
   // }, []);
 
+  // ======================================
+  //     Prop Values/Methods Variables
+  // ======================================
   const userDefaults = [
     { value: email, name: "Email", method: handleEmail },
     { value: username, name: "Username", method: handleUsername },
@@ -261,20 +284,9 @@ export default function AccessPage() {
   const stepValues = {
     steps: step,
     next: nextStep,
-    back: backStep(step),
+    back: backStep,
     openModal: handleClickOpen,
-    submit: handleSignUp(
-      method,
-      expire,
-      username,
-      email,
-      password,
-      discordID,
-      steamID,
-      battlenetID,
-      playStationID,
-      xboxID
-    ),
+    submit: handleSignUp,
   };
 
   // =============================================
@@ -289,7 +301,7 @@ export default function AccessPage() {
             classes={classes}
             valueMethods={userDefaults}
             step={stepValues}
-            // Stepper={<Stepper info={stepValues} />}
+            Stepper={<Stepper info={stepValues} />}
           />
         </>
       );
@@ -300,7 +312,7 @@ export default function AccessPage() {
             classes={classes}
             valueMethods={gamerIDs}
             step={stepValues}
-            // Stepper={<Stepper info={stepValues} />}
+            Stepper={<Stepper info={stepValues} />}
           />
         </>
       );
@@ -312,7 +324,7 @@ export default function AccessPage() {
             values={allSentValues}
             step={stepValues}
             modal={modal}
-            // Stepper={<Stepper info={stepValues} />}
+            Stepper={<Stepper info={stepValues} />}
           />
         </>
       );
@@ -341,8 +353,8 @@ export default function AccessPage() {
                 className={classes.form}
                 onSubmit={(e) => {
                   nextStep(e, step);
+                  handleCounter(e, method, counter);
                 }}
-                noValidate
               >
                 <Social type='signup' method={setMethod} />
                 <TextField

@@ -1,14 +1,15 @@
 import axios from "axios";
+import Cookies from "js-cookie";
+
 const instance = axios.create({
   baseURL: "http://localhost:3000",
 });
 
-let authToken;
+const authToken = Cookies.get("__AUTH") ? Cookies.get("__AUTH").split(":")[1] : undefined
+const cookieToken =  authToken ? authToken.split(".") : undefined;
+const trueToken = cookieToken ? cookieToken[0] + "." + cookieToken[1] + "." + cookieToken[2] : undefined;
 
-export const setAxiosDefaults = (token) => {
-  authToken = token;
-};
-
-instance.defaults.headers.common["Authorization"] = authToken !== undefined ? `Bearer ${authToken}` : ''
+instance.defaults.headers.common["Authorization"] =
+trueToken !== undefined ? `Bearer ${trueToken}` : "";
 
 export default instance;
