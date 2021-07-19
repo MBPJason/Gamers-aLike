@@ -11,12 +11,10 @@ import {
 import Cookies from "js-cookie";
 
 // Axios Dependencies
-import axiosConfig, { setAxiosDefaults } from "./utils/AxiosHeaders";
-import axios from "axios";
+import axiosConfig from "./utils/AxiosHeaders";
 
 // Context Dependencies
 import UserContext from "./MyComponents/Context/UserContext";
-import { jsonwebtoken as jwtMod } from "jsonwebtoken";
 
 // Pages
 import Landing from "./pages/LandingPage/Landing.jsx";
@@ -25,8 +23,8 @@ import SignUp from "./pages/AuthPages/SignUpPage/SignUpPage";
 import Home from "./pages/HomePage/HomePage";
 import Lobby from "./pages/LobbyPage/LobbyPage";
 import Session from "./pages/SessionPage/SessionPage";
+import API from "./utils/API";
 
-const jwtSecret = process.env.SECRET;
 function App() {
   // Set up states
   const history = useHistory();
@@ -49,28 +47,13 @@ function App() {
     }
   }, []); //Left empty to get initial value only once on first render
 
-  // Second step. Constant look for jwt changes
-  useEffect(() => {
-    // Check for jwt in state
-    if (jwt) {
-      // Set axios auth header with jwt token
-      setAxiosDefaults(jwt);
-    }
-  }, [jwt]); // To update when jwt is changed/added
-
   // First and only render call this useEffect
   useEffect(() => {
     // Check for jwt in state
     if (jwt) {
-      axios.get("/api/userInfo").then((res) => {
-        const userDecoded = jwtMod.verify(res.data.user, jwtSecret); // Decode response jwt
-        setUser(userDecoded); // set user with decoded user info
-        history.push("/home"); // send user to home page
-      });
+      API.getUserInfo(setUser, setJWT, history);
     }
   }, []); // First and only render call this useEffect
-
-  // TODO: potential check for cookie and/or local storage item for sign up to automatically redirect for easier sign up
 
   return (
     <>
