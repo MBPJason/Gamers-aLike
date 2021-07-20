@@ -53,7 +53,6 @@ module.exports = {
             // Construct true token with user spilt signature from User Schema
             const authToken = decoded.authToken + "." + user.Auth.AuthProof;
             // Verify true token with server paired public key
-            console.log(authToken.split("."));
             jwt.verify(authToken, SERVER_PUB_KEY, (err, proof) => {
               // Error check
               if (err) {

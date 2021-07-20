@@ -47,7 +47,8 @@ connection.on("error", (err) => {
 app.use(passport.initialize());
 
 // Routes
-app.use(require("./controllers/AuthController.js"));
+app.use(require("./controllers/AuthController"));
+app.use(require("./controllers/UserController"));
 
 // Build path for domain launch
 app.get("*", (req, res) => {

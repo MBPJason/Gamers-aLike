@@ -2,12 +2,7 @@ import "./App.css";
 
 // React Dependencies
 import { useEffect, useState } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-  useHistory,
-} from "react-router-dom";
+import { Route, Switch, useHistory, withRouter } from "react-router-dom";
 import Cookies from "js-cookie";
 
 // Axios Dependencies
@@ -30,49 +25,45 @@ function App() {
   const history = useHistory();
   const [user, setUser] = useState({});
   const [jwt, setJWT] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // On website load, look for cookies
   useEffect(() => {
     const auth = Cookies.get("__AUTH");
     const userInfo = Cookies.get("user");
+    const signup = Cookies.get("signup");
     // If cookies are present, call server and validate them
     if (auth && userInfo) {
-      axiosConfig.get("/validate-cookies").then((res) => {
-        if (res.status !== 200) {
-          axiosConfig.get("/auth/logout"); // Error clear all cookies and login info
-        } else if (res.status === 200) {
-          setJWT(auth);
-        }
-      });
+      if (signup) {
+        history.push("/finishing-touch");
+      } else if (userInfo.loggedIn) {
+        setJWT(auth);
+        API.getUserInfo(setUser, setJWT, setIsLoggedIn);
+      } else {
+        setJWT(auth);
+        API.getUserInfo(setUser, setJWT, setIsLoggedIn, history);
+      }
     }
-  }, []);
-
-  // First and only render call this useEffect
-  useEffect(() => {
-    // Check for jwt in state
-    if (jwt) {
-      API.getUserInfo(setUser, setJWT, history);
-    }
-  }, []); // First and only render call this useEffect
+  }, [history]);
 
   return (
     <>
-      <Router>
-        <UserContext.Provider value={{ user, setUser, jwt, setJWT }}>
-          <Switch>
-            <Route exact path='/' component={Landing} />
-            <Route exact path='/signup' component={SignUp} />
-            <Route exact path='/finishing-touch' component={SignUp} />
-            <Route exact path='/login' component={Login} />
-            <Route exact path='/home' component={Home} />
-            <Route path='/:username/profile' component={Landing} />
-            <Route path='/lobby' component={Lobby} />
-            <Route path='/session' component={Session} />
-          </Switch>
-        </UserContext.Provider>
-      </Router>
+      <UserContext.Provider
+        value={{ user, setUser, jwt, setJWT, isLoggedIn, setIsLoggedIn }}
+      >
+        <Switch>
+          <Route exact path='/' component={Landing} />
+          <Route exact path='/signup' component={SignUp} />
+          <Route exact path='/finishing-touch' component={SignUp} />
+          <Route exact path='/login' component={Login} />
+          <Route exact path='/home' component={Home} />
+          <Route path='/:username/profile' component={Landing} />
+          <Route path='/lobby' component={Lobby} />
+          <Route path='/session' component={Session} />
+        </Switch>
+      </UserContext.Provider>
     </>
   );
 }
 
-export default App;
+export default withRouter(App);

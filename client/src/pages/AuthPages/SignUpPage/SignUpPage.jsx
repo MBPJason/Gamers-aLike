@@ -195,12 +195,18 @@ export default function AccessPage() {
       API.setUserContext(setUser, setJWT, user, authToken, history);
     } else {
       // TODO: Get update user route place and
-      if (Cookies.get("__AUTH")) {
-        // let authToken = Cookies.get("__AUTH").split(":")[1];
-        // API.setUserContext(setUser, setJWT, user, authToken, history);
-      } else {
-        history.push("/login");
-      }
+      API.finishingTouches(
+        setUser,
+        history,
+        email,
+        username,
+        password,
+        discordID,
+        steamID,
+        battlenetID,
+        playStationID,
+        xboxID
+      );
     }
   };
 

@@ -1,10 +1,12 @@
 import axiosConfig from "./AxiosHeaders";
+import axios from "axios";
 
 const API = {
   // ===================================================================================
   //                        SIGNUP AND LOGIN RELATED FUNCTIONS
   // ===================================================================================
 
+  // Local login Method
   async login(email, password, expire, type) {
     console.log("Login called");
     return await axiosConfig
@@ -21,6 +23,7 @@ const API = {
       });
   },
 
+  // Local sign up method
   async signup(
     expire,
     type,
@@ -55,22 +58,24 @@ const API = {
       });
   },
 
+  // Non local Sign Up/Login Methods
   facebookPassport() {
-    axiosConfig.get("/auth/facebook");
+    axios.get("/auth/facebook");
   },
 
   googlePassport() {
-    axiosConfig.get("/auth/google");
+    axios.get("/auth/google");
   },
 
   twitterPassport() {
-    axiosConfig.get("/auth/twitter");
+    axios.get("/auth/twitter");
   },
 
   steamPassport() {
-    axiosConfig.get("/auth/steam");
+    axios.get("/auth/steam");
   },
 
+  // Setting new and returning users in Contexts
   setUserContext(setUser, setJWT, user, authToken, history) {
     const cookieToken = authToken.split(".");
     const trueToken =
@@ -92,25 +97,66 @@ const API = {
         console.log(res.config);
       });
   },
+
+  finishingTouches(
+    setUser,
+    history,
+    email,
+    username,
+    password,
+    DiscordID,
+    SteamID,
+    BattlenetID,
+    PlayStationID,
+    XboxID
+  ) {
+    axios
+      .put("/api/user/finishing-touches", {
+        email,
+        username,
+        password,
+        DiscordID,
+        SteamID,
+        BattlenetID,
+        PlayStationID,
+        XboxID,
+      })
+      .then((res) => {
+        setUser(res.data.user);
+        history.push("/home");
+      });
+  },
   // =====================================================================================
   //                                          END
   // =====================================================================================
 
-  getUserInfo(setUser, setJWT, history) {
+  getUserInfo(setUser, setJWT, setIsLoggedIn, history) {
     axiosConfig
       .get("/api/userInfo")
       .then(async (res) => {
         if (res.status !== 200) {
           setJWT("");
-          await axiosConfig.get("/auth/logout");
+          await axios.get("/auth/logout");
+          history.push("/login");
         } else if (res.status === 200) {
+          setIsLoggedIn(true);
           setUser(res.data.user);
-          history.push("/home");
+          if (history) {
+            history.push("/home");
+          }
         }
       })
       .catch((error) => {
         console.log(error);
       });
+  },
+
+  updateUser(setUser, setJWT, history, id) {
+    axiosConfig.post("/api/update/user", {
+      params: {
+        id: id,
+      },
+    });
   },
 };
 
