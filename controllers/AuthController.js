@@ -4,8 +4,6 @@
 require("dotenv").config();
 const router = require("express-promise-router")();
 const passport = require("passport");
-const jwt = require("jsonwebtoken");
-const accessTokenSecret = process.env.SECRET;
 const cookieSecret = process.env.COOKIE_CRYPTO;
 const auth = require("../config/middleware/isAuthenticated");
 const bcrypt = require("bcrypt");
@@ -186,7 +184,7 @@ router.post("/auth/local/login", async (req, res) => {
             .cookie("__AUTH", token, cookieSignOptions) //
             .cookie(
               "user",
-              { userID: user.userID, username: user.username },
+              { userID: user.userID, username: user.username, loggedIn: true },
               cookieSignOptions
             )
             .cookie("special", lockedCookieSecret, {
@@ -211,15 +209,6 @@ router.post("/auth/local/login", async (req, res) => {
   }
 });
 
-router.get(
-  "/api/userInfo",
-  passport.authenticate("jwt", { session: false }),
-  auth.validateCookie,
-  auth.checkJWT,
-  async (req, res) => {
-    res.json({ user: req.user });
-  }
-);
 
 // =================================================================================
 // TODO: Need 2 paths for passport OAUTH and OpenID authentication
@@ -232,7 +221,7 @@ router.get("/auth/facebook", passport.authenticate("facebook"));
 
 router.get(
   "/auth/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "/login" }),
+  passport.authenticate("facebook", { failureRedirect: "/signup" }),
   function (req, res) {
     if (!req.user.username) {
       res.redirect("/finishing-touch");
@@ -245,7 +234,7 @@ router.get(
 // Google Login Method
 router.get(
   "/auth/google",
-  passport.authenticate("google", { session: false, scope: ["profile"] })
+  passport.authenticate("google", { scope: ["profile"] })
 );
 
 router.get(
@@ -266,7 +255,7 @@ router.get(
 // Twitter Login Method
 router.get(
   "/auth/twitter",
-  passport.authenticate("oauth2", { session: false })
+  passport.authenticate("oauth2", { scope: ["profile"] })
 );
 
 router.get(
@@ -319,7 +308,6 @@ router.get("/auth/logout", (req, res) => {
       signed: true,
       httpOnly: true,
     })
-    .redirect("http://localhost:3000");
 });
 
 // Exporting functions for express use on server.js

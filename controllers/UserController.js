@@ -2,18 +2,30 @@ const router = require("express-promise-router")();
 const passport = require("passport");
 const auth = require("../config/middleware/isAuthenticated");
 
-// --------------------------
-// UPDATE
-// --------------------------
+// ================================
+//          READ
+// ===============================
+router.get(
+  "/api/userInfo",
+  passport.authenticate("jwt", { session: false }),
+  auth.validateCookie,
+  auth.checkJWT,
+  async (req, res) => {
+    res.json({ user: req.user });
+  }
+);
+
+// ===============================
+//          UPDATE
+// ===============================
 
 // THIS WILL ONLY BE CALLED TO COMPLETE THE SIGN UP PROCESS FOR THE NON-LOCAL PASSPORT STRATEGIES
 router.put(
-  "/user/finishing-touches",
-  passport.authenticate("jwt", { session: false }),
+  "/api/user/finishing-touches",
+  auth.validateCookie,
   auth.checkJWT,
   async (req, res) => {
     const {
-      userID,
       email,
       username,
       password,
@@ -23,6 +35,8 @@ router.put(
       PlayStationID,
       XboxID,
     } = req.body;
+
+    const userID = req.signedCookies.user.userID;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -56,6 +70,17 @@ router.put(
       await db.Gamertags.findByIdAndUpdate(user.GamerTags, { XboxID: XboxID });
     }
 
-    res.redirect("/home");
+    let fullUser = await db.User.findOne({ email: email })
+      .populate("GamerTags")
+      .populate("DiscordInfo")
+      .populate("Ratings")
+      .populate("PlayersInfo")
+      .exec();
+
+    const cleanUser = fullUser.fullyBuiltUser;
+
+    res.json({ user: cleanUser });
   }
 );
+
+module.exports = router;

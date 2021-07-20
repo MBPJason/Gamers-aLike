@@ -1,11 +1,11 @@
 import React from "react";
 import App from "./App";
-import { CookiesProvider } from "react-cookie";
+import { BrowserRouter } from "react-router-dom";
 
 export default function Root() {
   return (
-    <CookiesProvider>
+    <BrowserRouter>
       <App />
-    </CookiesProvider>
+    </BrowserRouter>
   );
 }

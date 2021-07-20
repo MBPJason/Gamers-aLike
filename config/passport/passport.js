@@ -50,19 +50,29 @@ passport.use(
   new JWTStrategy(passportJWTOptions, async (jwt_payload, done) => {
     // Checking for user via json as key
     console.log("passport checking jwt");
-    await db.User.findOne({ _id: jwt_payload.sub }, async function (err, user) {
-      // Check for errors during the process
-      if (err) {
-        return done(err);
+    let fullUser = await db.User.findOne(
+      { _id: jwt_payload.sub },
+      async function (err, user) {
+        // Check for errors during the process
+        if (err) {
+          return done(err);
+        } else if (!user) {
+          console.log("User failed passport jwt check");
+          return done(null, false);
+        }
       }
-      if (!user) {
-        console.log("User failed passport jwt check");
-        return done(null, false);
-      } else {
-        console.log("User passed passport jwt check");
-        return done(null, user);
-      }
-    });
+    )
+      .populate("GamerTags")
+      .populate("DiscordInfo")
+      .populate("Ratings")
+      .populate("PlayersInfo")
+      .exec();
+
+    if (fullUser) {
+      fullUser = fullUser.fullyBuiltUser;
+
+      return done(null, fullUser);
+    }
   })
 );
 
