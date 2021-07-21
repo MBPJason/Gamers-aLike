@@ -9,12 +9,8 @@ const makeUser = async function (caller, identifier, profile, err) {
 
   // Try/Catch block for potential server side errors
   try {
-    let userIdentifier = profile.id || identifier;
-
     // Main User Schema built with user required parameters
-    const user = await db.User.create({
-      email: profile.email,
-    });
+    const user = await db.User.create();
 
     // Building out User essential Schemas
     const Auth = await db.Auth.create({
@@ -48,9 +44,15 @@ const makeUser = async function (caller, identifier, profile, err) {
       await db.Gamertags.findByIdAndUpdate(GamerTags._id, {
         SteamID: identifier._id,
       });
+      await db.Auth.findByIdAndUpdate(Auth._id, {
+        [`Steam.identifier`]: identifier,
+      });
     } else {
       await db.User.findByIdAndUpdate(user._id, {
         email: profile.email,
+      });
+      await db.Auth.findByIdAndUpdate(Auth._id, {
+        [[caller]`profile.id`]: profile.id,
       });
     }
 

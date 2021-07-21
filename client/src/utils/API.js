@@ -1,5 +1,6 @@
 import axiosConfig from "./AxiosHeaders";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const API = {
   // ===================================================================================
@@ -25,6 +26,9 @@ const API = {
 
   // Local sign up method
   async signup(
+    setUser,
+    setJWT,
+    history,
     expire,
     type,
     email,
@@ -36,7 +40,7 @@ const API = {
     PlayStationID,
     XboxID
   ) {
-    return await axiosConfig
+    axiosConfig
       .post("/auth/signup", {
         expire,
         type,
@@ -50,11 +54,15 @@ const API = {
         XboxID,
       })
       .then((res) => {
-        let user = res.data.user;
-        return user;
+        if (res.status === 200) {
+          setUser(res.data.user);
+          setJWT(Cookies.get("__AUTH").split(":")[1]);
+          history.push("/home");
+        }
       })
       .catch((error) => {
         console.log(error);
+        history.push("login");
       });
   },
 
@@ -94,7 +102,6 @@ const API = {
           setUser(user);
           history.push("/home");
         }
-        console.log(res.config);
       });
   },
 

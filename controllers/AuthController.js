@@ -83,7 +83,7 @@ router.post("/auth/signup", async (req, res) => {
           .cookie("__AUTH", token, cookieSignOptions) //
           .cookie(
             "user",
-            { userID: user.userID, username: user.username },
+            { userID: user.userID, username: user.username, loggedIn: true },
             cookieSignOptions
           )
           .cookie("special", lockedCookieSecret, {
@@ -97,7 +97,6 @@ router.post("/auth/signup", async (req, res) => {
             user: user,
           });
         console.log("User successfully signed in and serialized");
-        console.log(user);
       }
     } else {
       res
@@ -149,7 +148,6 @@ router.post("/auth/local/login", async (req, res) => {
         console.log(`Password check failed. PW: ${password}`);
         res.status(403).send("Email and/or password did not match");
       } else {
-        console.log(match);
         /**
          * Set user variable as user.fullyBuiltUser virtual
          * Grab user auth token
@@ -208,7 +206,6 @@ router.post("/auth/local/login", async (req, res) => {
     res.status(401).send("Go login in with the proper route");
   }
 });
-
 
 // =================================================================================
 // TODO: Need 2 paths for passport OAUTH and OpenID authentication
@@ -307,7 +304,7 @@ router.get("/auth/logout", (req, res) => {
       path: "/",
       signed: true,
       httpOnly: true,
-    })
+    });
 });
 
 // Exporting functions for express use on server.js

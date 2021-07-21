@@ -57,11 +57,11 @@ module.exports = {
               // Error check
               if (err) {
                 // Error 403 response
-                console.log("Cookie didn't pass final check");
+                console.log("Cookie didn't pass final check\n");
                 return res.sendStatus(403);
               } else {
                 // Pass off into next middleware check
-                console.log("Full jwt structure is clear");
+                console.log("Full jwt structure is clear\n");
                 next();
               }
             });
@@ -141,7 +141,6 @@ module.exports = {
           { AuthProof: splitTokenSignature }
         );
 
-        console.log(signedSplitPayload);
         // Return new publicly signed token
         return signedSplitPayload;
       } else {

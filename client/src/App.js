@@ -5,9 +5,6 @@ import { useEffect, useState } from "react";
 import { Route, Switch, useHistory, withRouter } from "react-router-dom";
 import Cookies from "js-cookie";
 
-// Axios Dependencies
-import axiosConfig from "./utils/AxiosHeaders";
-
 // Context Dependencies
 import UserContext from "./MyComponents/Context/UserContext";
 
@@ -26,6 +23,7 @@ function App() {
   const [user, setUser] = useState({});
   const [jwt, setJWT] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [session, setSession] = useState({});
 
   // On website load, look for cookies
   useEffect(() => {
@@ -36,11 +34,12 @@ function App() {
     if (auth && userInfo) {
       if (signup) {
         history.push("/finishing-touch");
-      } else if (userInfo.loggedIn) {
-        setJWT(auth);
+      } else if (userInfo) {
+        console.log(userInfo);
+        setJWT(auth.split(":")[1]);
         API.getUserInfo(setUser, setJWT, setIsLoggedIn);
       } else {
-        setJWT(auth);
+        setJWT(auth.split(":")[1]);
         API.getUserInfo(setUser, setJWT, setIsLoggedIn, history);
       }
     }

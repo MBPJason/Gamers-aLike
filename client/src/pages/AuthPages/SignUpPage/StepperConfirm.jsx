@@ -36,7 +36,7 @@ export default function Step1(props) {
         <CssBaseline />
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={9}>
           <div className={classes.paper}>
-            <Typography component='h1' variant='h3'>
+            <Typography component='h2' variant='h4'>
               Confirm Your Choices
             </Typography>
             <form className={classes.form} onSubmit={modal.openModal}>
@@ -49,30 +49,34 @@ export default function Step1(props) {
                       margin='normal'
                       disabled
                       fullWidth
-                      type={state.name === "Password" ? "password" : "text"}
+                      type={
+                        state.name === "Password"
+                          ? "password"
+                          : state.name === "Password" && showPassword
+                          ? "text"
+                          : "text"
+                      }
                       id={state.name.toLowerCase().split(" ")[0]}
                       label={state.name}
                       name={state.name.toLowerCase().split(" ")[0]}
                       value={state.value}
-                      InputProps={
-                        state.name === "Password" && {
-                          endAdornment: (
-                            <InputAdornment position='end'>
-                              <IconButton
-                                aria-label='toggle password visibility'
-                                edge='end'
-                                onClick={handleShowPassword}
-                              >
-                                {showPassword ? (
-                                  <VisibilityIcon />
-                                ) : (
-                                  <VisibilityOffIcon />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }
-                      }
+                      InputProps={{
+                        endAdornment: state.name === "Password" && (
+                          <InputAdornment position='end'>
+                            <IconButton
+                              aria-label='toggle password visibility'
+                              edge='end'
+                              onClick={handleShowPassword}
+                            >
+                              {showPassword ? (
+                                <VisibilityIcon />
+                              ) : (
+                                <VisibilityOffIcon />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
                     />
                   )
               )}
@@ -98,11 +102,7 @@ export default function Step1(props) {
                   <Button onClick={modal.closeModal} color='secondary'>
                     Let me rethink this..
                   </Button>
-                  <Button
-                    onClick={step.submit}
-                    color='primary'
-                    autoFocus
-                  >
+                  <Button onClick={step.submit} color='primary' autoFocus>
                     This is fine.
                   </Button>
                 </DialogActions>
