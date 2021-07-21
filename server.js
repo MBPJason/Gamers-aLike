@@ -1,16 +1,17 @@
 require("dotenv").config();
 const express = require("express");
+const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose");
 const path = require("path");
 const passport = require("./config/passport/passport");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
 
 const PORT = process.env.PORT || 3001;
 const MongoURI = process.env.MONGODB_URI || "mongodb://localhost/gamers-alike";
-
-const app = express();
 
 // TODO: Make sure that proxy is set on client's package.json to the port
 
@@ -50,12 +51,27 @@ app.use(passport.initialize());
 app.use(require("./controllers/AuthController"));
 app.use(require("./controllers/UserController"));
 
+// Socket.IO
+io.on("connection", (socket) => {
+  const id = socket.handshake.query.id
+  socket.join(id)
+  socket.on('send-message', ({recipients, text}) => {
+    recipients.forEach(recipient => {
+      const newRecipients = recipients.filter(r => r !== recipient)
+      newRecipients.push(id)
+      socket.broadcast.to(recipient).emit('receive-message', {
+        recipients: newRecipients, sender: id, text
+      })
+    })
+  })
+});
+
 // Build path for domain launch
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
-app.listen(PORT, () => {
+http.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
 

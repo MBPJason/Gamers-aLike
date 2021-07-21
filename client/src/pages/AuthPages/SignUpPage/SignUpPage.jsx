@@ -168,7 +168,10 @@ export default function AccessPage() {
     setMethod("local");
     if (counter < 1) {
       let inFifteenMinutes = new Date(new Date().getTime() + 15 * 60 * 1000);
-      Cookies.set("signup", method, { expires: inFifteenMinutes, path: "" });
+      Cookies.set("signup", method, {
+        expires: inFifteenMinutes,
+        path: "/finishing-touches",
+      });
       setCounter(1);
     }
   };
@@ -176,7 +179,10 @@ export default function AccessPage() {
   const handleCookieNonLocal = () => {
     setMethod("non-local");
     let inFifteenMinutes = new Date(new Date().getTime() + 15 * 60 * 1000);
-    Cookies.set("signup", method, { expires: inFifteenMinutes, path: "" });
+    Cookies.set("signup", method, {
+      expires: inFifteenMinutes,
+      path: "/finishing-touches",
+    });
     setCounter(1);
   };
 
@@ -201,6 +207,7 @@ export default function AccessPage() {
         playStationID.trim(),
         xboxID.trim()
       );
+      Cookies.remove("signup", { path: "/finishing-touches" });
     } else {
       // TODO: Get update user route place and
       API.finishingTouches(
@@ -215,6 +222,7 @@ export default function AccessPage() {
         playStationID,
         xboxID
       );
+      Cookies.remove("signup", { path: "/finishing-touches" });
     }
   };
 

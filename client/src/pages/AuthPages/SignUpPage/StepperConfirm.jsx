@@ -100,10 +100,15 @@ export default function Step1(props) {
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={modal.closeModal} color='secondary'>
-                    Let me rethink this..
+                    Let me rethink this...
                   </Button>
-                  <Button onClick={step.submit} color='primary' autoFocus>
-                    This is fine.
+                  <Button
+                    onClick={step.submit}
+                    variant='contained'
+                    color='primary'
+                    autoFocus
+                  >
+                    This is fine
                   </Button>
                 </DialogActions>
               </Dialog>

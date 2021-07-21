@@ -4,9 +4,13 @@ import "./App.css";
 import { useEffect, useState } from "react";
 import { Route, Switch, useHistory, withRouter } from "react-router-dom";
 import Cookies from "js-cookie";
+import io from 'socket.io-client'
 
 // Context Dependencies
 import UserContext from "./MyComponents/Context/UserContext";
+
+// Hooks
+import useLocalStorage from "./MyComponents/Hooks/useLocalStorage";
 
 // Pages
 import Landing from "./pages/LandingPage/Landing.jsx";
@@ -17,13 +21,15 @@ import Lobby from "./pages/LobbyPage/LobbyPage";
 import Session from "./pages/SessionPage/SessionPage";
 import API from "./utils/API";
 
+
 function App() {
   // Set up states
   const history = useHistory();
   const [user, setUser] = useState({});
   const [jwt, setJWT] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [session, setSession] = useState({});
+  const [id, setId] = useLocalStorage('userID')
+  
 
   // On website load, look for cookies
   useEffect(() => {
@@ -34,13 +40,12 @@ function App() {
     if (auth && userInfo) {
       if (signup) {
         history.push("/finishing-touch");
-      } else if (userInfo) {
-        console.log(userInfo);
+      } else if (id) {
         setJWT(auth.split(":")[1]);
         API.getUserInfo(setUser, setJWT, setIsLoggedIn);
       } else {
         setJWT(auth.split(":")[1]);
-        API.getUserInfo(setUser, setJWT, setIsLoggedIn, history);
+        API.getUserInfo(setUser, setJWT, setIsLoggedIn, setId, history);
       }
     }
   }, [history]);
