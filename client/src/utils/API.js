@@ -137,20 +137,15 @@ const API = {
   //                                          END
   // =====================================================================================
 
-  getUserInfo(setUser, setJWT, setIsLoggedIn, history) {
+  getUserInfo(history, cb) {
     axiosConfig
       .get("/api/userInfo")
       .then(async (res) => {
         if (res.status !== 200) {
-          setJWT("");
           await axios.get("/auth/logout");
-          history.push("/login");
+          return history.push("/");
         } else if (res.status === 200) {
-          setIsLoggedIn(true);
-          setUser(res.data.user);
-          if (history) {
-            history.push("/home");
-          }
+          return cb(res.data.user);
         }
       })
       .catch((error) => {
