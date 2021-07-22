@@ -123,12 +123,6 @@ export default function Session() {
     e.preventDefault();
 
     // Check if message has real characters
-    if (messageInput.trim() > 0) {
-      //   utils.message.send(currentUser, messageInput);
-
-      //   Reset input
-      setMessageInput("");
-    }
   };
 
   return (

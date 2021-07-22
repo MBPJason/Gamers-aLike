@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
-import Cookies from "js-cookie";
 import {
   Avatar,
   Button,
@@ -17,9 +16,13 @@ import {
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link as Li } from "react-router-dom";
+import { v4 as uuidV4 } from "uuid";
+
+// Utils Context
 import UserContext from "../../../MyComponents/Context/UserContext";
 import API from "../../../utils/API";
 
+// Components
 import Social from "../SocialLinks";
 
 function Copyright() {
@@ -72,7 +75,7 @@ export default function AccessPage() {
   const classes = useStyles();
   const history = useHistory();
 
-  const { setJWT, setUser } = useContext(UserContext);
+  const { setUserSessionId, setUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [expire, setExpire] = useState("1d");
@@ -95,16 +98,17 @@ export default function AccessPage() {
   const handleLogin = async (e, email, password, expire) => {
     e.preventDefault();
     const type = "signin";
-    const user = await API.login(email, password, expire, type);
+    API.login(email, password, expire, type, function (done, data) {
+      if (done) {
+        setUser(data);
+        setUserSessionId(uuidV4());
+        history.push("/home");
+      } else {
+        setPassword("");
+      }
+    });
+    setEmail("");
     setPassword("");
-    console.log(user);
-    if (user) {
-      const authToken = Cookies.get("__AUTH").split(":")[1];
-      API.setUserContext(setUser, setJWT, user, authToken, history);
-      setJWT(authToken);
-    } else {
-      history.push("/login");
-    }
   };
 
   useEffect(() => {

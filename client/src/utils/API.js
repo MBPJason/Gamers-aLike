@@ -1,6 +1,5 @@
 import axiosConfig from "./AxiosHeaders";
 import axios from "axios";
-import Cookies from "js-cookie";
 
 const API = {
   // ===================================================================================
@@ -8,7 +7,7 @@ const API = {
   // ===================================================================================
 
   // Local login Method
-  async login(email, password, expire, type) {
+  async login(email, password, expire, type, cb) {
     console.log("Login called");
     return await axiosConfig
       .post("/auth/local/login", {
@@ -18,16 +17,17 @@ const API = {
         type,
       })
       .then((res) => {
-        console.log(res);
-        let user = res.data.user;
-        return user;
+        cb(true, res.data.user);
+      })
+      .catch(async (error) => {
+        console.log(error);
+        await axios.get("/auth/logout");
+        cb(false);
       });
   },
 
   // Local sign up method
   async signup(
-    setUser,
-    setJWT,
     history,
     expire,
     type,
@@ -38,7 +38,8 @@ const API = {
     SteamID,
     BattlenetID,
     PlayStationID,
-    XboxID
+    XboxID,
+    cb
   ) {
     axiosConfig
       .post("/auth/signup", {
@@ -55,14 +56,13 @@ const API = {
       })
       .then((res) => {
         if (res.status === 200) {
-          setUser(res.data.user);
-          setJWT(Cookies.get("__AUTH").split(":")[1]);
-          history.push("/home");
+          cb(res.data.user);
         }
       })
-      .catch((error) => {
+      .catch(async (error) => {
         console.log(error);
-        history.push("login");
+        await axios.get("/auth/logout");
+        history.push("/login");
       });
   },
 
@@ -95,18 +95,19 @@ const API = {
         headers: { Authorization: `Bearer ${trueToken}` },
       })
       .then((res) => {
-        if (res.status !== 200) {
-          setJWT("");
-          history.push("/login");
-        } else if (res.status === 200) {
+        if (res.status === 200) {
           setUser(user);
           history.push("/home");
         }
+      })
+      .catch(async (error) => {
+        console.log(error);
+        await axios.get("/auth/logout");
+        history.push("/login");
       });
   },
 
   finishingTouches(
-    setUser,
     history,
     email,
     username,
@@ -115,7 +116,8 @@ const API = {
     SteamID,
     BattlenetID,
     PlayStationID,
-    XboxID
+    XboxID,
+    cb
   ) {
     axios
       .put("/api/user/finishing-touches", {
@@ -129,8 +131,12 @@ const API = {
         XboxID,
       })
       .then((res) => {
-        setUser(res.data.user);
-        history.push("/home");
+        cb(res.data.user);
+      })
+      .catch(async (error) => {
+        console.log(error);
+        await axios.get("/auth/logout");
+        history.push("/login");
       });
   },
   // =====================================================================================

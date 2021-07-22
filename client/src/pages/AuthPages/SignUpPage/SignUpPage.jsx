@@ -17,9 +17,13 @@ import {
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link as Li } from "react-router-dom";
+import { v4 as uuidV4 } from "uuid";
+
+// Utils/Context
 import UserContext from "../../../MyComponents/Context/UserContext";
 import API from "../../../utils/API";
 
+// Components
 import Social from "../SocialLinks";
 import StepperForm from "./StepperForm";
 import StepperConfirm from "./StepperConfirm";
@@ -81,7 +85,7 @@ export default function AccessPage() {
   // ==============================
   // States and State Changers
   // ==============================
-  const { setJWT, setUser } = useContext(UserContext);
+  const { setUserSessionId, setUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [expire, setExpire] = useState("1d");
@@ -193,8 +197,6 @@ export default function AccessPage() {
     const type = "signup";
     if (method === "local") {
       API.signup(
-        setUser,
-        setJWT,
         history,
         expire,
         type,
@@ -205,13 +207,17 @@ export default function AccessPage() {
         steamID.trim(),
         battlenetID.trim(),
         playStationID.trim(),
-        xboxID.trim()
+        xboxID.trim(),
+        function (data) {
+          setUser(data);
+          setUserSessionId(uuidV4());
+          Cookies.remove("signup", { path: "/finishing-touches" });
+          history.push("/home");
+        }
       );
-      Cookies.remove("signup", { path: "/finishing-touches" });
     } else {
       // TODO: Get update user route place and
       API.finishingTouches(
-        setUser,
         history,
         email,
         username,
@@ -220,9 +226,14 @@ export default function AccessPage() {
         steamID,
         battlenetID,
         playStationID,
-        xboxID
+        xboxID,
+        function (data) {
+          setUser(data);
+          setUserSessionId(uuidV4());
+          Cookies.remove("signup", { path: "/finishing-touches" });
+          history.push("/home");
+        }
       );
-      Cookies.remove("signup", { path: "/finishing-touches" });
     }
   };
 
