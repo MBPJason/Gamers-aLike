@@ -32,7 +32,6 @@ function App() {
   const signup = Cookies.get("signup");
   const history = useHistory();
   const [user, setUser] = useState({});
-  // const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
 
   // On website load, look for cookies
