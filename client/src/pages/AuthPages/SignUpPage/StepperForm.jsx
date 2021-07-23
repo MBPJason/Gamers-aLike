@@ -24,6 +24,22 @@ export default function Step1(props) {
     setShowConfirm(!showConfirm);
   };
 
+  const displayHidden = (name) => {
+    if (name === "Password") {
+      if (showPassword) {
+        return "text";
+      } else {
+        return "password";
+      }
+    } else {
+      if (showConfirm) {
+        return "text";
+      } else {
+        return "password";
+      }
+    }
+  };
+
   return (
     <>
       <Grid
@@ -35,13 +51,13 @@ export default function Step1(props) {
         <CssBaseline />
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={9}>
           <div className={classes.paper}>
-            <Typography component='h1' variant='h3'>
+            <Typography component='h2' variant='h4'>
               {Title}
             </Typography>
             <form
               className={classes.form}
               onSubmit={(e) => {
-                step.next(e, step.step);
+                step.next(e);
               }}
             >
               {valueMethods.map((valueMethod) => (
@@ -59,40 +75,38 @@ export default function Step1(props) {
                   type={
                     valueMethod.name === "Confirm Password" ||
                     valueMethod.name === "Password"
-                      ? "password"
+                      ? displayHidden(valueMethod.name)
                       : "text"
                   }
-                  InputProps={
-                    (valueMethod.name === "Password" ||
-                      valueMethod.name === "Confirm Password") && {
-                      endAdornment: (
-                        <InputAdornment position='end'>
-                          <IconButton
-                            aria-label='toggle password visibility'
-                            edge='end'
-                            onClick={
-                              valueMethod.name === "Password"
-                                ? handleShowPassword
-                                : handleShowConfirm
-                            }
-                          >
-                            {valueMethod.name === "Password" &&
-                              (showPassword ? (
-                                <VisibilityIcon />
-                              ) : (
-                                <VisibilityOffIcon />
-                              ))}
-                            {valueMethod.name === "Confirm Password" &&
-                              (showConfirm ? (
-                                <VisibilityIcon />
-                              ) : (
-                                <VisibilityOffIcon />
-                              ))}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }
-                  }
+                  InputProps={{
+                    endAdornment: (valueMethod.name === "Password" ||
+                      valueMethod.name === "Confirm Password") && (
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label='toggle password visibility'
+                          edge='end'
+                          onClick={
+                            valueMethod.name === "Password"
+                              ? handleShowPassword
+                              : handleShowConfirm
+                          }
+                        >
+                          {valueMethod.name === "Password" &&
+                            (showPassword ? (
+                              <VisibilityIcon />
+                            ) : (
+                              <VisibilityOffIcon />
+                            ))}
+                          {valueMethod.name === "Confirm Password" &&
+                            (showConfirm ? (
+                              <VisibilityIcon />
+                            ) : (
+                              <VisibilityOffIcon />
+                            ))}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                   error={
                     valueMethod.name === "Confirm Password" &&
                     valueMethod.value !== valueMethods[2].value

@@ -14,9 +14,9 @@ export default function SocialLinks(props) {
         target='_blank'
         rel='noopener noreferrer'
         fullWidth
-        onClick={(e) => {
-          API.twitterPassport(e, props.type);
-          props.method("non-local");
+        onClick={() => {
+          API.twitterPassport();
+          props.cookie();
         }}
       >
         <i className={"fab fa-twitter"} /> Connect with Twitter
@@ -29,9 +29,9 @@ export default function SocialLinks(props) {
         target='_blank'
         rel='noopener noreferrer'
         fullWidth
-        onClick={(e) => {
-          API.facebookPassport(e, props.type);
-          props.method("non-local");
+        onClick={() => {
+          API.facebookPassport();
+          props.cookie();
         }}
       >
         <i className={"fab fa-facebook-square"} /> Connect with FaceBook
@@ -44,8 +44,9 @@ export default function SocialLinks(props) {
         target='_blank'
         rel='noopener noreferrer'
         fullWidth
-        onClick={(e) => {
-          API.googlePassport(e, props.type);
+        onClick={() => {
+          API.googlePassport();
+          props.cookie();
         }}
       >
         <i className={"fab fa-google"} /> Connect with Google

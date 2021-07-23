@@ -2,16 +2,23 @@ import "./App.css";
 
 // React Dependencies
 import { useEffect, useState } from "react";
-import { Route, Switch, useHistory, withRouter } from "react-router-dom";
-import Cookies from "js-cookie";
+import { Switch, useHistory, withRouter } from "react-router-dom";
 
-// Axios Dependencies
-import axiosConfig from "./utils/AxiosHeaders";
+// Session Dependencies
+import { v4 as uuidV4 } from "uuid";
 
 // Context Dependencies
+import Cookies from "js-cookie";
 import UserContext from "./MyComponents/Context/UserContext";
+import { SocketProvider } from "./MyComponents/Context/SocketContext";
 
-// Pages
+// Hooks
+import useLocalStorage from "./MyComponents/Hooks/useLocalStorage";
+
+// Pages/Route Covers
+import ProtectedRoute from "./MyComponents/ProtectedRoutes/Protected";
+import NonLoggedInRoute from "./MyComponents/ProtectedRoutes/NonLogin";
+import FinishSignUpRoute from "./MyComponents/ProtectedRoutes/NonLogin";
 import Landing from "./pages/LandingPage/Landing.jsx";
 import Login from "./pages/AuthPages/LoginPage/LoginPage";
 import SignUp from "./pages/AuthPages/SignUpPage/SignUpPage";
@@ -22,45 +29,48 @@ import API from "./utils/API";
 
 function App() {
   // Set up states
+  const signup = Cookies.get("signup");
   const history = useHistory();
   const [user, setUser] = useState({});
-  const [jwt, setJWT] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userSessionId, setUserSessionId] = useLocalStorage("userID");
 
   // On website load, look for cookies
   useEffect(() => {
-    const auth = Cookies.get("__AUTH");
-    const userInfo = Cookies.get("user");
-    const signup = Cookies.get("signup");
-    // If cookies are present, call server and validate them
-    if (auth && userInfo) {
-      if (signup) {
-        history.push("/finishing-touch");
-      } else if (userInfo.loggedIn) {
-        setJWT(auth);
-        API.getUserInfo(setUser, setJWT, setIsLoggedIn);
-      } else {
-        setJWT(auth);
-        API.getUserInfo(setUser, setJWT, setIsLoggedIn, history);
+    console.log("Getting User info");
+    API.getUserInfo(history, function (data) {
+      setUser(data);
+      if (!userSessionId) {
+        if (signup) {
+          history.push("/finishing-touch");
+        } else {
+          setUserSessionId(uuidV4());
+          history.push("/home");
+        }
       }
-    }
-  }, [history]);
+    });
+  }, []);
 
   return (
     <>
       <UserContext.Provider
-        value={{ user, setUser, jwt, setJWT, isLoggedIn, setIsLoggedIn }}
+        value={{ user, setUser, userSessionId, setUserSessionId }}
       >
-        <Switch>
-          <Route exact path='/' component={Landing} />
-          <Route exact path='/signup' component={SignUp} />
-          <Route exact path='/finishing-touch' component={SignUp} />
-          <Route exact path='/login' component={Login} />
-          <Route exact path='/home' component={Home} />
-          <Route path='/:username/profile' component={Landing} />
-          <Route path='/lobby' component={Lobby} />
-          <Route path='/session' component={Session} />
-        </Switch>
+        <SocketProvider id={userSessionId} userId={user.userID}>
+          <Switch>
+            <NonLoggedInRoute exact path='/' component={Landing} />
+            <NonLoggedInRoute exact path='/login' component={Login} />
+            <NonLoggedInRoute exact path='/signup' component={SignUp} />
+            <FinishSignUpRoute
+              exact
+              path='/finishing-touch'
+              component={SignUp}
+            />
+            <ProtectedRoute exact path='/home' component={Home} />
+            <ProtectedRoute path='/:username/profile' component={Landing} />
+            <ProtectedRoute path='/lobby' component={Lobby} />
+            <ProtectedRoute path='/session' component={Session} />
+          </Switch>
+        </SocketProvider>
       </UserContext.Provider>
     </>
   );

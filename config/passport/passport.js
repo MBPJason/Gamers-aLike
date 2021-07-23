@@ -85,14 +85,22 @@ passport.use(
 //       callbackURL: "http://www.gamersalike.com/auth/google/callback",
 //     },
 //     function (accessToken, refreshToken, profile, cb) {
-//       db.User.findOne({ Google: profile.id }, function (err, user) {
+//       db.Auth.findOne({ [`Google.profile.id`]: profile.id }, function (err, user) {
 //         if (err) {
 //           return cb(err);
 //         }
 //         if (!user) {
 //           return cb(null, makeUser("Google", null, profile, err));
 //         }
-//         return cb(null, user);
+//           let fullUser = await db.User.findOne({ _id: user.userID })
+//             .populate("GamerTags")
+//             .populate("DiscordInfo")
+//             .populate("Ratings")
+//             .populate("PlayersInfo")
+//             .exec();
+
+//           const cleanUser = fullUser.fullyBuiltUser;
+//           return cb(null, cleanUser);
 //       });
 //     }
 //   )
@@ -107,15 +115,26 @@ passport.use(
 //       callbackURL: "http://localhost:3000/auth/facebook/callback",
 //     },
 //     function (accessToken, refreshToken, profile, cb) {
-//       db.User.findOne({ Facebook: profile.id }, function (err, user) {
-//         if (err) {
-//           return cb(err);
+//       db.Auth.findOne(
+//         { [`Facebook.profile.id`]: profile.id },
+//         function (err, user) {
+//           if (err) {
+//             return cb(err);
+//           }
+//           if (!user) {
+//             return cb(null, makeUser("Facebook", null, profile, err));
+//           }
+//           let fullUser = await db.User.findOne({ _id: user.userID })
+//             .populate("GamerTags")
+//             .populate("DiscordInfo")
+//             .populate("Ratings")
+//             .populate("PlayersInfo")
+//             .exec();
+
+//           const cleanUser = fullUser.fullyBuiltUser;
+//           return cb(null, cleanUser);
 //         }
-//         if (!user) {
-//           return cb(null, makeUser("Facebook", null, profile, err));
-//         }
-//         return cb(null, user);
-//       });
+//       );
 //     }
 //   )
 // );
@@ -131,14 +150,22 @@ passport.use(
 //       callbackURL: "http://localhost:3000/auth/example/callback",
 //     },
 //     function (accessToken, refreshToken, profile, cb) {
-//       db.User.findOne({ Twitter: profile.id }, function (err, user) {
+//       db.Auth.findOne({ [`Twitter.profile.id`]: profile.id }, function (err, user) {
 //         if (err) {
 //           return cb(err);
 //         }
 //         if (!user) {
 //           return cb(null, makeUser("Twitter", null, profile, err));
 //         }
-//         return cb(null, user);
+//           let fullUser = await db.User.findOne({ _id: user.userID })
+//             .populate("GamerTags")
+//             .populate("DiscordInfo")
+//             .populate("Ratings")
+//             .populate("PlayersInfo")
+//             .exec();
+
+//           const cleanUser = fullUser.fullyBuiltUser;
+//           return cb(null, cleanUser);
 //       });
 //     }
 //   )
@@ -153,15 +180,18 @@ passport.use(
       apiKey: process.env.STEAM_API_KEY,
     },
     function (identifier, profile, done) {
-      db.User.findOne({ Steam: identifier }, function (err, user) {
-        if (err) {
-          return done(err);
+      db.Auth.findOne(
+        { [`Steam.identifier`]: identifier },
+        function (err, user) {
+          if (err) {
+            return done(err);
+          }
+          if (!user) {
+            return done(null, makeUser("Steam", identifier, null, err));
+          }
+          return done(null, user);
         }
-        if (!user) {
-          return done(null, makeUser("Steam", identifier, null, err));
-        }
-        return done(null, user);
-      });
+      );
     }
   )
 );

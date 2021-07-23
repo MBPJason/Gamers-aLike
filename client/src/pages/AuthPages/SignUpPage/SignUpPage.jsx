@@ -17,9 +17,13 @@ import {
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link as Li } from "react-router-dom";
+import { v4 as uuidV4 } from "uuid";
+
+// Utils/Context
 import UserContext from "../../../MyComponents/Context/UserContext";
 import API from "../../../utils/API";
 
+// Components
 import Social from "../SocialLinks";
 import StepperForm from "./StepperForm";
 import StepperConfirm from "./StepperConfirm";
@@ -81,7 +85,7 @@ export default function AccessPage() {
   // ==============================
   // States and State Changers
   // ==============================
-  const { setJWT, setUser } = useContext(UserContext);
+  const { setUserSessionId, setUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [expire, setExpire] = useState("1d");
@@ -162,14 +166,28 @@ export default function AccessPage() {
     setXboxID(value);
   };
 
-  const handleCounter = (e, method, counter) => {
+  // Method Set Up
+  const handleCookieLocal = (e) => {
     e.preventDefault();
     setMethod("local");
     if (counter < 1) {
       let inFifteenMinutes = new Date(new Date().getTime() + 15 * 60 * 1000);
-      Cookies.set("signup", method, { expires: inFifteenMinutes, path: "" });
+      Cookies.set("signup", method, {
+        expires: inFifteenMinutes,
+        path: "/finishing-touches",
+      });
       setCounter(1);
     }
+  };
+
+  const handleCookieNonLocal = () => {
+    setMethod("non-local");
+    let inFifteenMinutes = new Date(new Date().getTime() + 15 * 60 * 1000);
+    Cookies.set("signup", method, {
+      expires: inFifteenMinutes,
+      path: "/finishing-touches",
+    });
+    setCounter(1);
   };
 
   // ==================================
@@ -178,7 +196,8 @@ export default function AccessPage() {
   const handleSignUp = async () => {
     const type = "signup";
     if (method === "local") {
-      let user = await API.signup(
+      API.signup(
+        history,
         expire,
         type,
         email.trim(),
@@ -188,15 +207,17 @@ export default function AccessPage() {
         steamID.trim(),
         battlenetID.trim(),
         playStationID.trim(),
-        xboxID.trim()
+        xboxID.trim(),
+        function (data) {
+          setUser(data);
+          setUserSessionId(uuidV4());
+          Cookies.remove("signup", { path: "/finishing-touches" });
+          history.push("/home");
+        }
       );
-      let authToken = Cookies.get("__AUTH").split(":")[1];
-      Cookies.remove("signup", method, { path: "" });
-      API.setUserContext(setUser, setJWT, user, authToken, history);
     } else {
       // TODO: Get update user route place and
       API.finishingTouches(
-        setUser,
         history,
         email,
         username,
@@ -205,7 +226,13 @@ export default function AccessPage() {
         steamID,
         battlenetID,
         playStationID,
-        xboxID
+        xboxID,
+        function (data) {
+          setUser(data);
+          setUserSessionId(uuidV4());
+          Cookies.remove("signup", { path: "/finishing-touches" });
+          history.push("/home");
+        }
       );
     }
   };
@@ -213,13 +240,13 @@ export default function AccessPage() {
   // ============================
   //        Stepper Changer
   // ============================
-  const nextStep = (e, step) => {
+  const nextStep = (e) => {
     e.preventDefault();
     step >= 3 ? setStep(3) : setStep(step + 1);
   };
 
-  const backStep = (step) => {
-    step === 1 ? setStep(1) : setStep(step - 1);
+  const backStep = () => {
+    step <= 1 ? setStep(1) : setStep(step - 1);
   };
 
   // ============================
@@ -236,17 +263,18 @@ export default function AccessPage() {
     setXboxID("");
   }, []);
 
-  // useEffect(() => {
-  //   if (!cookies.signup) {
-  //     setMethod("");
-  //     setStep(0);
-  //   } else {
-  //     setStep(1);
-  //     cookies.signup.value === "local"
-  //       ? setMethod("local")
-  //       : setMethod("non-local");
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (!Cookies.get("signup")) {
+      setMethod("");
+      setStep(0);
+    } else {
+      setStep(1);
+      setCounter(1);
+      Cookies.get("signup") === "local"
+        ? setMethod("local")
+        : setMethod("non-local");
+    }
+  }, []);
 
   // ======================================
   //     Prop Values/Methods Variables
@@ -307,6 +335,7 @@ export default function AccessPage() {
             classes={classes}
             valueMethods={userDefaults}
             step={stepValues}
+            Title={"Confirm your login info"}
             Stepper={<Stepper info={stepValues} />}
           />
         </>
@@ -318,6 +347,7 @@ export default function AccessPage() {
             classes={classes}
             valueMethods={gamerIDs}
             step={stepValues}
+            Title={"Share your Gamer Info"}
             Stepper={<Stepper info={stepValues} />}
           />
         </>
@@ -358,11 +388,11 @@ export default function AccessPage() {
               <form
                 className={classes.form}
                 onSubmit={(e) => {
-                  nextStep(e, step);
-                  handleCounter(e, method, counter);
+                  nextStep(e);
+                  handleCookieLocal(e);
                 }}
               >
-                <Social type='signup' method={setMethod} />
+                <Social type='signup' cookie={handleCookieNonLocal} />
                 <TextField
                   variant='outlined'
                   margin='normal'
