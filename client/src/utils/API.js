@@ -7,9 +7,9 @@ const API = {
   // ===================================================================================
 
   // Local login Method
-  async login(email, password, expire, type, cb) {
+  login(email, password, expire, type, cb) {
     console.log("Login called");
-    return await axiosConfig
+    axiosConfig
       .post("/auth/local/login", {
         email,
         password,
@@ -56,6 +56,7 @@ const API = {
       })
       .then((res) => {
         if (res.status === 200) {
+          console.log(res.data.user);
           cb(res.data.user);
         }
       })

@@ -30,24 +30,29 @@ import API from "./utils/API";
 function App() {
   // Set up states
   const signup = Cookies.get("signup");
+  const auth = Cookies.get("__AUTH");
   const history = useHistory();
   const [user, setUser] = useState({});
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
 
   // On website load, look for cookies
   useEffect(() => {
-    console.log("Getting User info");
-    API.getUserInfo(history, function (data) {
-      setUser(data);
-      if (!userSessionId) {
-        if (signup) {
-          history.push("/finishing-touch");
-        } else {
-          setUserSessionId(uuidV4());
-          history.push("/home");
+    if (!auth) {
+      return;
+    } else {
+      console.log("Getting User info");
+      API.getUserInfo(history, function (data) {
+        setUser(data);
+        if (!userSessionId) {
+          if (signup) {
+            history.push("/finishing-touch");
+          } else {
+            setUserSessionId(uuidV4());
+            history.push("/home");
+          }
         }
-      }
-    });
+      });
+    }
   }, []);
 
   return (

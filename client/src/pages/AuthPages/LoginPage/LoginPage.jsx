@@ -104,11 +104,10 @@ export default function AccessPage() {
         setUserSessionId(uuidV4());
         history.push("/home");
       } else {
+        setEmail("");
         setPassword("");
       }
     });
-    setEmail("");
-    setPassword("");
   };
 
   useEffect(() => {
