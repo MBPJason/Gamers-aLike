@@ -55,7 +55,43 @@ app.use(require("./controllers/UserController"));
 io.on("connection", (socket) => {
   const id = socket.handshake.query.id;
   const userId = socket.handshake.query.userId
-  socket.join(id);
+  const online = "344ea2e4-833e-464b-8b19-a0feeb06f749"
+  let listRooms = []
+  const filterUsers = (room) => {
+    room.filter(user => user)
+  }
+  
+  // When user hops on to the website. Should probably have a delay ping on client side for website rendering
+  socket.on('online' , ({cGame, LP}) => {
+
+    if (!cGame && !LP) {
+      listRooms.push(online)
+      socket.join(online)
+
+    } else if (!cGame) {
+      listRooms.push(online, LP)
+      socket.join(listRooms)
+    } else {
+      listRooms.push(online, cGame)
+      socket.join(listRooms)
+    }
+
+    io.to(online).emit('roomUsers', {
+      onlineUsers: io.sockets.adapter.rooms.get(listRooms[0])
+    })
+
+    if(listRooms[1]) {
+      io.to(listRooms[1]).emit('roomUsers', {
+        gameUsers: io.sockets.adapter.rooms.get(listRooms[1])
+      })
+    }
+  })
+
+  socket.on('addLobby', ({game, limit}) => {
+    socket.jo
+  })
+  
+  
   // console.log(`User is connected. Their session token is ${id} and their userId is ${userId} `)
   socket.on("send-message", ({ recipients, text }) => {
     recipients.forEach((recipient) => {
@@ -75,6 +111,7 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
+// Socket.io and Express Routes listening PORT
 http.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
