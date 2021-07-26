@@ -148,15 +148,14 @@ const API = {
     axiosConfig
       .get("/api/userInfo")
       .then(async (res) => {
-        if (res.status !== 200) {
-          await axios.get("/auth/logout");
-          return history.push("/");
-        } else if (res.status === 200) {
+        if (res.status === 200) {
           return cb(res.data.user);
         }
       })
-      .catch((error) => {
+      .catch(async (error) => {
         console.log(error);
+        await axios.get("/auth/logout");
+        return history.push("/");
       });
   },
 

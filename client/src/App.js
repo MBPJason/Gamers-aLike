@@ -6,11 +6,11 @@ import { Switch, useHistory, withRouter } from "react-router-dom";
 
 // Session Dependencies
 import { v4 as uuidV4 } from "uuid";
+import { io } from "socket.io-client";
 
 // Context Dependencies
 import Cookies from "js-cookie";
 import UserContext from "./MyComponents/Context/UserContext";
-import { SocketProvider } from "./MyComponents/Context/SocketContext";
 
 // Hooks
 import useLocalStorage from "./MyComponents/Hooks/useLocalStorage";
@@ -28,12 +28,13 @@ import Session from "./pages/SessionPage/SessionPage";
 import API from "./utils/API";
 
 function App() {
-  // Set up states
+  // Set up states and constants
   const signup = Cookies.get("signup");
   const auth = Cookies.get("__AUTH");
   const history = useHistory();
   const [user, setUser] = useState({});
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
+  const socket = io();
 
   // On website load, look for cookies
   useEffect(() => {
@@ -44,40 +45,46 @@ function App() {
       API.getUserInfo(history, function (data) {
         setUser(data);
         if (userSessionId === undefined) {
+          console.log("Making new uuid and setting socket...");
           setUserSessionId(uuidV4());
         } else if (!userSessionId) {
           if (signup) {
             history.push("/finishing-touch");
           } else {
+            console.log("Making new uuid and setting socket...");
             setUserSessionId(uuidV4());
-            history.push("/home");
           }
         }
       });
     }
   }, []);
 
+  useEffect(() => {
+    if (socket) {
+      socket.emit("online", { id: userSessionId });
+    } else return;
+  }, []);
+
   return (
     <>
       <UserContext.Provider
-        value={{ user, setUser, userSessionId, setUserSessionId }}
+        value={{
+          user,
+          setUser,
+          userSessionId,
+          setUserSessionId,
+        }}
       >
-        <SocketProvider id={userSessionId} userId={user.userID}>
-          <Switch>
-            <NonLoggedInRoute exact path='/' component={Landing} />
-            <NonLoggedInRoute exact path='/login' component={Login} />
-            <NonLoggedInRoute exact path='/signup' component={SignUp} />
-            <FinishSignUpRoute
-              exact
-              path='/finishing-touch'
-              component={SignUp}
-            />
-            <ProtectedRoute exact path='/home' component={Home} />
-            <ProtectedRoute path='/:username/profile' component={Landing} />
-            <ProtectedRoute path='/lobby' component={Lobby} />
-            <ProtectedRoute path='/session' component={Session} />
-          </Switch>
-        </SocketProvider>
+        <Switch>
+          <NonLoggedInRoute exact path='/' component={Landing} />
+          <NonLoggedInRoute exact path='/login' component={Login} />
+          <NonLoggedInRoute exact path='/signup' component={SignUp} />
+          <FinishSignUpRoute exact path='/finishing-touch' component={SignUp} />
+          <ProtectedRoute exact path='/home' component={Home} />
+          <ProtectedRoute path='/:username/profile' component={Landing} />
+          <ProtectedRoute path='/lobby' component={Lobby} />
+          <ProtectedRoute path='/session' component={Session} />
+        </Switch>
       </UserContext.Provider>
     </>
   );

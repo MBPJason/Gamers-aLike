@@ -5,6 +5,7 @@ const UserContext = React.createContext({
   setUser: Function,
   userSessionId: String,
   setUserSessionId: Function,
+  socket: Object,
 });
 
 export default UserContext;
