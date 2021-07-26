@@ -62,48 +62,48 @@ io.on("connection", (socket) => {
   }
   
   // When user hops on to the website. Should probably have a delay ping on client side for website rendering
-  socket.on('online' , ({cGame, LP}) => {
+  // socket.on('online' , ({cGame, LP}) => {
 
-    if (!cGame && !LP) {
-      listRooms.push(online)
-      socket.join(online)
+  //   if (!cGame && !LP) {
+  //     listRooms.push(online)
+  //     socket.join(online)
 
-    } else if (!cGame) {
-      listRooms.push(online, LP)
-      socket.join(listRooms)
-    } else {
-      listRooms.push(online, cGame)
-      socket.join(listRooms)
-    }
+  //   } else if (!cGame) {
+  //     listRooms.push(online, LP)
+  //     socket.join(listRooms)
+  //   } else {
+  //     listRooms.push(online, cGame)
+  //     socket.join(listRooms)
+  //   }
 
-    io.to(online).emit('roomUsers', {
-      onlineUsers: io.sockets.adapter.rooms.get(listRooms[0])
-    })
+  //   io.to(online).emit('roomUsers', {
+  //     onlineUsers: io.sockets.adapter.rooms.get(listRooms[0])
+  //   })
 
-    if(listRooms[1]) {
-      io.to(listRooms[1]).emit('roomUsers', {
-        gameUsers: io.sockets.adapter.rooms.get(listRooms[1])
-      })
-    }
-  })
+  //   if(listRooms[1]) {
+  //     io.to(listRooms[1]).emit('roomUsers', {
+  //       gameUsers: io.sockets.adapter.rooms.get(listRooms[1])
+  //     })
+  //   }
+  // })
 
-  socket.on('addLobby', ({game, limit}) => {
-    socket.jo
-  })
+  // socket.on('addLobby', ({game, limit}) => {
+  //   socket.jo
+  // })
   
   
   // console.log(`User is connected. Their session token is ${id} and their userId is ${userId} `)
-  socket.on("send-message", ({ recipients, text }) => {
-    recipients.forEach((recipient) => {
-      const newRecipients = recipients.filter((r) => r !== recipient);
-      newRecipients.push(userId);
-      socket.broadcast.to(recipient).emit("receive-message", {
-        recipients: newRecipients,
-        sender: userId,
-        text,
-      });
-    });
-  });
+  // socket.on("send-message", ({ recipients, text }) => {
+  //   recipients.forEach((recipient) => {
+  //     const newRecipients = recipients.filter((r) => r !== recipient);
+  //     newRecipients.push(userId);
+  //     socket.broadcast.to(recipient).emit("receive-message", {
+  //       recipients: newRecipients,
+  //       sender: userId,
+  //       text,
+  //     });
+  //   });
+  // });
 });
 
 // Build path for domain launch

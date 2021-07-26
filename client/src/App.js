@@ -43,7 +43,9 @@ function App() {
       console.log("Getting User info");
       API.getUserInfo(history, function (data) {
         setUser(data);
-        if (!userSessionId) {
+        if (userSessionId === undefined) {
+          setUserSessionId(uuidV4());
+        } else if (!userSessionId) {
           if (signup) {
             history.push("/finishing-touch");
           } else {
