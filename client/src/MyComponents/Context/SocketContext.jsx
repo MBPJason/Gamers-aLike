@@ -12,10 +12,18 @@ export function SocketProvider({ id, userId, cGame, LP, children }) {
   const [socket, setSocket] = useState();
 
   useEffect(() => {
-    const newSocket = io(ENDPOINT, { query: { id, userId } });
-    setSocket(newSocket);
+    if (userId !== undefined) {
+      // const newSocket = io(ENDPOINT, { query: { id, userId } });
+      // setSocket(newSocket);
 
-    socket.emit("online", {cGame, LP});
+      // setTimeout(() => {
+      //   newSocket.on("online", ({ cGame, LP }) => {
+      //     console.log({})
+      //   });
+      // }, 3000);
+    } else {
+      return;
+    }
   }, [id, userId, socket, cGame]);
 
   /** USER
