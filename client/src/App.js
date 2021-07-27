@@ -34,7 +34,8 @@ function App() {
   const history = useHistory();
   const [user, setUser] = useState({});
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
-  const socket = io();
+  let socket = io();
+  
 
   // On website load, look for cookies
   useEffect(() => {
@@ -60,10 +61,14 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (socket) {
+    if (socket && auth) {
       socket.emit("online", { id: userSessionId });
+      // socket.disconnect()
+      socket.on("usersOnline", (clients) => {
+        console.log(clients);
+      });
     } else return;
-  }, []);
+  }, [auth]);
 
   return (
     <>
