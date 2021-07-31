@@ -35,7 +35,6 @@ function App() {
   const [user, setUser] = useState({});
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
   let socket = io();
-  
 
   // On website load, look for cookies
   useEffect(() => {
@@ -68,6 +67,8 @@ function App() {
         console.log(clients);
       });
     } else return;
+
+    return () => socket.disconnect();
   }, [auth]);
 
   return (
