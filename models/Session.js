@@ -32,7 +32,6 @@ const SessionSchema = new Schema({
     type: Boolean,
     default: true
   },
-  InviteOnly: false,
   Filters: [
       {Mature: false},
       {Experience: [

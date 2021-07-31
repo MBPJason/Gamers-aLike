@@ -7,6 +7,7 @@ const path = require("path");
 const passport = require("./config/passport/passport");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
+const { v4: uuidv4 } = require("uuid");
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
   cors: {
@@ -17,8 +18,10 @@ const io = require("socket.io")(server, {
   },
   allowEIO3: true,
 });
-const online = process.env.ONLINE_ROOM;
 
+const { addLobby, changeHost } = require("./config/utils/util");
+
+const online = process.env.ONLINE_ROOM;
 const PORT = process.env.PORT || 3001;
 const MongoURI = process.env.MONGODB_URI || "mongodb://localhost/gamers-alike";
 
@@ -59,29 +62,6 @@ app.use(passport.initialize());
 // Routes
 app.use(require("./controllers/AuthController"));
 app.use(require("./controllers/UserController"));
-let count = 0;
-// Socket.IO
-io.on("connection", (socket) => {
-  count++;
-  console.log(count);
-
-  /** Socket Knowledge
-   * "ON": Meant to listen for that event that is called and do something. Generally the catcher
-   * "EMIT": Meant to send data to an "ON" event listener. Generally the "thrower"
-   */
-
-  socket.on("online", ({ id }) => {
-    console.log(`I see you user: ${id}`);
-    socket.join(online);
-    let clientsInRoom
-    if (io.sockets.adapter.rooms.has(online))
-      clientsInRoom = io.sockets.adapter.rooms.get(online).size
-    console.log(io.sockets.adapter.rooms.get(online).sockets);
-    io.to(online).emit("usersOnline", {
-      clients: clientsInRoom || "none",
-    });
-  });
-});
 
 // Build path for domain launch
 app.get("*", (req, res) => {
@@ -93,6 +73,91 @@ app.get("/config", (req, res) => {
   res.json({
     success: true,
   });
+});
+
+// Socket.IO variables
+let count = 0;
+let users = [];
+let sessionRoom
+let userDBId
+let userRoom
+
+// Socket.IO Event listeners
+io.on("connection", (socket) => {
+  count++;
+  console.log(count);
+
+  /** Socket Knowledge
+   * "ON": An event listener that is called too do something. Generally the catcher
+   * "EMIT": Meant to send data to an "ON" event listener of the same name. Generally the "thrower"
+   */
+
+  socket.on("online", ({ id, dbId }) => {
+    console.log(`I see you user: ${id}`);
+    userRoom = id
+    userDBId = dbId
+    socket.join([online, userRoom])
+
+    if (io.sockets.adapter.rooms.has(online)) {
+      const clientsInRoom = io.sockets.adapter.rooms.get(online);
+      console.log(io.sockets.adapter.rooms.get(online));
+      io.to(online).emit("usersOnline", {
+        clients: clientsInRoom || "none",
+      });
+    }
+  });
+
+  socket.on("getLobbies", (game) => {
+   const lobbies = io.sockets.adapter.rooms.get(game + " Lobbies")
+    io.to(id).emit("Lobbies", lobbies)
+  })
+
+  socket.on("makeLobby", ({ host, game, limit, public, headline }) => {
+    addLobby(host, game, limit, public, headline, (bool, data) => {
+      if (bool) {
+        const gameLobbies = game + " Lobbies";
+        const session = uuidv4();
+        socket.join([session, gameLobbies]);
+        io.to(session).emit("sessionRules", {
+          sessionId: session,
+          rules: data,
+        });
+        io.to(gameLobbies).emit("gameLobbies", {
+          lobbies: io.sockets.adapter.rooms.get(gameLobbies),
+        });
+      } else {
+        socket.emit("error", {
+          message: "Couldn't make session lobby",
+        });
+      }
+    });
+  });
+
+  socket.on("changeHost", (game) => {
+    socket.leave(game);
+  });
+
+  socket.on("newHost", ({ host, preHost, session, game }) => {
+    changeHost(session, host, (bool) => {
+      if (bool) {
+        const gameLobbies = game + " Lobbies";
+        socket.join(gameLobbies);
+        socket.to(preHost).emit("changeHost", gameLobbies);
+      } else {
+        socket.emit("error", {
+          message: "Couldn't change hosts",
+        });
+      }
+    });
+  });
+
+
+
+
+
+
+
+  socket.on('dis')
 });
 
 // Socket.io and Express Routes listening PORT
