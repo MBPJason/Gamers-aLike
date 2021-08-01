@@ -61,27 +61,26 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (auth && user) {
-      setTimeout(() => {
-        socket.emit("online", {
-          id: userSessionId,
-          user: {
-            username: user.username,
-            ratings: user.userRatings,
-            currentGame: user.currentGame,
-          },
-          dbId: user.userID,
-          status: true,
-        });
-        socket.on("usersOnline", (clients) => {
-          console.log(clients);
-        });
-      }, 4000);
+    if (socket && user) {
+      console.log("Sending online call...");
+      socket.emit("online", {
+        id: userSessionId,
+        user: {
+          username: user.username,
+          ratings: user.userRatings,
+          currentGame: user.currentGame,
+        },
+        dbId: user.userID,
+        status: true,
+      });
+      socket.on("usersOnline", (clients) => {
+        console.log(clients);
+      });
     }
     // Clean UP Effect
-    return () => socket.disconnect();
+    // return () => socket.disconnect();
     //
-  }, [auth]);
+  }, [user]);
 
   return (
     <>
