@@ -6,4 +6,5 @@ module.exports = {
   Discord: require("./Discord"),
   Session: require("./Session"),
   Auth: require("./Authentication"),
+  Online: require("./OnlineStatus")
 };
