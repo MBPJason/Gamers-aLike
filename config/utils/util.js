@@ -1,10 +1,22 @@
-const db = require("../../models/index");
+const db = require("../../models");
 
-const hopOnline = (sessionID, userID, socketID, user, status, cb) => {
-  db.Online.findOneAndUpdate(
+const hopOnline = async (sessionID, userID, socketID, user, status, cb) => {
+  console.log("hopOnline function was called");
+  console.log({ sessionID, userID, socketID, user, status });
+  await db.Online.findOneAndUpdate(
     { userID: userID },
-    { socketID: socketID, sessionID: sessionID, user: user, status: status },
-    (err, online) => {
+    {
+      $set: {
+        socketID: socketID,
+        sessionID: sessionID,
+        user: user,
+        status: status,
+      },
+    },
+    function (err, online) {
+      console.log("Online Schema was looked through");
+      console.log(err);
+      console.log(online);
       if (err) {
         db.Online.create({
           socketID: socketID,
@@ -13,10 +25,18 @@ const hopOnline = (sessionID, userID, socketID, user, status, cb) => {
           user: user,
           status: status,
         }).then((online) => {
-          cb(online.sessionInfo);
+          console.log("Made onlineSchema for user");
+          console.log(online);
+
+          sessionInfo = online.sessionInfo;
+          cb(sessionInfo);
         });
-      } else {
-        cb(online.sessionInfo);
+      } else if (online) {
+        console.log("Found user's onlineSchema");
+        console.log(online);
+
+        sessionInfo = online.sessionInfo;
+        cb(sessionInfo);
       }
     }
   );

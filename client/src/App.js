@@ -32,7 +32,7 @@ function App() {
   const signup = Cookies.get("signup");
   const auth = Cookies.get("__AUTH");
   const history = useHistory();
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState();
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
   let socket = io();
 
@@ -61,15 +61,26 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (socket && auth) {
-      socket.emit("online", { id: userSessionId, dbId: user.userID });
+    if (socket && user) {
+      console.log("Sending online call...");
+      socket.emit("online", {
+        id: userSessionId,
+        user: {
+          username: user.username,
+          ratings: user.userRatings,
+          currentGame: user.currentGame,
+        },
+        dbId: user.userID,
+        status: true,
+      });
       socket.on("usersOnline", (clients) => {
         console.log(clients);
       });
-    } else return;
-
-    return () => socket.disconnect();
-  }, [auth]);
+    }
+    // Clean UP Effect
+    // return () => socket.disconnect();
+    //
+  }, [user]);
 
   return (
     <>
