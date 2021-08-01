@@ -75,13 +75,16 @@ app.get("/config", (req, res) => {
   });
 });
 
-let count
+// Socket.IO variables
+let count = 0;
+let sessionUser;
+let userRoom;
+let gameRoom;
+let sessionRoom;
 // Socket.IO Event listeners
 io.on("connection", (socket) => {
   count++;
   console.log(count);
-
-  let sessionUser
 
   /** Socket Knowledge
    * "ON": An event listener that is called too do something. Generally the catcher
@@ -89,10 +92,14 @@ io.on("connection", (socket) => {
    */
 
   socket.on("online", ({ id, dbId, user, status }) => {
+    console.log("User registering online");
     hopOnline(id, dbId, socket.id, user, status, (data) => {
-      sessionUser = data
-    })
+      sessionUser = data;
+      userRoom = id;
+    });
     socket.join([online, userRoom]);
+    const clients = io.sockets.adapter.rooms.get(online);
+    io.to(userRoom).emit("usersOnline", clients)
   });
 
   socket.on("getLobbies", (game) => {
@@ -141,7 +148,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    socket.leave([online, se]);
+    //  function for turning sessionID, socketID, and status to null
   });
 });
 

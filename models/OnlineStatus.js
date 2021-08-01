@@ -1,13 +1,16 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const OnlineSchema = new Schema({
-  socketID: { type: String, trim: true, required: true },
-  sessionID: { type: String, trim: true, required: true },
-  userID: { type: String, trim: true, required: true },
-  user: Object,
-  status: { type: Boolean, required: true },
-});
+const OnlineSchema = new Schema(
+  {
+    socketID: String,
+    sessionID: String,
+    userID: String,
+    user: Object,
+    status: Boolean,
+  },
+  { toJSON: { virtuals: true }, toObject: { virtuals: true } }
+);
 
 OnlineSchema.virtual("sessionInfo").get(function () {
   return {
