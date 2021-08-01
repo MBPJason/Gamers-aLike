@@ -42,6 +42,7 @@ function App() {
       return;
     } else {
       console.log("Getting User info");
+      // Check cookies for validation
       API.getUserInfo(history, function (data) {
         setUser(data);
         if (userSessionId === undefined) {
@@ -61,8 +62,7 @@ function App() {
 
   useEffect(() => {
     if (socket && auth) {
-      socket.emit("online", { id: userSessionId });
-      // socket.disconnect()
+      socket.emit("online", { id: userSessionId, dbId: user.userID });
       socket.on("usersOnline", (clients) => {
         console.log(clients);
       });

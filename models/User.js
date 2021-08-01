@@ -8,7 +8,6 @@ const UserSchema = new Schema(
       type: String,
       trim: true,
       required: true,
-      emailAuthenticated: false,
     },
     username: {
       type: String,

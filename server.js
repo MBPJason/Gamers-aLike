@@ -19,7 +19,7 @@ const io = require("socket.io")(server, {
   allowEIO3: true,
 });
 
-const { addLobby, changeHost } = require("./config/utils/util");
+const { hopOnline, addLobby, changeHost } = require("./config/utils/util");
 
 const online = process.env.ONLINE_ROOM;
 const PORT = process.env.PORT || 3001;
@@ -75,51 +75,40 @@ app.get("/config", (req, res) => {
   });
 });
 
-// Socket.IO variables
-let count = 0;
-let users = [];
-let sessionRoom
-let userDBId
-let userRoom
-
+let count
 // Socket.IO Event listeners
 io.on("connection", (socket) => {
   count++;
   console.log(count);
+
+  let sessionUser
 
   /** Socket Knowledge
    * "ON": An event listener that is called too do something. Generally the catcher
    * "EMIT": Meant to send data to an "ON" event listener of the same name. Generally the "thrower"
    */
 
-  socket.on("online", ({ id, dbId }) => {
-    console.log(`I see you user: ${id}`);
-    userRoom = id
-    userDBId = dbId
-    socket.join([online, userRoom])
-
-    if (io.sockets.adapter.rooms.has(online)) {
-      const clientsInRoom = io.sockets.adapter.rooms.get(online);
-      console.log(io.sockets.adapter.rooms.get(online));
-      io.to(online).emit("usersOnline", {
-        clients: clientsInRoom || "none",
-      });
-    }
+  socket.on("online", ({ id, dbId, user, status }) => {
+    hopOnline(id, dbId, socket.id, user, status, (data) => {
+      sessionUser = data
+    })
+    socket.join([online, userRoom]);
   });
 
   socket.on("getLobbies", (game) => {
-   const lobbies = io.sockets.adapter.rooms.get(game + " Lobbies")
-    io.to(id).emit("Lobbies", lobbies)
-  })
+    const lobbies = io.sockets.adapter.rooms.get(game + " Lobbies");
+    io.to(id).emit("Lobbies", lobbies);
+  });
 
   socket.on("makeLobby", ({ host, game, limit, public, headline }) => {
     addLobby(host, game, limit, public, headline, (bool, data) => {
       if (bool) {
         const gameLobbies = game + " Lobbies";
         const session = uuidv4();
+        sessionRoom = session;
         socket.join([session, gameLobbies]);
-        io.to(session).emit("sessionRules", {
-          sessionId: session,
+        io.to(sessionRoom).emit("sessionRules", {
+          sessionId: sessionRoom,
           rules: data,
         });
         io.to(gameLobbies).emit("gameLobbies", {
@@ -151,13 +140,9 @@ io.on("connection", (socket) => {
     });
   });
 
-
-
-
-
-
-
-  socket.on('dis')
+  socket.on("disconnect", () => {
+    socket.leave([online, se]);
+  });
 });
 
 // Socket.io and Express Routes listening PORT
