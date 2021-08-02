@@ -34,7 +34,7 @@ function App() {
   const history = useHistory();
   const [user, setUser] = useState();
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
-  let socket = io();
+  let socket = io("http://localhost:3000", { withCredentials: true });
 
   // On website load, look for cookies
   useEffect(() => {
