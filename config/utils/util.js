@@ -1,45 +1,19 @@
 const db = require("../../models");
 
-const hopOnline = async (sessionID, userID, socketID, user, status, cb) => {
+const hopOnline = async (sessionID, userID, user, status, cb) => {
   console.log("hopOnline function was called");
-  console.log({ sessionID, userID, socketID, user, status });
-  await db.Online.findOneAndUpdate(
+  console.log({ sessionID, userID, user, status });
+  const online = await db.Online.findOneAndUpdate(
     { userID: userID },
     {
-      $set: {
-        socketID: socketID,
-        sessionID: sessionID,
-        user: user,
-        status: status,
-      },
-    },
-    function (err, online) {
-      console.log("Online Schema was looked through");
-      console.log(err);
-      console.log(online);
-      if (err) {
-        db.Online.create({
-          socketID: socketID,
-          sessionID: sessionID,
-          userID: userID,
-          user: user,
-          status: status,
-        }).then((online) => {
-          console.log("Made onlineSchema for user");
-          console.log(online);
-
-          sessionInfo = online.sessionInfo;
-          cb(sessionInfo);
-        });
-      } else if (online) {
-        console.log("Found user's onlineSchema");
-        console.log(online);
-
-        sessionInfo = online.sessionInfo;
-        cb(sessionInfo);
-      }
+      sessionID: sessionID,
+      user: user,
+      status: status,
     }
   );
+
+  const sessionData = online.sessionInfo;
+  cb(sessionData);
 };
 
 const addLobby = (host, game, limit, public, headline, cb) => {

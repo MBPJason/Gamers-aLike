@@ -3,7 +3,6 @@ const Schema = mongoose.Schema;
 
 const OnlineSchema = new Schema(
   {
-    socketID: String,
     sessionID: String,
     userID: String,
     user: Object,
@@ -16,6 +15,7 @@ OnlineSchema.virtual("sessionInfo").get(function () {
   return {
     sessionID: this.sessionID,
     user: this.user,
+    status: this.status,
   };
 });
 

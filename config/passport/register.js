@@ -29,6 +29,7 @@ const makeUser = async function (caller, identifier, profile, err) {
     const GamerTags = await db.Gamertags.create({
       userID: user._id,
     });
+    await db.Online.create({ userID: user._id });
 
     // Updating/Tying it to new User created Schema
     await db.User.findByIdAndUpdate(user._id, {
@@ -110,6 +111,7 @@ const localMakeUser = async function (
     const GamerTags = await db.Gamertags.create({
       userID: user._id,
     });
+    await db.Online.create({ userID: user._id });
     console.log("Made local user required schemas");
 
     // Updating/Tying it to new User created Schema

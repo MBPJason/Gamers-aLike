@@ -14,10 +14,8 @@ const io = require("socket.io")(server, {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"],
     transports: ["websocket", "polling"],
-    upgrade: false,
     credentials: true,
   },
-  allowEIO3: true,
 });
 
 const { hopOnline, addLobby, changeHost } = require("./config/utils/util");
@@ -86,7 +84,7 @@ let sessionRoom;
 io.on("connection", (socket) => {
   count++;
   console.log(count);
-  console.log(socket.id)
+  console.log(socket.id);
 
   /** Socket Knowledge
    * "ON": An event listener that is called too do something. Generally the catcher
@@ -95,9 +93,12 @@ io.on("connection", (socket) => {
 
   socket.on("online", ({ id, dbId, user, status }) => {
     console.log("User registering online");
-    hopOnline(id, dbId, socket.id, user, status, (data) => {
+    hopOnline(id, dbId, user, status, (data) => {
+      console.log("it went right");
       sessionUser = data;
       userRoom = id;
+      socket.username = data.username;
+      console.log(socket.username);
     });
     socket.join([online, userRoom]);
     const clients = io.sockets.adapter.rooms.get(online);
@@ -150,7 +151,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log(socket.id)
+    console.log(socket.id);
     console.log("socket disconnected");
     //  function for turning sessionID, socketID, and status to null
   });
