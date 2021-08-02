@@ -11,6 +11,7 @@ import { io } from "socket.io-client";
 // Context Dependencies
 import Cookies from "js-cookie";
 import UserContext from "./MyComponents/Context/UserContext";
+import { useSocket } from "./MyComponents/Context/SocketContext";
 
 // Hooks
 import useLocalStorage from "./MyComponents/Hooks/useLocalStorage";
@@ -32,14 +33,14 @@ function App() {
   const signup = Cookies.get("signup");
   const auth = Cookies.get("__AUTH");
   const history = useHistory();
+  const socket = useSocket()
   const [user, setUser] = useState();
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
-  let socket = io("http://localhost:3000", { withCredentials: true });
+  
 
-  // On website load, look for cookies
-  useEffect(() => {
+  const validateCookies = () => {
     if (!auth) {
-      return;
+      return; // If no auth cookie
     } else {
       console.log("Getting User info");
       // Check cookies for validation
@@ -58,10 +59,10 @@ function App() {
         }
       });
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    if (socket && user) {
+  const declareOnline = () => {
+    if (auth && user) {
       console.log("Sending online call...");
       socket.emit("online", {
         id: userSessionId,
@@ -77,10 +78,20 @@ function App() {
         console.log(clients);
       });
     }
+  };
+
+  // On website load, look for cookies
+  useEffect(() => {
+    validateCookies();
+  }, []);
+
+  // On startup or change of user state, emit online
+  useEffect(() => {
+    declareOnline();
     // Clean UP Effect
-    // return () => socket.disconnect();
+    // return () => socket.offAny();
     //
-  }, [user]);
+  }, [socket,user]);
 
   return (
     <>
