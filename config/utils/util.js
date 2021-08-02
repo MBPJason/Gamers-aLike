@@ -2,7 +2,6 @@ const db = require("../../models");
 
 const hopOnline = async (sessionID, userID, user, status, cb) => {
   console.log("hopOnline function was called");
-  console.log({ sessionID, userID, user, status });
   const online = await db.Online.findOneAndUpdate(
     { userID: userID },
     {
@@ -13,6 +12,7 @@ const hopOnline = async (sessionID, userID, user, status, cb) => {
   );
 
   const sessionData = online.sessionInfo;
+  console.log(sessionData);
   cb(sessionData);
 };
 
