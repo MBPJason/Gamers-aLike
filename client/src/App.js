@@ -6,7 +6,6 @@ import { Switch, useHistory, withRouter } from "react-router-dom";
 
 // Session Dependencies
 import { v4 as uuidV4 } from "uuid";
-import { io } from "socket.io-client";
 
 // Context Dependencies
 import Cookies from "js-cookie";
@@ -33,10 +32,9 @@ function App() {
   const signup = Cookies.get("signup");
   const auth = Cookies.get("__AUTH");
   const history = useHistory();
-  const socket = useSocket()
+  const socket = useSocket();
   const [user, setUser] = useState();
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
-  
 
   const validateCookies = () => {
     if (!auth) {
@@ -80,6 +78,10 @@ function App() {
     }
   };
 
+  const noListening = () => {
+    socket.offAny();
+  };
+
   // On website load, look for cookies
   useEffect(() => {
     validateCookies();
@@ -89,9 +91,13 @@ function App() {
   useEffect(() => {
     declareOnline();
     // Clean UP Effect
-    // return () => socket.offAny();
+    return () => {
+      if (socket) {
+        noListening();
+      }
+    };
     //
-  }, [socket,user]);
+  }, [socket, user]);
 
   return (
     <>
