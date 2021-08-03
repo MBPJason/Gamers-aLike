@@ -74,35 +74,29 @@ app.get("/config", (req, res) => {
   });
 });
 
-// Socket.IO variables
 let count = 0;
-let sessionUser;
-let userRoom;
-let gameRoom;
-let sessionRoom;
 // Socket.IO Event listeners
 io.on("connection", (socket) => {
   count++;
   console.log(count);
   console.log(socket.id);
-
   /** Socket Knowledge
    * "ON": An event listener that is called too do something. Generally the catcher
    * "EMIT": Meant to send data to an "ON" event listener of the same name. Generally the "thrower"
    */
 
   socket.on("online", ({ id, dbId, user, status }) => {
-    console.log("User registering online");
     hopOnline(id, dbId, user, status, (data) => {
-      console.log("it went right");
-      sessionUser = data;
-      userRoom = id;
-      socket.username = data.username;
-      console.log(socket.username);
+      console.log("online schema found and updated");
+      socket.username = data.user.username;
+      socket.userRoom = id;
+      socket.status = status;
+      socket.ratings = data.user.ratings;
+      socket.currentGame = data.user.currentGame;
     });
-    socket.join([online, userRoom]);
+    socket.join([online, id]);
     const clients = io.sockets.adapter.rooms.get(online);
-    io.to(userRoom).emit("usersOnline", clients);
+    io.to(id).emit("usersOnline", clients);
   });
 
   socket.on("getLobbies", (game) => {
@@ -115,9 +109,9 @@ io.on("connection", (socket) => {
       if (bool) {
         const gameLobbies = game + " Lobbies";
         const session = uuidv4();
-        sessionRoom = session;
+        socket.currentSession = session;
         socket.join([session, gameLobbies]);
-        io.to(sessionRoom).emit("sessionRules", {
+        io.to(session).emit("sessionRules", {
           sessionId: sessionRoom,
           rules: data,
         });
@@ -151,8 +145,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log(socket.id);
-    console.log("socket disconnected");
+    console.log(`${socket.id} socket disconnected`);
     //  function for turning sessionID, socketID, and status to null
   });
 
