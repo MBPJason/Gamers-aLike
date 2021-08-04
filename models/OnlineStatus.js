@@ -7,6 +7,21 @@ const OnlineSchema = new Schema(
     userID: String,
     user: Object,
     status: Boolean,
+    QuickPlay: [
+      {
+        type: String,
+      },
+    ],
+    PlayersMet: [
+      {
+        type: String,
+      },
+    ],
+    Ignore: [
+      {
+        type: String,
+      },
+    ],
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -16,6 +31,9 @@ OnlineSchema.virtual("sessionInfo").get(function () {
     sessionID: this.sessionID,
     user: this.user,
     status: this.status,
+    quickplay: this.QuickPlay,
+    playersMet: this.PlayersMet,
+    ignore: this.Ignore,
   };
 });
 

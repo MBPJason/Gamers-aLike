@@ -75,7 +75,11 @@ app.get("/config", (req, res) => {
 });
 
 let count = 0;
-// Socket.IO Event listeners
+let playersMetList;
+let quickPlayList;
+let ignoreList;
+
+// SocketIO Event listeners
 io.on("connection", (socket) => {
   count++;
   console.log(count);
@@ -88,14 +92,48 @@ io.on("connection", (socket) => {
   socket.on("online", ({ id, dbId, user, status }) => {
     hopOnline(id, dbId, user, status, (data) => {
       console.log("online schema found and updated");
+      // Assign socket value
       socket.username = data.user.username;
       socket.userRoom = id;
       socket.status = status;
       socket.ratings = data.user.ratings;
       socket.currentGame = data.user.currentGame;
+
+      // Assign Lists
+      quickPlayList = data.quickplay;
+      playersMetList = data.playersMet;
+      ignoreList = data.ignore;
     });
+
+    // Join personal room
     socket.join([online, id]);
+    // Get current online users
     const clients = io.sockets.adapter.rooms.get(online);
+    // grab session
+    const list = filterList(quickPlayList);
+    let clientArr = [];
+    for (const clientId of clients) {
+      const clientSocket = io.sockets.sockets.get(clientId);
+      clientArr.push(clientSocket);
+    }
+
+    list.forEach((item) => {
+      if (io.sockets.adapter.rooms.has(item.sessionID)) {
+        // do something
+      }
+    })
+    // Send filter
+    io.to(id).emit("getQuickPlay", () => {
+      setInterval(() => {
+        const list = filterList(quickPlayList);
+
+        for (const clientId of clients) {
+          const clientSocket = io.sockets.sockets.get(clientId);
+          clientArr.push(clientSocket);
+        }
+      }, 30000);
+    });
+
     io.to(id).emit("usersOnline", clients);
   });
 

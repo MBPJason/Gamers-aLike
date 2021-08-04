@@ -34,7 +34,9 @@ function App() {
   const history = useHistory();
   const socket = useSocket();
   const [user, setUser] = useState();
+  const [quickplay, setQuickPlay] = useState([]);
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
+  
 
   const validateCookies = () => {
     if (!auth) {
@@ -60,8 +62,10 @@ function App() {
   };
 
   const declareOnline = () => {
+    // Check for auth cookie and user data
     if (auth && user) {
       console.log("Sending online call...");
+      // Send online status
       socket.emit("online", {
         id: userSessionId,
         user: {
@@ -75,6 +79,12 @@ function App() {
       socket.on("usersOnline", (clients) => {
         console.log(clients);
       });
+      socket.on("getQuickPlay", (players) => {
+        // display the users on the left for Home page
+      })
+      socket.on("receiveInvite", () => {
+        // filter it out with ban list, display it accordingly and emit "inviteReceived"
+      })
     }
   };
 
