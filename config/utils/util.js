@@ -44,6 +44,26 @@ const changeHost = (session, host, cb) => {
   });
 };
 
+const filterList = (list) => {
+  db.Session.find({ userID: { $in: list } }, (err, users) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    const arr = [];
+    users.forEach((user) => {
+      if (status) {
+        arr.push({
+          sessionID: user.sessionID,
+          username: user.username,
+          currentGame: user.currentGame,
+        });
+      }
+    });
+    return arr;
+  });
+};
+
 module.exports = {
   hopOnline,
   addLobby,

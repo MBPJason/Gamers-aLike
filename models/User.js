@@ -45,10 +45,6 @@ const UserSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Discord",
     },
-    PlayersInfo: {
-      type: Schema.Types.ObjectId,
-      ref: "Players",
-    },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -72,11 +68,6 @@ UserSchema.virtual("fullyBuiltUser").get(function () {
       discordID: this.DiscordInfo.DiscordID || null,
       discordLink: this.DiscordInfo.DiscordLink || null,
       isUserOnPublic: this.DiscordInfo.IsOnPublic || null,
-    },
-    userPlayersInfo: {
-      quickplay: this.PlayersInfo.QuickPlay || null,
-      playersMet: this.PlayersInfo.PlayersMet || null,
-      ignoreList: this.PlayersInfo.Ignore || null,
     },
   };
 });
