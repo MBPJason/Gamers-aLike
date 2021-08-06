@@ -5,6 +5,7 @@ const DiscordSchema = new Schema({
   userID: {
     type: Schema.Types.ObjectId,
     ref: "User",
+    unique: true,
   },
   DiscordID: {
     type: String,
@@ -14,7 +15,7 @@ const DiscordSchema = new Schema({
     type: String,
     trim: true,
   },
-  IsOnPublic: false
+  IsOnPublic: false,
 });
 
 const Discord = mongoose.model("Discord", DiscordSchema);

@@ -7,7 +7,7 @@ const path = require("path");
 const passport = require("./config/passport/passport");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
-const { v4: uuidv4 } = require("uuid");
+const { v4: uuidV4 } = require("uuid");
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
   cors: {
@@ -18,7 +18,12 @@ const io = require("socket.io")(server, {
   },
 });
 
-const { hopOnline, addLobby, changeHost } = require("./config/utils/util");
+const {
+  hopOnline,
+  addLobby,
+  changeHost,
+  filterList,
+} = require("./config/utils/util");
 
 const online = process.env.ONLINE_ROOM;
 const PORT = process.env.PORT || 3001;
@@ -75,7 +80,7 @@ app.get("/config", (req, res) => {
 });
 
 let count = 0;
-let playersMetList;
+let playersMetList; // TODO: update when session gets confirmed
 let quickPlayList;
 let ignoreList;
 
@@ -84,13 +89,14 @@ io.on("connection", (socket) => {
   count++;
   console.log(count);
   console.log(socket.id);
+
   /** Socket Knowledge
    * "ON": An event listener that is called too do something. Generally the catcher
    * "EMIT": Meant to send data to an "ON" event listener of the same name. Generally the "thrower"
    */
 
-  socket.on("online", ({ id, dbId, user, status }) => {
-    hopOnline(id, dbId, user, status, (data) => {
+  socket.on("online", async ({ id, dbId, user, status }) => {
+    await hopOnline(id, dbId, user, status, (data) => {
       console.log("online schema found and updated");
       // Assign socket value
       socket.username = data.user.username;
@@ -105,35 +111,57 @@ io.on("connection", (socket) => {
       ignoreList = data.ignore;
     });
 
-    // Join personal room
+    // Join personal room and online
     socket.join([online, id]);
-    // Get current online users
-    const clients = io.sockets.adapter.rooms.get(online);
-    // grab session
-    const list = filterList(quickPlayList);
-    let clientArr = [];
-    for (const clientId of clients) {
-      const clientSocket = io.sockets.sockets.get(clientId);
-      clientArr.push(clientSocket);
+
+    // Emit to online that you have joined
+    socket.broadcast
+      .to(online)
+      .emit("userJoined", { id: socket.userRoom, username: socket.username });
+
+    // Grab quickplay and players met list
+    const qpList = [];
+    const pmList = [];
+    const onlineQP = filterList(quickPlayList);
+    const onlinePM = filterList(playersMetList);
+
+    // Check if an array of quickplay users was returned
+    if (onlineQP !== undefined || null) {
+      // If not loop through array given and check for online room and hidden status
+      await onlineQP.forEach((item) => {
+        if (io.sockets.adapter.rooms.has(item.sessionID) && item.status) {
+          // If room exists and not hidden throw to client online
+          qpList.push({ user: item, online: true });
+        } else {
+          // If room doesn't exists or user is hidden throw to client offline
+          qpList.push({ user: item, online: false });
+        }
+      });
+      // Send list of users
+      io.to(socket.userRoom).emit("getQuickPlay", qpList);
+    } else {
+      io.to(socket.userRoom).emit("getQuickPlay", []);
     }
 
-    list.forEach((item) => {
-      if (io.sockets.adapter.rooms.has(item.sessionID)) {
-        // do something
-      }
-    })
-    // Send filter
-    io.to(id).emit("getQuickPlay", () => {
-      setInterval(() => {
-        const list = filterList(quickPlayList);
-
-        for (const clientId of clients) {
-          const clientSocket = io.sockets.sockets.get(clientId);
-          clientArr.push(clientSocket);
+    // Check if an array of "players met" users was returned
+    if (onlinePM !== undefined || null) {
+      // If not loop through array given and check for online room and hidden status
+      await onlinePM.forEach((item) => {
+        if (io.sockets.adapter.rooms.has(item.sessionID) && item.status) {
+          // If room exists and not hidden throw to client online
+          pmList.push({ user: item, online: true });
+        } else {
+          // If room doesn't exists or user is hidden throw to client offline
+          pmList.push({ user: item, online: false });
         }
-      }, 30000);
-    });
-
+      });
+      // Send list of users
+      io.to(socket.userRoom).emit("getPlayersMet", pmList);
+    } else {
+      io.to(socket.userRoom).emit("getPlayersMet", []);
+    }
+    const clients = io.sockets.adapter.rooms.get(online);
+    // Test line of code. TODO: Remove from production
     io.to(id).emit("usersOnline", clients);
   });
 
@@ -146,7 +174,7 @@ io.on("connection", (socket) => {
     addLobby(host, game, limit, public, headline, (bool, data) => {
       if (bool) {
         const gameLobbies = game + " Lobbies";
-        const session = uuidv4();
+        const session = uuidV4();
         socket.currentSession = session;
         socket.join([session, gameLobbies]);
         io.to(session).emit("sessionRules", {

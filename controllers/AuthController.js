@@ -53,12 +53,6 @@ router.post("/auth/signup", async (req, res) => {
       if (!token) {
         res.status(500).send("Couldn't authorize user");
       } else {
-        let user = await db.User.findOne({ email: email })
-          .populate("GamerTags")
-          .populate("DiscordInfo")
-          .populate("Ratings")
-          .populate("PlayersInfo")
-          .exec();
         let maxAge;
 
         // If req.body.expire is null set maxAge to a day. If it isn't set maxAge to a year
@@ -71,8 +65,6 @@ router.post("/auth/signup", async (req, res) => {
           signed: true,
         };
 
-        user = user.fullyBuiltUser;
-
         /**
          * Set status code as 200
          * Set Auth cookie TODO: Make it a secure and samesite cookie eventually
@@ -83,7 +75,7 @@ router.post("/auth/signup", async (req, res) => {
           .cookie("__AUTH", token, cookieSignOptions) //
           .cookie(
             "user",
-            { userID: user.userID, username: user.username, loggedIn: true },
+            { username: madeUser.username, loggedIn: true },
             cookieSignOptions
           )
           .cookie("special", lockedCookieSecret, {
@@ -94,7 +86,7 @@ router.post("/auth/signup", async (req, res) => {
             signed: true,
           })
           .json({
-            user: user,
+            user: madeUser,
           });
         console.log("User successfully signed in and serialized");
       }
@@ -182,7 +174,7 @@ router.post("/auth/local/login", async (req, res) => {
             .cookie("__AUTH", token, cookieSignOptions) //
             .cookie(
               "user",
-              { userID: user.userID, username: user.username, loggedIn: true },
+              {username: user.username, loggedIn: true },
               cookieSignOptions
             )
             .cookie("special", lockedCookieSecret, {

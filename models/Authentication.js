@@ -6,6 +6,7 @@ const AuthSchema = new Schema({
   userID: {
     type: Schema.Types.ObjectId,
     ref: "User",
+    unique: true,
   },
   AuthProof: String,
   Google: {

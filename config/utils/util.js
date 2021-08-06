@@ -44,21 +44,15 @@ const changeHost = (session, host, cb) => {
   });
 };
 
-const filterList = (list) => {
-  db.Session.find({ userID: { $in: list } }, (err, users) => {
+const filterList = (playersArr) => {
+  db.Session.find({ userID: { $in: playersArr } }, (err, players) => {
     if (err) {
       console.log(err);
       return;
     }
     const arr = [];
-    users.forEach((user) => {
-      if (status) {
-        arr.push({
-          sessionID: user.sessionID,
-          username: user.username,
-          currentGame: user.currentGame,
-        });
-      }
+    players.forEach((player) => {
+      arr.push(player.quickInfo);
     });
     return arr;
   });
@@ -68,4 +62,5 @@ module.exports = {
   hopOnline,
   addLobby,
   changeHost,
+  filterList,
 };

@@ -5,30 +5,31 @@ const RatingsSchema = new Schema({
   userID: {
     type: Schema.Types.ObjectId,
     ref: "User",
+    unique: true,
   },
   RatingsScore: {
     type: Number,
     required: true,
-    min: 1
+    min: 1,
   },
   ratings: [
     {
-      Rat1: Number
+      Rat1: Number,
     },
     {
-      Rat2: Number
+      Rat2: Number,
     },
     {
-      Rat3:Number
+      Rat3: Number,
     },
     {
-      Rat4: Number
+      Rat4: Number,
     },
     {
-      Rat5: Number
+      Rat5: Number,
     },
     {
-      Rat6: Number
+      Rat6: Number,
     },
   ],
 });

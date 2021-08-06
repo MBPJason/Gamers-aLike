@@ -4,20 +4,20 @@ const Schema = mongoose.Schema;
 const OnlineSchema = new Schema(
   {
     sessionID: String,
-    userID: String,
+    userID: { type: String, unique: true },
     user: Object,
     status: Boolean,
-    QuickPlay: [
+    quickPlay: [
       {
         type: String,
       },
     ],
-    PlayersMet: [
+    playersMet: [
       {
         type: String,
       },
     ],
-    Ignore: [
+    ignore: [
       {
         type: String,
       },
@@ -31,9 +31,19 @@ OnlineSchema.virtual("sessionInfo").get(function () {
     sessionID: this.sessionID,
     user: this.user,
     status: this.status,
-    quickplay: this.QuickPlay,
-    playersMet: this.PlayersMet,
-    ignore: this.Ignore,
+    quickplay: this.quickPlay,
+    playersMet: this.playersMet,
+    ignore: this.ignore,
+  };
+});
+
+OnlineSchema.virtual("quickInfo").get(function () {
+  return {
+    sessionID: this.sessionID,
+    username: this.user.username,
+    userAvatar: this.user.userAvatar,
+    currentGame: player.user.currentGame,
+    status: this.status,
   };
 });
 
