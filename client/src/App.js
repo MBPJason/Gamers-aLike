@@ -36,6 +36,7 @@ function App() {
   const [user, setUser] = useState();
   const [quickplay, setQuickPlay] = useState([]);
   const [playersMet, setPlayersMet] = useState([]);
+  const [invites, setInvites] = useState([]);
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
 
   const validateCookies = () => {
@@ -100,8 +101,14 @@ function App() {
       socket.on("getPlayersMet", (players) => {
         setPlayersMet(players);
       });
-      socket.on("receiveInvite", () => {
+      socket.on("getInvites", () => {
         // filter it out with ban list, display it accordingly and emit "inviteReceived"
+      });
+      socket.on("success", () => {
+        // display success message
+      });
+      socket.on("error", () => {
+        // display error message
       });
     }
   };
