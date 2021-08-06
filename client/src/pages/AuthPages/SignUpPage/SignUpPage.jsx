@@ -209,8 +209,13 @@ export default function AccessPage() {
         playStationID.trim(),
         xboxID.trim(),
         function (data) {
+          const today = new Date();
+          const tomorrow = new Date();
           setUser(data);
-          setUserSessionId(uuidV4());
+          setUserSessionId({
+            id: uuidV4(),
+            date: tomorrow.setDate(today.getDate() + 1),
+          });
           Cookies.remove("signup", { path: "/finishing-touches" });
           history.push("/home");
         }
@@ -228,8 +233,13 @@ export default function AccessPage() {
         playStationID,
         xboxID,
         function (data) {
+          const today = new Date();
+          const tomorrow = new Date();
           setUser(data);
-          setUserSessionId(uuidV4());
+          setUserSessionId({
+            id: uuidV4(),
+            date: tomorrow.setDate(today.getDate() + 1),
+          });
           Cookies.remove("signup", { path: "/finishing-touches" });
           history.push("/home");
         }

@@ -35,10 +35,12 @@ function App() {
   const socket = useSocket();
   const [user, setUser] = useState();
   const [quickplay, setQuickPlay] = useState([]);
+  const [playersMet, setPlayersMet] = useState([]);
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
-  
 
   const validateCookies = () => {
+    const today = new Date();
+    const tomorrow = new Date();
     if (!auth) {
       return; // If no auth cookie
     } else {
@@ -48,14 +50,25 @@ function App() {
         setUser(data);
         if (userSessionId === undefined) {
           console.log("Making new uuid and setting socket...");
-          setUserSessionId(uuidV4());
+          setUserSessionId({
+            id: uuidV4(),
+            date: tomorrow.setDate(today.getDate() + 1),
+          });
         } else if (!userSessionId) {
           if (signup) {
             history.push("/finishing-touch");
           } else {
             console.log("Making new uuid and setting socket...");
-            setUserSessionId(uuidV4());
+            setUserSessionId({
+              id: uuidV4(),
+              date: tomorrow.setDate(today.getDate() + 1),
+            });
           }
+        } else if (userSessionId.date <= new Date()) {
+          setUserSessionId({
+            id: uuidV4(),
+            date: tomorrow.setDate(today.getDate() + 1),
+          });
         }
       });
     }
@@ -63,13 +76,14 @@ function App() {
 
   const declareOnline = () => {
     // Check for auth cookie and user data
-    if (auth && user) {
+    if (userSessionId && user) {
       console.log("Sending online call...");
       // Send online status
       socket.emit("online", {
-        id: userSessionId,
+        id: userSessionId.id,
         user: {
           username: user.username,
+          userAvatar: user.userAvatar || null,
           ratings: user.userRatings,
           currentGame: user.currentGame,
         },
@@ -79,12 +93,16 @@ function App() {
       socket.on("usersOnline", (clients) => {
         console.log(clients);
       });
+      // Event Listener for Quickplay list
       socket.on("getQuickPlay", (players) => {
-        // display the users on the left for Home page
-      })
+        setQuickPlay(players);
+      });
+      socket.on("getPlayersMet", (players) => {
+        setPlayersMet(players);
+      });
       socket.on("receiveInvite", () => {
         // filter it out with ban list, display it accordingly and emit "inviteReceived"
-      })
+      });
     }
   };
 
@@ -95,18 +113,19 @@ function App() {
   // On website load, look for cookies
   useEffect(() => {
     validateCookies();
-  }, []);
+  }, [userSessionId]);
 
   // On startup or change of user state, emit online
   useEffect(() => {
-    declareOnline();
+    setTimeout(() => {
+      declareOnline();
+    }, 1000);
     // Clean UP Effect
     return () => {
       if (socket) {
         noListening();
       }
     };
-    //
   }, [socket, user]);
 
   return (
@@ -117,6 +136,8 @@ function App() {
           setUser,
           userSessionId,
           setUserSessionId,
+          quickplay,
+          playersMet,
         }}
       >
         <Switch>

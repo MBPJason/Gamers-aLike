@@ -8,12 +8,18 @@ const UserSchema = new Schema(
       type: String,
       trim: true,
       required: true,
+      unique: true,
     },
     username: {
       type: String,
       trim: true,
       minLength: 6,
       maxLength: 26,
+      unique: true,
+    },
+    userAvatar: {
+      type: String,
+      trim: true,
     },
     password: {
       type: String,
@@ -45,6 +51,10 @@ const UserSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Discord",
     },
+    Online: {
+      type: Schema.Types.ObjectId,
+      ref: "Discord",
+    },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -52,6 +62,7 @@ UserSchema.virtual("fullyBuiltUser").get(function () {
   return {
     userID: this._id,
     username: this.username,
+    userAvatar: this.userAvatar,
     currentGame: this.CurrentLFG || null,
     gamesPlayed: this.GamesPlayed || null,
     userRatings: {
@@ -76,6 +87,7 @@ UserSchema.virtual("briefUser").get(function () {
   return {
     userID: this._id,
     username: this.username,
+    userAvatar: this.Online.userAvatar,
     userRatings: {
       userScore: this.Ratings.RatingsScore,
       userRatings: this.Ratings.ratings,

@@ -66,6 +66,7 @@ passport.use(
       .populate("DiscordInfo")
       .populate("Ratings")
       .populate("PlayersInfo")
+      .populate("Online")
       .exec();
 
     if (fullUser) {
@@ -97,6 +98,7 @@ passport.use(
 //             .populate("DiscordInfo")
 //             .populate("Ratings")
 //             .populate("PlayersInfo")
+//             .populate("Online")
 //             .exec();
 
 //           const cleanUser = fullUser.fullyBuiltUser;
@@ -129,6 +131,7 @@ passport.use(
 //             .populate("DiscordInfo")
 //             .populate("Ratings")
 //             .populate("PlayersInfo")
+//             .populate("Online")
 //             .exec();
 
 //           const cleanUser = fullUser.fullyBuiltUser;
@@ -162,6 +165,7 @@ passport.use(
 //             .populate("DiscordInfo")
 //             .populate("Ratings")
 //             .populate("PlayersInfo")
+//             .populate("Online")
 //             .exec();
 
 //           const cleanUser = fullUser.fullyBuiltUser;

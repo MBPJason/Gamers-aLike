@@ -22,18 +22,10 @@ const SERVER_PUB_KEY = fs.readFileSync(pathToSPub, "utf8");
 // Authentication Process and Checks
 // ========================================
 module.exports = {
-  async checkJWT(req, res, next) {
-    // Pull in headers and userID from request
+  checkJWT(req, res, next) {
+    // Pull in headers from request
     console.log("Checking full jwt structure");
     const authHeader = req.headers.authorization;
-    const user = await db.User.findOne({
-      _id: req.signedCookies.user.userID,
-    })
-      .populate({
-        path: "Auth",
-        select: "AuthProof",
-      })
-      .exec();
 
     // Check if there is a header
     if (authHeader) {
@@ -41,17 +33,21 @@ module.exports = {
       const trueToken = authHeader.split(" ")[1];
 
       // Verify token from header with client paired public key
-      jwt.verify(trueToken, CLIENT_PUB_KEY, (err, decoded) => {
+      jwt.verify(trueToken, CLIENT_PUB_KEY, async (err, decoded) => {
         // Error check
         if (err) {
-          // Error 403 response
+          // Error 401 response
           console.log("Couldn't decode cookie");
           return res.sendStatus(401);
         } else {
+          // Check Auth collection against decoded sub
+          const auth = await db.Auth.findOne({
+            userID: decoded.sub,
+          });
           // Check if there was a serialized user in request
-          if (user) {
+          if (auth) {
             // Construct true token with user spilt signature from User Schema
-            const authToken = decoded.authToken + "." + user.Auth.AuthProof;
+            const authToken = decoded.authToken + "." + auth.AuthProof;
             // Verify true token with server paired public key
             jwt.verify(authToken, SERVER_PUB_KEY, (err, proof) => {
               // Error check
@@ -84,7 +80,8 @@ module.exports = {
     try {
       // Check if user parameter is was given
       if (user) {
-        const expiresIn = expire || "1d"; // Pulls expire parameter or sets jwt to last for a day
+        // Pulls expire parameter or sets jwt to last for a day
+        const expiresIn = expire || "1d"; 
 
         if (!user.userID) {
           throw new Error("userID was not included in the user object");
@@ -146,7 +143,7 @@ module.exports = {
       } else {
         // If no user gave then give out error
         console.log("No user info found");
-        new Error({ message: "No user info given" });
+        throw new Error("No user info given");
       }
     } catch (err) {
       // If server error display error

@@ -100,8 +100,13 @@ export default function AccessPage() {
     const type = "signin";
     API.login(email, password, expire, type, function (done, data) {
       if (done) {
+        const today = new Date();
+        const tomorrow = new Date();
         setUser(data);
-        setUserSessionId(uuidV4());
+        setUserSessionId({
+          id: uuidV4(),
+          date: tomorrow.setDate(today.getDate() + 1),
+        });
         history.push("/home");
       } else {
         setEmail("");

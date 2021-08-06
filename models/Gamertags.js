@@ -5,6 +5,7 @@ const GamertagsSchema = new Schema({
   userID: {
     type: Schema.Types.ObjectId,
     ref: "User",
+    unique: true,
   },
   SteamID: {
     type: String,

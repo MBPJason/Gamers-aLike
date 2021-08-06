@@ -29,7 +29,7 @@ const makeUser = async function (caller, identifier, profile, err) {
     const GamerTags = await db.Gamertags.create({
       userID: user._id,
     });
-    await db.Online.create({ userID: user._id });
+    const Online = await db.Online.create({ userID: user._id });
 
     // Updating/Tying it to new User created Schema
     await db.User.findByIdAndUpdate(user._id, {
@@ -38,6 +38,7 @@ const makeUser = async function (caller, identifier, profile, err) {
       PlayersInfo: PlayersInfo._id,
       DiscordInfo: DiscordInfo._id,
       GamerTags: GamerTags._id,
+      Online: Online._id,
     });
 
     // Checks for Steam and non Steam Sign Up
@@ -111,7 +112,7 @@ const localMakeUser = async function (
     const GamerTags = await db.Gamertags.create({
       userID: user._id,
     });
-    await db.Online.create({ userID: user._id });
+    const Online = await db.Online.create({ userID: user._id });
     console.log("Made local user required schemas");
 
     // Updating/Tying it to new User created Schema
@@ -121,8 +122,10 @@ const localMakeUser = async function (
       PlayersInfo: PlayersInfo._id,
       DiscordInfo: DiscordInfo._id,
       GamerTags: GamerTags._id,
+      Online: Online._id,
     });
     console.log("Attaching required schemas to local user");
+    
     // Update Discord table if user provides a DiscordID
     if (DiscordID) {
       await db.Discord.findByIdAndUpdate(DiscordInfo._id, {
@@ -157,6 +160,7 @@ const localMakeUser = async function (
       .populate("DiscordInfo")
       .populate("Ratings")
       .populate("PlayersInfo")
+      .populate("Online")
       .exec();
 
     // Set fullUser as "fullyBuiltUser" virtual
