@@ -34,8 +34,8 @@ const addLobby = (host, game, limit, public, headline, cb) => {
   );
 };
 
-const changeHost = (session, host, cb) => {
-  db.Session.findByIdAndUpdate(session, { Host: host }, (err) => {
+const changeHost = async (session, host, cb) => {
+  await db.Session.findByIdAndUpdate(session, { Host: host }, (err) => {
     if (err) {
       cb(false);
     } else {
@@ -44,8 +44,8 @@ const changeHost = (session, host, cb) => {
   });
 };
 
-const filterList = (playersArr) => {
-  db.Session.find({ userID: { $in: playersArr } }, (err, players) => {
+const filterList = async (playersArr) => {
+  await db.Session.find({ userID: { $in: playersArr } }, (err, players) => {
     if (err) {
       console.log(err);
       return;
@@ -58,9 +58,45 @@ const filterList = (playersArr) => {
   });
 };
 
+// Updates client array via type pointer
+const updateArr = async (id, arr, type) => {
+  await db.Session.findOneAndUpdate({ sessionID: id }, { [type]: arr });
+};
+
+const addInvite = (targetID, id, username, userAvatar, sessionRoom, cb) => {
+  let invite = {
+    id: id,
+    username: username,
+    userAvatar: userAvatar,
+    session: sessionRoom,
+    seen: false,
+    dateCreated: new Date(),
+  };
+  db.Session.findOne({ sessionID: targetID }, async (err, user) => {
+    if (err) {
+      cb(false);
+    } else if (user.invites.length === 0) {
+      user.invites.push(invite);
+      user = await user.save();
+      cb(true, user.invites);
+    } else {
+      await user.invites.forEach((item) => {
+        if (item.username === username) {
+          item.id = id;
+        }
+      });
+      user.invites.push(invite);
+      user = await user.save();
+      cb(true, user.invites);
+    }
+  });
+};
+
 module.exports = {
   hopOnline,
   addLobby,
   changeHost,
   filterList,
+  updateArr,
+  addInvite,
 };

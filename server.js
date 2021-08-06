@@ -23,6 +23,8 @@ const {
   addLobby,
   changeHost,
   filterList,
+  updateArr,
+  addInvite,
 } = require("./config/utils/util");
 
 const online = process.env.ONLINE_ROOM;
@@ -80,9 +82,10 @@ app.get("/config", (req, res) => {
 });
 
 let count = 0;
-let playersMetList; // TODO: update when session gets confirmed
-let quickPlayList;
-let ignoreList;
+let playersMetList; // Database IDs
+let quickplayList; // Database IDs
+let ignoreList; // Database IDs
+let invitesList; // Session IDs
 
 // SocketIO Event listeners
 io.on("connection", (socket) => {
@@ -100,19 +103,21 @@ io.on("connection", (socket) => {
       console.log("online schema found and updated");
       // Assign socket value
       socket.username = data.user.username;
+      socket.userAvatar = data.user.userAvatar;
       socket.userRoom = id;
       socket.status = status;
       socket.ratings = data.user.ratings;
       socket.currentGame = data.user.currentGame;
 
       // Assign Lists
-      quickPlayList = data.quickplay;
+      quickplayList = data.quickplay;
       playersMetList = data.playersMet;
       ignoreList = data.ignore;
+      invitesList = data.invites;
     });
 
     // Join personal room and online
-    socket.join([online, id]);
+    socket.join([online, socket.userRoom]);
 
     // Emit to online that you have joined
     socket.broadcast
@@ -122,7 +127,8 @@ io.on("connection", (socket) => {
     // Grab quickplay and players met list
     const qpList = [];
     const pmList = [];
-    const onlineQP = filterList(quickPlayList);
+    const invList = [];
+    const onlineQP = filterList(quickplayList);
     const onlinePM = filterList(playersMetList);
 
     // Check if an array of quickplay users was returned
@@ -160,9 +166,80 @@ io.on("connection", (socket) => {
     } else {
       io.to(socket.userRoom).emit("getPlayersMet", []);
     }
+
+    // Check for invites
+    if (invitesList.length === 0) {
+      // If none send up empty array
+      io.to(socket.userRoom).emit("receiveInvite", []);
+    } else {
+      // If there is something, loop through and check for a room
+      await invitesList.forEach((invite) => {
+        if (io.sockets.adapter.rooms.has(invite.session)) {
+          // Find a room and push it new array
+          invList.push(invite);
+        }
+      });
+      // Send active invites array to client
+      io.to(socket.userRoom).emit("receiveInvite", invList);
+      // Set server arr value to active arr list and then update Online Schema invites arr
+      invitesList = invList;
+      updateArr(socket.userRoom, invList, "invites");
+    }
+
     const clients = io.sockets.adapter.rooms.get(online);
     // Test line of code. TODO: Remove from production
     io.to(id).emit("usersOnline", clients);
+  });
+
+  socket.on("deleteItem", (arr, type) => {
+    updateArr(socket.userRoom, arr, type);
+    if (type === "invites") {
+      invitesList = arr;
+    } else if (type === "quickplay") {
+      quickplayList = arr;
+    } else if (type === "playersMet") {
+      playersMet === arr;
+    }
+  });
+
+  socket.on(sendInvite, (targetID) => {
+    io.to(targetID).emit("addInvite", {
+      id: socket.userRoom,
+      username: socket.username,
+      userAvatar: socket.userAvatar,
+      game: socket.currentGame,
+      session: socket.sessionRoom,
+    });
+  });
+
+  socket.on("addInvite", ({ id, username, userAvatar, game, session }) => {
+    const ignore = filterList(ignoreList);
+    const check = ignore.forEach((user) => {
+      if (user.sessionID === id) {
+        return false;
+      }
+    });
+
+    if (!check) {
+      io.to(id).emit("success", "Invite sent");
+    } else {
+      addInvite(
+        socket.userRoom,
+        id,
+        username,
+        userAvatar,
+        game,
+        session,
+        (bool, data) => {
+          if (bool) {
+            io.to(socket.userRoom).emit("getInvites", data);
+            io.to(id).emit("success", "Invite sent");
+          } else {
+            io.to(id).emit("error", "Couldn't send invite");
+          }
+        }
+      );
+    }
   });
 
   socket.on("getLobbies", (game) => {

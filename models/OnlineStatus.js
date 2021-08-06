@@ -22,6 +22,17 @@ const OnlineSchema = new Schema(
         type: String,
       },
     ],
+    invites: [
+      {
+        id: String,
+        username: String,
+        userAvatar: String,
+        session: String,
+        game: String,
+        seen: Boolean,
+        dateCreated: Date,
+      },
+    ],
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -34,6 +45,7 @@ OnlineSchema.virtual("sessionInfo").get(function () {
     quickplay: this.quickPlay,
     playersMet: this.playersMet,
     ignore: this.ignore,
+    invites: this.invites,
   };
 });
 
