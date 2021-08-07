@@ -191,6 +191,19 @@ io.on("connection", (socket) => {
     io.to(id).emit("usersOnline", clients);
   });
 
+  // Update quickplay sessionIDs
+  socket.on("userJoined", (user) => {
+    const qpList = filterList(quickplayList);
+    const onlinePM = filterList(playersMetList);
+    /**
+     * Get usernames from filter lists
+     * Check usernames against provide username from event fired
+     * If there is a match update it on list and then send it up
+     */
+
+    qpList.filter((item))
+  })
+
   // Client pops a user out of the array type and send the new array down
   socket.on("deleteItem", (arr, type) => {
     updateArr(socket.userRoom, arr, type, (bool, data) => {
