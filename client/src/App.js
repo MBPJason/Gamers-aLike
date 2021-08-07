@@ -101,8 +101,8 @@ function App() {
       socket.on("getPlayersMet", (players) => {
         setPlayersMet(players);
       });
-      socket.on("getInvites", () => {
-        // filter it out with ban list, display it accordingly and emit "inviteReceived"
+      socket.on("getInvites", (invitesArr) => {
+        setInvites(invitesArr);
       });
       socket.on("success", () => {
         // display success message

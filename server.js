@@ -170,7 +170,7 @@ io.on("connection", (socket) => {
     // Check for invites
     if (invitesList.length === 0) {
       // If none send up empty array
-      io.to(socket.userRoom).emit("receiveInvite", []);
+      io.to(socket.userRoom).emit("getInvites", []);
     } else {
       // If there is something, loop through and check for a room
       await invitesList.forEach((invite) => {
@@ -180,7 +180,7 @@ io.on("connection", (socket) => {
         }
       });
       // Send active invites array to client
-      io.to(socket.userRoom).emit("receiveInvite", invList);
+      io.to(socket.userRoom).emit("getInvites", invList);
       // Set server arr value to active arr list and then update Online Schema invites arr
       invitesList = invList;
       updateArr(socket.userRoom, invList, "invites");
@@ -191,18 +191,44 @@ io.on("connection", (socket) => {
     io.to(id).emit("usersOnline", clients);
   });
 
+  // Update quickplay sessionIDs
+  socket.on("userJoined", (user) => {
+    const qpList = filterList(quickplayList);
+    const onlinePM = filterList(playersMetList);
+    /**
+     * Get usernames from filter lists
+     * Check usernames against provide username from event fired
+     * If there is a match update it on list and then send it up
+     */
+
+    qpList.filter((item))
+  })
+
+  // Client pops a user out of the array type and send the new array down
   socket.on("deleteItem", (arr, type) => {
-    updateArr(socket.userRoom, arr, type);
-    if (type === "invites") {
-      invitesList = arr;
-    } else if (type === "quickplay") {
-      quickplayList = arr;
-    } else if (type === "playersMet") {
-      playersMet === arr;
-    }
+    updateArr(socket.userRoom, arr, type, (bool, data) => {
+      if (bool) {
+        switch (type) {
+          case "invites":
+            invitesList = data;
+            break;
+          case "quickplay":
+            quickplayList = data;
+            break;
+          case "playersMet":
+            playersMet = data;
+            break;
+          default:
+            ignoreList = data;
+        }
+      } else {
+        io.to(socket.userRoom).emit("error", "Couldn't remove user");
+      }
+    });
+    // Check for array type and update the array on the server
   });
 
-  socket.on(sendInvite, (targetID) => {
+  socket.on("sendInvite", (targetID) => {
     io.to(targetID).emit("addInvite", {
       id: socket.userRoom,
       username: socket.username,
