@@ -44,17 +44,13 @@ const changeHost = async (session, host, cb) => {
   });
 };
 
-const filterList = async (playersArr) => {
-  await db.Online.find({ userID: { $in: playersArr } }, (err, players) => {
+const filterList = (playersArr) => {
+  db.Online.find({ userID: { $in: playersArr } }, (err, players) => {
     if (err) {
       console.log(err);
       return;
     }
-    const arr = [];
-    players.forEach((player) => {
-      arr.push(player.quickInfo);
-    });
-    return arr;
+    return players.quickInfo;
   });
 };
 

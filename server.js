@@ -209,7 +209,7 @@ io.on("connection", (socket) => {
             ignoreList = data;
         }
       } else {
-        io.to(socket.userRoom).emit("error", "Couldn't remove user from list");
+        io.to(socket.userRoom).emit("error", "Couldn't remove user");
       }
     });
     // Check for array type and update the array on the server
