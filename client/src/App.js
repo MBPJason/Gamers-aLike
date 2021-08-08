@@ -34,7 +34,7 @@ function App() {
   const history = useHistory();
   const socket = useSocket();
   const [user, setUser] = useState();
-  const [quickplay, setQuickPlay] = useState([]);
+  const [friends, setFriends] = useState([]);
   const [playersMet, setPlayersMet] = useState([]);
   const [invites, setInvites] = useState([]);
   const [userSessionId, setUserSessionId] = useLocalStorage("userID");
@@ -95,14 +95,27 @@ function App() {
         console.log(clients);
       });
       // Event Listener for Quickplay list
-      socket.on("getQuickPlay", (players) => {
-        setQuickPlay(players);
+      socket.on("getFriends", (players) => {
+        setFriends(players);
       });
       socket.on("getPlayersMet", (players) => {
         setPlayersMet(players);
       });
       socket.on("getInvites", (invitesArr) => {
         setInvites(invitesArr);
+      });
+      socket.on("updateFriend", (player) => {
+        let newArr = [];
+        friends.forEach((friend) => {
+          if (friend.user.username === player.user.username) {
+            friend = player;
+            newArr.push(friend);
+          } else {
+            newArr.push(friend);
+          }
+        });
+
+        setFriends(newArr);
       });
       socket.on("success", () => {
         // display success message
@@ -143,7 +156,7 @@ function App() {
           setUser,
           userSessionId,
           setUserSessionId,
-          quickplay,
+          friends,
           playersMet,
         }}
       >
