@@ -83,9 +83,10 @@ app.get("/config", (req, res) => {
 
 let count = 0;
 let playersMetList; // Database IDs
-let quickplayList; // Database IDs
+let friendsList; // Database IDs
 let ignoreList; // Database IDs
 let invitesList; // Session IDs
+let friendsInvitesList; // Session IDs
 
 // SocketIO Event listeners
 io.on("connection", (socket) => {
@@ -110,44 +111,59 @@ io.on("connection", (socket) => {
       socket.currentGame = data.user.currentGame;
 
       // Assign Lists
-      quickplayList = data.quickplay;
+      friendsList = data.friends;
       playersMetList = data.playersMet;
       ignoreList = data.ignore;
       invitesList = data.invites;
+      friendsInvitesList = data.friendsInvites;
     });
 
     // Join personal room and online
     socket.join([online, socket.userRoom]);
 
     // Emit to online that you have joined
-    socket.broadcast
-      .to(online)
-      .emit("userJoined", { id: socket.userRoom, username: socket.username });
+    socket.to(online).emit("userJoined", {
+      id: socket.userRoom,
+      username: socket.username,
+    });
 
-    // Grab quickplay and players met list
-    const qpList = [];
+    // Grab friends and players met list
+    const fList = [];
+    const fListRooms = [];
     const pmList = [];
     const invList = [];
-    const onlineQP = filterList(quickplayList);
+    const onlineF = filterList(friendsList);
     const onlinePM = filterList(playersMetList);
 
-    // Check if an array of quickplay users was returned
-    if (onlineQP !== undefined || null) {
+    // Check if an array of friends users was returned
+    if (onlineF !== undefined || null) {
       // If not loop through array given and check for online room and hidden status
-      await onlineQP.forEach((item) => {
+      await onlineF.forEach((item) => {
         if (io.sockets.adapter.rooms.has(item.sessionID) && item.status) {
           // If room exists and not hidden throw to client online
-          qpList.push({ user: item, online: true });
+          fList.push({ user: item, online: true });
         } else {
           // If room doesn't exists or user is hidden throw to client offline
-          qpList.push({ user: item, online: false });
+          fList.push({ user: item, online: false });
         }
+        fListRooms.push(item.sessionID);
       });
       // Send list of users
-      io.to(socket.userRoom).emit("getQuickPlay", qpList);
+      io.to(socket.userRoom).emit("getFriends", fList);
     } else {
-      io.to(socket.userRoom).emit("getQuickPlay", []);
+      io.to(socket.userRoom).emit("getFriends", []);
     }
+
+    io.to(fListRooms).emit("updateFriend", {
+      user: {
+        sessionID: socket.userRoom,
+        username: socket.username,
+        userAvatar: socket.userAvatar,
+        currentGame: socket.currentGame,
+        status: socket.status,
+      },
+      online: socket.status,
+    });
 
     // Check if an array of "players met" users was returned
     if (onlinePM !== undefined || null) {
@@ -162,15 +178,15 @@ io.on("connection", (socket) => {
         }
       });
       // Send list of users
-      io.to(socket.userRoom).emit("getPlayersMet", pmList);
+      io.in(socket.userRoom).emit("getPlayersMet", pmList);
     } else {
-      io.to(socket.userRoom).emit("getPlayersMet", []);
+      io.in(socket.userRoom).emit("getPlayersMet", []);
     }
 
     // Check for invites
     if (invitesList.length === 0) {
       // If none send up empty array
-      io.to(socket.userRoom).emit("getInvites", []);
+      io.in(socket.userRoom).emit("getInvites", []);
     } else {
       // If there is something, loop through and check for a room
       await invitesList.forEach((invite) => {
@@ -180,7 +196,7 @@ io.on("connection", (socket) => {
         }
       });
       // Send active invites array to client
-      io.to(socket.userRoom).emit("getInvites", invList);
+      io.in(socket.userRoom).emit("getInvites", invList);
       // Set server arr value to active arr list and then update Online Schema invites arr
       invitesList = invList;
       updateArr(socket.userRoom, invList, "invites");
@@ -188,21 +204,11 @@ io.on("connection", (socket) => {
 
     const clients = io.sockets.adapter.rooms.get(online);
     // Test line of code. TODO: Remove from production
-    io.to(id).emit("usersOnline", clients);
+    io.in(socket.userRoom).emit("usersOnline", clients);
   });
 
-  // Update quickplay sessionIDs
-  socket.on("userJoined", (user) => {
-    const qpList = filterList(quickplayList);
-    const onlinePM = filterList(playersMetList);
-    /**
-     * Get usernames from filter lists
-     * Check usernames against provide username from event fired
-     * If there is a match update it on list and then send it up
-     */
-
-    qpList.filter((item))
-  })
+  // Update friends sessionIDs
+  
 
   // Client pops a user out of the array type and send the new array down
   socket.on("deleteItem", (arr, type) => {
@@ -213,7 +219,7 @@ io.on("connection", (socket) => {
             invitesList = data;
             break;
           case "quickplay":
-            quickplayList = data;
+            friendsList = data;
             break;
           case "playersMet":
             playersMet = data;
@@ -247,7 +253,7 @@ io.on("connection", (socket) => {
     });
 
     if (!check) {
-      io.to(id).emit("success", "Invite sent");
+      io.in(id).emit("success", "Invite sent");
     } else {
       addInvite(
         socket.userRoom,

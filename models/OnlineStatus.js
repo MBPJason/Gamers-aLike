@@ -7,7 +7,7 @@ const OnlineSchema = new Schema(
     userID: { type: String, unique: true },
     user: Object,
     status: Boolean,
-    quickPlay: [
+    friends: [
       {
         type: String,
       },
@@ -30,9 +30,17 @@ const OnlineSchema = new Schema(
         session: String,
         game: String,
         seen: Boolean,
-        dateCreated: Date,
+        dateCreated: {type: Date, default: Date.now}
       },
     ],
+    friendsInvites: [
+      {
+        sender: String,
+        senderAvatar: String,
+        dateCreated: {type: Date, default: Date.now}
+      }
+    ]
+
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -42,10 +50,11 @@ OnlineSchema.virtual("sessionInfo").get(function () {
     sessionID: this.sessionID,
     user: this.user,
     status: this.status,
-    quickplay: this.quickPlay,
+    friends: this.friends,
     playersMet: this.playersMet,
     ignore: this.ignore,
     invites: this.invites,
+    friendsInvites: this.friendsInvites
   };
 });
 

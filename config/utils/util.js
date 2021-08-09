@@ -72,7 +72,7 @@ const updateArr = async (id, arr, type, cb) => {
         usernames.push(item.username);
       });
       await db.Online.find(
-        { [`user`[`username`]]: { $in: usernames } },
+        { "user.username": { $in: usernames } },
         (err, players) => {
           if (err) {
             cb(false);
