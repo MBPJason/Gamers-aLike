@@ -3,7 +3,6 @@ const Schema = mongoose.Schema;
 
 const UserSchema = new Schema(
   {
-    DateCreated: { type: Date, default: Date.now },
     email: {
       type: String,
       trim: true,
@@ -25,16 +24,7 @@ const UserSchema = new Schema(
       type: String,
       trim: true,
     },
-    CurrentLFG: {
-      type: String,
-      trim: true,
-    },
-    GamesPlayed: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
+    DateCreated: { type: Date, default: Date.now },
     Auth: {
       type: Schema.Types.ObjectId,
       ref: "Auth",
@@ -60,25 +50,29 @@ const UserSchema = new Schema(
 );
 UserSchema.virtual("fullyBuiltUser").get(function () {
   return {
-    userID: this._id,
-    username: this.username,
-    userAvatar: this.userAvatar,
-    currentGame: this.CurrentLFG || null,
-    gamesPlayed: this.GamesPlayed || null,
-    userRatings: {
+    user: {
+      userID: this._id,
+      username: this.username,
+      userAvatar: this.userAvatar,
+      userGamerTags: {
+        steam: this.GamerTags.SteamID || null,
+        battlenet: this.GamerTags.BattlenetID || null,
+        playstation: this.GamerTags.PlayStationID || null,
+        xbox: this.GamerTags.XboxID || null,
+      },
+      userDiscordInfo: {
+        discordID: this.DiscordInfo.DiscordID || null,
+        discordLink: this.DiscordInfo.DiscordLink || null,
+        isUserOnPublic: this.DiscordInfo.IsOnPublic || null,
+      },
+    },
+    games: {
+      currentGame: this.Online.currentGame || null,
+      gamesPlayed: this.Online.gamesPlayed || null,
+    },
+    ratings: {
       userScore: this.Ratings.RatingsScore,
       userRatings: this.Ratings.ratings,
-    },
-    userGamerTags: {
-      steam: this.GamerTags.SteamID || null,
-      battlenet: this.GamerTags.BattlenetID || null,
-      playstation: this.GamerTags.PlayStationID || null,
-      xbox: this.GamerTags.XboxID || null,
-    },
-    userDiscordInfo: {
-      discordID: this.DiscordInfo.DiscordID || null,
-      discordLink: this.DiscordInfo.DiscordLink || null,
-      isUserOnPublic: this.DiscordInfo.IsOnPublic || null,
     },
   };
 });

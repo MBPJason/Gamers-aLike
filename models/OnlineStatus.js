@@ -6,22 +6,17 @@ const OnlineSchema = new Schema(
     sessionID: String,
     userID: { type: String, unique: true },
     user: Object,
+    currentGame: {
+      type: String,
+      trim: true,
+    },
+    gamesPlayed: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
     status: Boolean,
-    friends: [
-      {
-        type: String,
-      },
-    ],
-    playersMet: [
-      {
-        type: String,
-      },
-    ],
-    ignore: [
-      {
-        type: String,
-      },
-    ],
     invites: [
       {
         id: String,
@@ -50,9 +45,8 @@ OnlineSchema.virtual("sessionInfo").get(function () {
     sessionID: this.sessionID,
     user: this.user,
     status: this.status,
-    friends: this.friends,
-    playersMet: this.playersMet,
-    ignore: this.ignore,
+    currentGame: this.currentGame,
+    gamesPlayed: this.gamesPlayed,
     invites: this.invites,
     friendsInvites: this.friendsInvites
   };

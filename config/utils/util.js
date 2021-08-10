@@ -57,7 +57,7 @@ const filterList = (playersArr) => {
 // Updates client array via type pointer
 const updateArr = async (id, arr, type, cb) => {
   // If array is for invites then just normal update it
-  if (type === "invites") {
+  if (type === "invites" || "friendsInvites") {
     const user = await db.Online.findOneAndUpdate(
       { sessionID: id },
       { [type]: arr }

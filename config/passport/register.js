@@ -159,7 +159,6 @@ const localMakeUser = async function (
       .populate("GamerTags")
       .populate("DiscordInfo")
       .populate("Ratings")
-      .populate("PlayersInfo")
       .populate("Online")
       .exec();
 

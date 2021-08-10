@@ -99,6 +99,10 @@ io.on("connection", (socket) => {
    * "EMIT": Meant to send data to an "ON" event listener of the same name. Generally the "thrower"
    */
 
+  /** MAIN FUNCTION
+   * Gets called when the website loads and there is a user provided
+   * Gets called when there is a update to the user state on the client side
+   */
   socket.on("online", async ({ id, dbId, user, status }) => {
     await hopOnline(id, dbId, user, status, (data) => {
       console.log("online schema found and updated");
@@ -208,7 +212,6 @@ io.on("connection", (socket) => {
   });
 
   // Update friends sessionIDs
-  
 
   // Client pops a user out of the array type and send the new array down
   socket.on("deleteItem", (arr, type) => {
@@ -218,22 +221,26 @@ io.on("connection", (socket) => {
           case "invites":
             invitesList = data;
             break;
-          case "quickplay":
+          case "friends":
             friendsList = data;
             break;
           case "playersMet":
             playersMet = data;
             break;
+          case "friendsInvites":
+            friendsInvitesList = data;
+            break;
           default:
             ignoreList = data;
         }
+        io.to(socket.userRoom).emit("success", "Removed");
       } else {
         io.to(socket.userRoom).emit("error", "Couldn't remove user");
       }
     });
-    // Check for array type and update the array on the server
   });
 
+  // Send Session Invite
   socket.on("sendInvite", (targetID) => {
     io.to(targetID).emit("addInvite", {
       id: socket.userRoom,
@@ -244,8 +251,11 @@ io.on("connection", (socket) => {
     });
   });
 
+  // Receive invite
   socket.on("addInvite", ({ id, username, userAvatar, game, session }) => {
+    // Generate ignore list
     const ignore = filterList(ignoreList);
+    // Check user against ignore list
     const check = ignore.forEach((user) => {
       if (user.sessionID === id) {
         return false;
@@ -274,11 +284,13 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Get game lobbies
   socket.on("getLobbies", (game) => {
     const lobbies = io.sockets.adapter.rooms.get(game + " Lobbies");
-    io.to(id).emit("Lobbies", lobbies);
+    io.to(socket.userRoom).emit("Lobbies", lobbies);
   });
 
+  // Make a lobby
   socket.on("makeLobby", ({ host, game, limit, public, headline }) => {
     addLobby(host, game, limit, public, headline, (bool, data) => {
       if (bool) {
