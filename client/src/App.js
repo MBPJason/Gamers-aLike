@@ -33,7 +33,10 @@ function App() {
   const auth = Cookies.get("__AUTH");
   const history = useHistory();
   const socket = useSocket();
+
   const [user, setUser] = useState();
+  const [games, setGames] = useState();
+  const [ratings, setRatings] = useState();
   const [friends, setFriends] = useState([]);
   const [playersMet, setPlayersMet] = useState([]);
   const [invites, setInvites] = useState([]);
@@ -47,8 +50,10 @@ function App() {
     } else {
       console.log("Getting User info");
       // Check cookies for validation
-      API.getUserInfo(history, function (data) {
-        setUser(data);
+      API.getUserInfo(history, function ({ user, games, ratings }) {
+        setUser(user);
+        setGames(games);
+        setRatings(ratings);
         if (userSessionId === undefined) {
           console.log("Making new uuid and setting socket...");
           setUserSessionId({
@@ -86,7 +91,6 @@ function App() {
           username: user.username,
           userAvatar: user.userAvatar || null,
           ratings: user.userRatings,
-          currentGame: user.currentGame,
         },
         dbId: user.userID,
         status: true,
@@ -114,7 +118,6 @@ function App() {
             newArr.push(friend);
           }
         });
-
         setFriends(newArr);
       });
       socket.on("success", () => {

@@ -2,19 +2,20 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const SessionSchema = new Schema({
+  SessionID: { type: String, trim: true },
   Host: {
     type: Schema.Types.ObjectId,
     ref: "User",
   },
   UserLimit: {
-      type: Number,
-      max: 16,
-    },
+    type: Number,
+    max: 16,
+  },
   Users: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      }
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
   ],
   Game: {
     type: String,
@@ -30,32 +31,37 @@ const SessionSchema = new Schema({
   },
   Public: {
     type: Boolean,
-    default: true
+    default: true,
   },
   Filters: [
-      {Mature: false},
-      {Experience: [
-          {Any: false},
-          {Beginner: false},
-          {Mid: false},
-          {Advance: false}
-      ]},
-      {RatingScore: [
-          {Any: true},
-          {LessThan50: false},
-          {LessThan100: false},
-          {LessThan200: false},
-          {Above200: false},
-      ]},
-      {Preferred: [
-          {Rat1: false},
-          {Rat2: false},
-          {Rat3: false},
-          {Rat4: false},
-          {Rat5: false},
-          {Rat6: false},
-      ]
-    }
+    { Mature: false },
+    {
+      Experience: [
+        { Any: false },
+        { Beginner: false },
+        { Mid: false },
+        { Advance: false },
+      ],
+    },
+    {
+      RatingScore: [
+        { Any: true },
+        { LessThan50: false },
+        { LessThan100: false },
+        { LessThan200: false },
+        { Above200: false },
+      ],
+    },
+    {
+      Preferred: [
+        { Rat1: false },
+        { Rat2: false },
+        { Rat3: false },
+        { Rat4: false },
+        { Rat5: false },
+        { Rat6: false },
+      ],
+    },
   ],
 });
 

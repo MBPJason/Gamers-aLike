@@ -128,7 +128,7 @@ router.post("/auth/local/login", async (req, res) => {
       .populate("GamerTags")
       .populate("DiscordInfo")
       .populate("Ratings")
-      .populate("PlayersInfo")
+      .populate("Online")
       .exec();
 
     // Check is a user was provided with email check
