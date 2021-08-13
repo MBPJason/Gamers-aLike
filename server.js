@@ -17,7 +17,6 @@ const io = require("socket.io")(server, {
   },
 });
 
-const online = process.env.ONLINE_ROOM;
 const PORT = process.env.PORT || 3001;
 const MongoURI = process.env.MONGODB_URI || "mongodb://localhost/gamers-alike";
 

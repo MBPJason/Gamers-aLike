@@ -1,4 +1,5 @@
 const { v4: uuidV4 } = require("uuid");
+const online = process.env.ONLINE_ROOM;
 const {
   hopOnline,
   addLobby,
@@ -9,11 +10,6 @@ const {
 } = require("../config/utils/util");
 
 let count = 0;
-let playersMetList; // Database IDs
-let friendsList; // Database IDs
-let ignoreList; // Database IDs
-let invitesList; // Session IDs
-let friendsInvitesList; // Session IDs
 
 module.exports = (socket, io) => {
   count++;
@@ -30,7 +26,7 @@ module.exports = (socket, io) => {
    * Gets called when there is a update to the user state on the client side
    */
   socket.on("online", async ({ id, dbId, user, status }) => {
-    await hopOnline(id, dbId, user, status, (data) => {
+    await hopOnline(id, dbId, user, status, (data, playerID) => {
       console.log("online schema found and updated");
       // Assign socket value
       socket.username = data.user.username;
@@ -39,13 +35,7 @@ module.exports = (socket, io) => {
       socket.status = status;
       socket.ratings = data.user.ratings;
       socket.currentGame = data.user.currentGame;
-
-      // Assign Lists
-      friendsList = data.friends;
-      playersMetList = data.playersMet;
-      ignoreList = data.ignore;
-      invitesList = data.invites;
-      friendsInvitesList = data.friendsInvites;
+      socket.playerID = playerID;
     });
 
     // Join personal room and online
@@ -59,23 +49,25 @@ module.exports = (socket, io) => {
 
     // Grab friends and players met list
     const fList = [];
-    const fListRooms = [];
+    const fListRooms = []; // List of friends socket rooms
     const pmList = [];
     const invList = [];
-    const onlineF = filterList(friendsList);
-    const onlinePM = filterList(playersMetList);
+    const onlineF = filterList(playerID, "friends");
+    const onlinePM = filterList(playerID, "playersMet");
 
     // Check if an array of friends users was returned
     if (onlineF !== undefined || null) {
       // If not loop through array given and check for online room and hidden status
-      await onlineF.forEach((item) => {
-        if (io.sockets.adapter.rooms.has(item.sessionID) && item.status) {
-          // If room exists and not hidden throw to client online
-          fList.push({ user: item, online: true });
+      await onlineF.forEach((friend) => {
+        if (io.sockets.adapter.rooms.has(friend.sessionID)) {
+          // If room exists throw to client as is
+          fList.push(friend);
         } else {
-          // If room doesn't exists or user is hidden throw to client offline
-          fList.push({ user: item, online: false });
+          // If room doesn't exists set friend status to false and throw to client friend is offline
+          friend.status = false;
+          fList.push(friend);
         }
+        // Looping through and adding friends socket rooms
         fListRooms.push(item.sessionID);
       });
       // Send list of users
@@ -84,27 +76,26 @@ module.exports = (socket, io) => {
       io.to(socket.userRoom).emit("getFriends", []);
     }
 
+    // Update the client friends' list
     io.to(fListRooms).emit("updateFriend", {
-      user: {
-        sessionID: socket.userRoom,
-        username: socket.username,
-        userAvatar: socket.userAvatar,
-        currentGame: socket.currentGame,
-        status: socket.status,
-      },
-      online: socket.status,
+      sessionID: socket.userRoom,
+      username: socket.username,
+      userAvatar: socket.userAvatar,
+      currentGame: socket.currentGame,
+      status: socket.status,
     });
 
     // Check if an array of "players met" users was returned
     if (onlinePM !== undefined || null) {
       // If not loop through array given and check for online room and hidden status
-      await onlinePM.forEach((item) => {
-        if (io.sockets.adapter.rooms.has(item.sessionID) && item.status) {
-          // If room exists and not hidden throw to client online
-          pmList.push({ user: item, online: true });
+      await onlinePM.forEach((player) => {
+        if (io.sockets.adapter.rooms.has(player.sessionID)) {
+          // If room exists throw to client the player
+          pmList.push(player);
         } else {
           // If room doesn't exists or user is hidden throw to client offline
-          pmList.push({ user: item, online: false });
+          player.status = false;
+          pmList.push(player);
         }
       });
       // Send list of users
@@ -143,22 +134,13 @@ module.exports = (socket, io) => {
   socket.on("deleteItem", (arr, type) => {
     updateArr(socket.userRoom, arr, type, (bool, data) => {
       if (bool) {
-        switch (type) {
-          case "invites":
-            invitesList = data;
-            break;
-          case "friends":
-            friendsList = data;
-            break;
-          case "playersMet":
-            playersMet = data;
-            break;
-          case "friendsInvites":
-            friendsInvitesList = data;
-            break;
-          default:
-            ignoreList = data;
+
+        if (type == "invites") {
+          invitesList = data;
+        } else {
+          friendsInvitesList = data;
         }
+
         io.to(socket.userRoom).emit("success", "Removed");
       } else {
         io.to(socket.userRoom).emit("error", "Couldn't remove user");
@@ -180,7 +162,7 @@ module.exports = (socket, io) => {
   // Receive invite
   socket.on("addInvite", ({ id, username, userAvatar, game, session }) => {
     // Generate ignore list
-    const ignore = filterList(ignoreList);
+    const ignore = filterList(socket.playerID, "ignore");
     // Check user against ignore list
     const check = ignore.forEach((user) => {
       if (user.sessionID === id) {
@@ -188,7 +170,7 @@ module.exports = (socket, io) => {
       }
     });
 
-    if (!check) {
+    if (check === false) {
       io.in(id).emit("success", "Invite sent");
     } else {
       addInvite(
