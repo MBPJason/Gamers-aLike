@@ -9,10 +9,10 @@ const hopOnline = async (sessionID, userID, user, status, cb) => {
       status: status,
     }
   );
-
+  const playersList = await db.Players.findOne({ userID: userID });
   const sessionData = online.sessionInfo;
-  console.log(sessionData);
-  cb(sessionData);
+  console.log(sessionData, playersList._id);
+  cb(sessionData, playersList._id);
 };
 
 const addLobby = (host, game, limit, public, headline, cb) => {
@@ -44,14 +44,37 @@ const changeHost = async (session, host, cb) => {
   });
 };
 
-const filterList = (playersArr) => {
-  db.Online.find({ userID: { $in: playersArr } }, (err, players) => {
+const filterList = async (playerID, type) => {
+  let arr = [];
+  const list = await db.Players.findById(playerID, (err, players) => {
     if (err) {
       console.log(err);
       return;
+    } else {
+      return players;
     }
-    return players.quickInfo;
-  });
+  })
+    .populate("Online")
+    .exec();
+
+  switch (type) {
+    case "ignore":
+      list.ignore.forEach((player) => {
+        arr.push(player.quickInfo);
+      });
+      break;
+    case "playersMet":
+      list.playersMet.forEach((player) => {
+        arr.push(player.quickInfo);
+      });
+      break;
+    default:
+      list.friends.forEach((player) => {
+        arr.push(player.quickInfo);
+      });
+  }
+
+  return arr;
 };
 
 // Updates client array via type pointer

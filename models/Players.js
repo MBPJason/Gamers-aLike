@@ -6,22 +6,22 @@ const PlayersSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
-  QuickPlay: [
+  friends: [
     {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Online",
     },
   ],
-  PlayersMet: [
+  playersMet: [
     {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Online",
     },
   ],
-  Ignore: [
+  ignore: [
     {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Online",
     },
   ],
 });
