@@ -128,13 +128,10 @@ module.exports = (socket, io) => {
     io.in(socket.userRoom).emit("usersOnline", clients);
   });
 
-  // Update friends sessionIDs
-
   // Client pops a user out of the array type and send the new array down
-  socket.on("deleteItem", (arr, type) => {
+  socket.on("deleteItem", ({ arr, type }) => {
     updateArr(socket.userRoom, arr, type, (bool, data) => {
       if (bool) {
-
         if (type == "invites") {
           invitesList = data;
         } else {
@@ -147,6 +144,10 @@ module.exports = (socket, io) => {
       }
     });
   });
+
+  // ====================================
+  //               Invites
+  // ====================================
 
   // Send Session Invite
   socket.on("sendInvite", (targetID) => {
@@ -192,6 +193,20 @@ module.exports = (socket, io) => {
     }
   });
 
+  socket.on("acceptInvite", (session, arr) => {
+    if (io.sockets.adapter.rooms.has(session)) {
+      io.to(socket.userRoom).emit("joinLobby", session);
+    } else {
+      io.to(socket.userRoom).emit("error", "Lobby is closed");
+    }
+
+    io.to(socket.userRoom).emit("deleteItem", { arr: arr, type: "invite" });
+  });
+
+  // ========================================
+  //               Lobbies
+  // ========================================
+
   // Get game lobbies
   socket.on("getLobbies", (game) => {
     const lobbies = io.sockets.adapter.rooms.get(game + " Lobbies");
@@ -203,15 +218,16 @@ module.exports = (socket, io) => {
     addLobby(host, game, limit, public, headline, (bool, data) => {
       if (bool) {
         const gameLobbies = game + " Lobbies";
-        const session = uuidV4();
-        socket.currentSession = session;
-        socket.join([session, gameLobbies]);
-        io.to(session).emit("sessionRules", {
+        const gameLobby = uuidV4();
+        socket.gameLobby = gameLobby;
+        socket.join([gameLobby, gameLobbies]);
+        io.to(gameLobby).emit("sessionRules", {
           sessionId: sessionRoom,
-          rules: data,
+          filters: data,
         });
         io.to(gameLobbies).emit("gameLobbies", {
-          lobbies: io.sockets.adapter.rooms.get(gameLobbies),
+          lobby: gameLobby,
+          filters: data,
         });
       } else {
         socket.emit("error", {
@@ -221,8 +237,22 @@ module.exports = (socket, io) => {
     });
   });
 
+  socket.on("joinLobby", (session) => {
+    socket.session = session;
+    socket.join(session);
+  });
+
+  socket.on("leaveLobby", () => {
+    socket.leave(socket.session);
+  });
+
+  // ======================================
+  //          Inside Lobbies/Chat
+  // ======================================
+
+  //
   socket.on("changeHost", (game) => {
-    socket.leave(game);
+    socket.leave(socket.session);
   });
 
   socket.on("newHost", ({ host, preHost, session, game }) => {
@@ -238,6 +268,15 @@ module.exports = (socket, io) => {
       }
     });
   });
+
+  // Send message to users in lobby
+  socket.on("sendMessage", (message) => {
+    io.to(socket.session).emit("message", message);
+  });
+
+  // ====================================
+  //        Disconnect and Errors
+  // ====================================
 
   socket.on("disconnect", () => {
     console.log(`${socket.id} socket disconnected`);
