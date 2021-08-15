@@ -138,9 +138,9 @@ module.exports = (socket, io) => {
           friendsInvitesList = data;
         }
 
-        io.to(socket.userRoom).emit("success", "Removed");
+        io.to(socket.userRoom).emit("displaySuccess", "Removed");
       } else {
-        io.to(socket.userRoom).emit("error", "Couldn't remove user");
+        io.to(socket.userRoom).emit("displayError", "Couldn't remove user");
       }
     });
   });
@@ -172,7 +172,7 @@ module.exports = (socket, io) => {
     });
 
     if (check === false) {
-      io.in(id).emit("success", "Invite sent");
+      io.in(id).emit("displaySuccess", "Invite sent");
     } else {
       addInvite(
         socket.userRoom,
@@ -184,9 +184,9 @@ module.exports = (socket, io) => {
         (bool, data) => {
           if (bool) {
             io.to(socket.userRoom).emit("getInvites", data);
-            io.to(id).emit("success", "Invite sent");
+            io.to(id).emit("displaySuccess", "Invite sent");
           } else {
-            io.to(id).emit("error", "Couldn't send invite");
+            io.to(id).emit("displayError", "Couldn't send invite");
           }
         }
       );
@@ -197,7 +197,7 @@ module.exports = (socket, io) => {
     if (io.sockets.adapter.rooms.has(session)) {
       io.to(socket.userRoom).emit("joinLobby", session);
     } else {
-      io.to(socket.userRoom).emit("error", "Lobby is closed");
+      io.to(socket.userRoom).emit("displayError", "Lobby is closed");
     }
 
     io.to(socket.userRoom).emit("deleteItem", { arr: arr, type: "invite" });
@@ -212,6 +212,15 @@ module.exports = (socket, io) => {
     const lobbies = io.sockets.adapter.rooms.get(game + " Lobbies");
     io.to(socket.userRoom).emit("Lobbies", lobbies);
   });
+
+  socket.on("checkLobby", (lobby) => {
+    if (io.sockets.adapter.rooms.has(lobby)) {
+      
+    } else {
+      // TODO: finish this logic
+      io.to(socket.userRoom)
+    }
+  })
 
   // Make a lobby
   socket.on("makeLobby", ({ host, game, limit, public, headline }) => {
@@ -230,7 +239,7 @@ module.exports = (socket, io) => {
           filters: data,
         });
       } else {
-        socket.emit("error", {
+        socket.emit("displayError", {
           message: "Couldn't make session lobby",
         });
       }
@@ -240,10 +249,19 @@ module.exports = (socket, io) => {
   socket.on("joinLobby", (session) => {
     socket.session = session;
     socket.join(session);
+    io.to(session).emit("userJoined", {
+      id: socket.userRoom,
+      username: socket.userRoom,
+      joined: new Date()
+    })
   });
 
   socket.on("leaveLobby", () => {
     socket.leave(socket.session);
+    io.to(session).emit("userLeft", {
+      id: socket.userRoom,
+      username: socket.userRoom,
+    })
   });
 
   // ======================================
@@ -262,7 +280,7 @@ module.exports = (socket, io) => {
         socket.join(gameLobbies);
         socket.to(preHost).emit("changeHost", gameLobbies);
       } else {
-        socket.emit("error", {
+        socket.emit("displayError", {
           message: "Couldn't change hosts",
         });
       }
@@ -275,7 +293,7 @@ module.exports = (socket, io) => {
   });
 
   // ====================================
-  //        Disconnect and Errors
+  //        Disconnect and displayErrors
   // ====================================
 
   socket.on("disconnect", () => {
@@ -283,7 +301,7 @@ module.exports = (socket, io) => {
     //  function for turning sessionID, socketID, and status to null
   });
 
-  socket.on("connect_error", (err) => {
-    console.log(`connect_error due to ${err.message}`);
+  socket.on("connect_displayError", (err) => {
+    console.log(`connect_displayError due to ${err.message}`);
   });
 };

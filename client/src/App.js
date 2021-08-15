@@ -120,10 +120,10 @@ function App() {
         });
         setFriends(newArr);
       });
-      socket.on("success", () => {
+      socket.on("displaySuccess", () => {
         // display success message
       });
-      socket.on("error", () => {
+      socket.on("displayError", () => {
         // display error message
       });
     }
