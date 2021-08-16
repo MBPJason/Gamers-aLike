@@ -11,6 +11,8 @@ const {
 
 let count = 0;
 
+// TODO: CHANGE SESSION TO LOBBY FOR READABILITY AND DIFFERENCE
+
 module.exports = (socket, io) => {
   count++;
   console.log(count);
@@ -19,8 +21,17 @@ module.exports = (socket, io) => {
   /** Socket Knowledge
    * "ON": An event listener that is called too do something. Generally the catcher
    * "EMIT": Meant to send data to an "ON" event listener of the same name. Generally the "thrower"
+   * "JOIN": Puts the socket in a room(s). You can specify one room or use an array for two or more
+   * "io.sockets.adapter.rooms": returns maps. Use "...rooms.has" to look for a map, or "...rooms.get" to get info from the map
    */
 
+
+
+  // ======================================================================================= //
+  //                                          Online                                         //
+  // ======================================================================================= //
+  
+  
   /** MAIN FUNCTION
    * Gets called when the website loads and there is a user provided
    * Gets called when there is a update to the user state on the client side
@@ -40,12 +51,6 @@ module.exports = (socket, io) => {
 
     // Join personal room and online
     socket.join([online, socket.userRoom]);
-
-    // Emit to online that you have joined
-    socket.to(online).emit("userJoined", {
-      id: socket.userRoom,
-      username: socket.username,
-    });
 
     // Grab friends and players met list
     const fList = [];
@@ -76,7 +81,9 @@ module.exports = (socket, io) => {
       io.to(socket.userRoom).emit("getFriends", []);
     }
 
+    // =====================================
     // Update the client friends' list
+    // =====================================
     io.to(fListRooms).emit("updateFriend", {
       sessionID: socket.userRoom,
       username: socket.username,
@@ -85,7 +92,9 @@ module.exports = (socket, io) => {
       status: socket.status,
     });
 
+    // =================================================================
     // Check if an array of "players met" users was returned
+    // =================================================================
     if (onlinePM !== undefined || null) {
       // If not loop through array given and check for online room and hidden status
       await onlinePM.forEach((player) => {
@@ -104,7 +113,9 @@ module.exports = (socket, io) => {
       io.in(socket.userRoom).emit("getPlayersMet", []);
     }
 
+    // =========================
     // Check for invites
+    // =========================
     if (invitesList.length === 0) {
       // If none send up empty array
       io.in(socket.userRoom).emit("getInvites", []);
@@ -127,8 +138,12 @@ module.exports = (socket, io) => {
     // Test line of code. TODO: Remove from production
     io.in(socket.userRoom).emit("usersOnline", clients);
   });
+  // --------------------------------- END OF ONLINE LISTENER --------------------------------- //
 
+
+  // ==========================================================================
   // Client pops a user out of the array type and send the new array down
+  // ==========================================================================
   socket.on("deleteItem", ({ arr, type }) => {
     updateArr(socket.userRoom, arr, type, (bool, data) => {
       if (bool) {
@@ -145,11 +160,16 @@ module.exports = (socket, io) => {
     });
   });
 
-  // ====================================
-  //               Invites
-  // ====================================
 
+
+  // ======================================================================================= //
+  //                                          Invites                                        //
+  // ======================================================================================= //
+
+
+  // ==========================
   // Send Session Invite
+  // ==========================
   socket.on("sendInvite", (targetID) => {
     io.to(targetID).emit("addInvite", {
       id: socket.userRoom,
@@ -160,7 +180,9 @@ module.exports = (socket, io) => {
     });
   });
 
+  // =========================
   // Receive invite
+  // =========================
   socket.on("addInvite", ({ id, username, userAvatar, game, session }) => {
     // Generate ignore list
     const ignore = filterList(socket.playerID, "ignore");
@@ -193,6 +215,10 @@ module.exports = (socket, io) => {
     }
   });
 
+
+  // ========================
+  // Accept Invite
+  // ========================
   socket.on("acceptInvite", (session, arr) => {
     if (io.sockets.adapter.rooms.has(session)) {
       io.to(socket.userRoom).emit("joinLobby", session);
@@ -203,11 +229,13 @@ module.exports = (socket, io) => {
     io.to(socket.userRoom).emit("deleteItem", { arr: arr, type: "invite" });
   });
 
-  // ========================================
-  //               Lobbies
-  // ========================================
+  // ======================================================================================= //
+  //                                          lobbies                                        //
+  // ======================================================================================= //
 
+  // ======================
   // Get game lobbies
+  // ======================
   socket.on("getLobbies", (game) => {
     const lobbies = io.sockets.adapter.rooms.get(game + " Lobbies");
     io.to(socket.userRoom).emit("Lobbies", lobbies);
@@ -215,27 +243,25 @@ module.exports = (socket, io) => {
 
   socket.on("checkLobby", (lobby) => {
     if (io.sockets.adapter.rooms.has(lobby)) {
-      
+      socket.to(lobby).emit("requestInfo");
     } else {
       // TODO: finish this logic
-      io.to(socket.userRoom)
+      io.to(socket.userRoom).emit("noLobby");
     }
-  })
+  });
 
+  // =================
   // Make a lobby
+  // =================
   socket.on("makeLobby", ({ host, game, limit, public, headline }) => {
-    addLobby(host, game, limit, public, headline, (bool, data) => {
+    const gameLobby = uuidV4();
+    addLobby(gameLobby, host, game, limit, public, headline, (bool, data) => {
       if (bool) {
         const gameLobbies = game + " Lobbies";
-        const gameLobby = uuidV4();
         socket.gameLobby = gameLobby;
         socket.join([gameLobby, gameLobbies]);
         io.to(gameLobby).emit("sessionRules", {
           sessionId: sessionRoom,
-          filters: data,
-        });
-        io.to(gameLobbies).emit("gameLobbies", {
-          lobby: gameLobby,
           filters: data,
         });
       } else {
@@ -246,33 +272,49 @@ module.exports = (socket, io) => {
     });
   });
 
+  // =========================================================================
+  // Sent from when client accepts an invite to or joins an active lobby
+  // =========================================================================
   socket.on("joinLobby", (session) => {
     socket.session = session;
     socket.join(session);
     io.to(session).emit("userJoined", {
       id: socket.userRoom,
       username: socket.userRoom,
-      joined: new Date()
-    })
+      joined: new Date(),
+    });
   });
 
+  
+  // ============================
+  // Leave Lobby
+  // ============================
   socket.on("leaveLobby", () => {
     socket.leave(socket.session);
-    io.to(session).emit("userLeft", {
+    io.to(socket.session).emit("userLeft", {
       id: socket.userRoom,
       username: socket.userRoom,
-    })
+    });
+    socket.session = null;
   });
 
-  // ======================================
-  //          Inside Lobbies/Chat
-  // ======================================
 
-  //
+  
+  // ======================================================================================= //
+  //                                  Inside Lobbies/Chat                                    //
+  // ======================================================================================= //
+ 
+ 
+  // ===============================================================================
+  // If Client is previous host this gets called and removes him getting requests
+  // ===============================================================================
   socket.on("changeHost", (game) => {
-    socket.leave(socket.session);
+    socket.leave(game);
   });
 
+  // =================================================================================
+  //  Grabs previous host and new host(client) and updates the db. P
+  // ===========================================================
   socket.on("newHost", ({ host, preHost, session, game }) => {
     changeHost(session, host, (bool) => {
       if (bool) {
@@ -293,15 +335,11 @@ module.exports = (socket, io) => {
   });
 
   // ====================================
-  //        Disconnect and displayErrors
+  //             Disconnect
   // ====================================
 
   socket.on("disconnect", () => {
     console.log(`${socket.id} socket disconnected`);
     //  function for turning sessionID, socketID, and status to null
-  });
-
-  socket.on("connect_displayError", (err) => {
-    console.log(`connect_displayError due to ${err.message}`);
   });
 };

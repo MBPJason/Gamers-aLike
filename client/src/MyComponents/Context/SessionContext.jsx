@@ -7,7 +7,7 @@ const SessionContext = React.createContext({
   lobby: String,
   filters: Object,
   host: Object,
-  users: Array,
+  users: Map,
 });
 
 export function SessionInfo() {
@@ -18,14 +18,14 @@ export function SessionProvider({ children }) {
   const socket = useSocket();
   const [lobby, setLobby] = useLocalStorage("current-lobby");
   const [filters, setFilters] = useState("");
-  const [users, setUsers] = useLocalStorage([]);
+  const [users, setUsers] = useState();
   const [host, setHost] = useState("");
 
   const leaveLobby = () => {
-    setHost("");
-    setLobby(lobby);
-    setFilters(filters);
-    setUsers(users);
+    setHost(null);
+    setLobby(null);
+    setFilters(null);
+    setUsers(null);
   };
 
   useEffect(() => {
@@ -39,12 +39,31 @@ export function SessionProvider({ children }) {
     socket.on("setHost", (host) => {
       setHost(host);
     });
+    
     socket.on("setLobby", ({ lobby, filters, users }) => {
       setLobby(lobby);
       setFilters(filters);
       setUsers(users);
     });
-    socket.on("userJoined", () => {});
+    
+    socket.on("userJoined", (user) => {
+      if (host === userSessionId) {
+        socket.emit("sendInfo", {
+          newUser: user,
+          lobby: lobby,
+          filters: filters,
+          users: users,
+        });
+      }
+
+      if (!users.has(user.id)) {
+        setUsers(new Map(users.set(user.id, user)));
+      }
+    });
+
+    socket.on("userLeft", (user) => {
+      setUsers(new Map(users.delete(user.id)))
+    })
   }, []);
 
   return (
