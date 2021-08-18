@@ -15,20 +15,21 @@ const hopOnline = async (sessionID, userID, user, status, cb) => {
   cb(sessionData, playersList._id);
 };
 
-const addLobby = (host, game, limit, public, headline, cb) => {
+const addLobby = (lobbyID, host, game, limit, public, headline, cb) => {
   db.Session.create(
     {
+      LobbyID: lobbyID,
       Host: host,
       Game: game,
       UserLimit: limit,
       Public: public,
       Headline: headline,
     },
-    (err, session) => {
+    (err, lobby) => {
       if (err) {
         cb(false);
-      } else if (session) {
-        cb(true, session);
+      } else if (lobby) {
+        cb(true, lobby);
       }
     }
   );

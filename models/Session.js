@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const SessionSchema = new Schema({
-  SessionID: { type: String, trim: true },
+  LobbyID: { type: String, trim: true },
+  Game: { type: String, trim: true },
   Host: {
     type: Schema.Types.ObjectId,
     ref: "User",
