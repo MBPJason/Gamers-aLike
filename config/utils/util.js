@@ -45,6 +45,14 @@ const changeHost = async (session, host, cb) => {
   });
 };
 
+const grabInvites = async (sessionID) => {
+  const { invites, friendsInvites } = await db.Online.findOne({
+    sessionID: sessionID,
+  });
+
+  return { invites: invites, friendsInvites: friendsInvites };
+};
+
 const filterList = async (playerID, type) => {
   let arr = [];
   const list = await db.Players.findById(playerID, (err, players) => {
@@ -82,11 +90,11 @@ const filterList = async (playerID, type) => {
 const updateArr = async (id, arr, type, cb) => {
   // If array is for invites then just normal update it
   if (type === "invites" || "friendsInvites") {
-    const user = await db.Online.findOneAndUpdate(
+    await db.Online.findOneAndUpdate(
       { sessionID: id },
       { [type]: arr }
     );
-    cb(true, user.invites);
+    cb(true);
   } else {
     // If array isn't for invites then grab sessionIds and se
     db.Online.findOne({ sessionID: id }, async (err, user) => {
@@ -110,7 +118,7 @@ const updateArr = async (id, arr, type, cb) => {
 
       user[type] = userIDs;
       user = await user.save();
-      cb(true, user[type]);
+      cb(true);
     });
   }
 };

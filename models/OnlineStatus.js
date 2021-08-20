@@ -55,9 +55,8 @@ OnlineSchema.virtual("sessionInfo").get(function () {
 OnlineSchema.virtual("quickInfo").get(function () {
   return {
     sessionID: this.sessionID,
-    username: this.user.username,
-    userAvatar: this.user.userAvatar,
-    currentGame: player.user.currentGame,
+    user: this.user,
+    currentGame: this.currentGame,
     status: this.status,
   };
 });

@@ -75,13 +75,13 @@ module.exports = {
   },
 
   // Auth Split Token Method
-  async authJWT(user, expire) {
+  async authJWT({ user }, expire) {
     // Try catch block for server side errors and function errors
     try {
       // Check if user parameter is was given
       if (user) {
         // Pulls expire parameter or sets jwt to last for a day
-        const expiresIn = expire || "1d"; 
+        const expiresIn = expire || "1d";
 
         if (!user.userID) {
           throw new Error("userID was not included in the user object");

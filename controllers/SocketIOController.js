@@ -25,13 +25,10 @@ module.exports = (socket, io) => {
    * "io.sockets.adapter.rooms": returns maps. Use "...rooms.has" to look for a map, or "...rooms.get" to get info from the map
    */
 
-
-
   // ======================================================================================= //
   //                                          Online                                         //
   // ======================================================================================= //
-  
-  
+
   /** MAIN FUNCTION
    * Gets called when the website loads and there is a user provided
    * Gets called when there is a update to the user state on the client side
@@ -56,14 +53,16 @@ module.exports = (socket, io) => {
     const fList = [];
     const fListRooms = []; // List of friends socket rooms
     const pmList = [];
-    const invList = [];
-    const onlineF = filterList(playerID, "friends");
-    const onlinePM = filterList(playerID, "playersMet");
+    const {invites, friendsInvites} = await grabInvites(socket.userRoom);
+    const onlineF = await filterList(socket.playerID, "friends");
+    const onlinePM = await filterList(socket.playerID, "playersMet");
+    console.log(onlineF);
+    console.log(onlinePM);
 
     // Check if an array of friends users was returned
     if (onlineF !== undefined || null) {
       // If not loop through array given and check for online room and hidden status
-      await onlineF.forEach((friend) => {
+      onlineF.forEach((friend) => {
         if (io.sockets.adapter.rooms.has(friend.sessionID)) {
           // If room exists throw to client as is
           fList.push(friend);
@@ -76,9 +75,9 @@ module.exports = (socket, io) => {
         fListRooms.push(item.sessionID);
       });
       // Send list of users
-      io.to(socket.userRoom).emit("getFriends", fList);
+      socket.emit("getFriends", fList);
     } else {
-      io.to(socket.userRoom).emit("getFriends", []);
+      socket.emit("getFriends", []);
     }
 
     // =====================================
@@ -97,7 +96,7 @@ module.exports = (socket, io) => {
     // =================================================================
     if (onlinePM !== undefined || null) {
       // If not loop through array given and check for online room and hidden status
-      await onlinePM.forEach((player) => {
+      onlinePM.forEach((player) => {
         if (io.sockets.adapter.rooms.has(player.sessionID)) {
           // If room exists throw to client the player
           pmList.push(player);
@@ -108,64 +107,42 @@ module.exports = (socket, io) => {
         }
       });
       // Send list of users
-      io.in(socket.userRoom).emit("getPlayersMet", pmList);
+      socket.emit("getPlayersMet", pmList);
     } else {
-      io.in(socket.userRoom).emit("getPlayersMet", []);
+      socket.emit("getPlayersMet", []);
     }
 
     // =========================
     // Check for invites
     // =========================
-    if (invitesList.length === 0) {
-      // If none send up empty array
-      io.in(socket.userRoom).emit("getInvites", []);
-    } else {
-      // If there is something, loop through and check for a room
-      await invitesList.forEach((invite) => {
-        if (io.sockets.adapter.rooms.has(invite.session)) {
-          // Find a room and push it new array
-          invList.push(invite);
+    if (invites.length > 0) {
+      invites.forEach((invite, i) => {
+        if (!io.sockets.adapter.rooms.has(invite.session)) {
+          invites.splice(i, 1)
         }
-      });
-      // Send active invites array to client
-      io.in(socket.userRoom).emit("getInvites", invList);
-      // Set server arr value to active arr list and then update Online Schema invites arr
-      invitesList = invList;
-      updateArr(socket.userRoom, invList, "invites");
+      })
     }
 
     const clients = io.sockets.adapter.rooms.get(online);
     // Test line of code. TODO: Remove from production
-    io.in(socket.userRoom).emit("usersOnline", clients);
+    socket.emit("usersOnline", clients);
   });
   // --------------------------------- END OF ONLINE LISTENER --------------------------------- //
-
 
   // ==========================================================================
   // Client pops a user out of the array type and send the new array down
   // ==========================================================================
   socket.on("deleteItem", ({ arr, type }) => {
-    updateArr(socket.userRoom, arr, type, (bool, data) => {
-      if (bool) {
-        if (type == "invites") {
-          invitesList = data;
-        } else {
-          friendsInvitesList = data;
-        }
-
-        io.to(socket.userRoom).emit("displaySuccess", "Removed");
-      } else {
-        io.to(socket.userRoom).emit("displayError", "Couldn't remove user");
-      }
+    updateArr(socket.userRoom, arr, type, (bool) => {
+      bool
+        ? socket.emit("displaySuccess", "Removed")
+        : socket.emit("displayError", "Couldn't remove user");
     });
   });
-
-
 
   // ======================================================================================= //
   //                                          Invites                                        //
   // ======================================================================================= //
-
 
   // ==========================
   // Send Session Invite
@@ -194,7 +171,7 @@ module.exports = (socket, io) => {
     });
 
     if (check === false) {
-      io.in(id).emit("displaySuccess", "Invite sent");
+      io.to(id).emit("displaySuccess", "Invite sent");
     } else {
       addInvite(
         socket.userRoom,
@@ -205,7 +182,7 @@ module.exports = (socket, io) => {
         session,
         (bool, data) => {
           if (bool) {
-            io.to(socket.userRoom).emit("getInvites", data);
+            socket.emit("getInvites", data);
             io.to(id).emit("displaySuccess", "Invite sent");
           } else {
             io.to(id).emit("displayError", "Couldn't send invite");
@@ -215,18 +192,17 @@ module.exports = (socket, io) => {
     }
   });
 
-
   // ========================
   // Accept Invite
   // ========================
   socket.on("acceptInvite", (session, arr) => {
     if (io.sockets.adapter.rooms.has(session)) {
-      io.to(socket.userRoom).emit("joinLobby", session);
+      socket.emit("joinLobby", session);
     } else {
-      io.to(socket.userRoom).emit("displayError", "Lobby is closed");
+      socket.emit("displayError", "Lobby is closed");
     }
 
-    io.to(socket.userRoom).emit("deleteItem", { arr: arr, type: "invite" });
+    socket.emit("deleteItem", { arr: arr, type: "invite" });
   });
 
   // ======================================================================================= //
@@ -238,7 +214,7 @@ module.exports = (socket, io) => {
   // ======================
   socket.on("getLobbies", (game) => {
     const lobbies = io.sockets.adapter.rooms.get(game + " Lobbies");
-    io.to(socket.userRoom).emit("Lobbies", lobbies);
+    socket.emit("Lobbies", lobbies);
   });
 
   socket.on("checkLobby", (lobby) => {
@@ -246,7 +222,7 @@ module.exports = (socket, io) => {
       socket.to(lobby).emit("requestInfo");
     } else {
       // TODO: finish this logic
-      io.to(socket.userRoom).emit("noLobby");
+      socket.emit("noLobby");
     }
   });
 
@@ -285,7 +261,6 @@ module.exports = (socket, io) => {
     });
   });
 
-  
   // ============================
   // Leave Lobby
   // ============================
@@ -298,13 +273,10 @@ module.exports = (socket, io) => {
     socket.session = null;
   });
 
-
-  
   // ======================================================================================= //
   //                                  Inside Lobbies/Chat                                    //
   // ======================================================================================= //
- 
- 
+
   // ===============================================================================
   // If Client is previous host this gets called and removes him getting requests
   // ===============================================================================
