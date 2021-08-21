@@ -43,7 +43,7 @@ const UserSchema = new Schema(
     },
     Online: {
       type: Schema.Types.ObjectId,
-      ref: "Discord",
+      ref: "Online",
     },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }

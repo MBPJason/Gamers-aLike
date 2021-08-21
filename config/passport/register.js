@@ -125,7 +125,7 @@ const localMakeUser = async function (
       Online: Online._id,
     });
     console.log("Attaching required schemas to local user");
-    
+
     // Update Discord table if user provides a DiscordID
     if (DiscordID) {
       await db.Discord.findByIdAndUpdate(DiscordInfo._id, {
